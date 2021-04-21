@@ -1,5 +1,7 @@
+[![img](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
+
 ---
-description: bcrs-entities-create-ui readme
+description: BC Registries and Online Services SRE team's application
 ignore: true
 ---
 
@@ -7,30 +9,19 @@ ignore: true
 
 TBD.
 
-## Usage
-
-### Local Development
-
-1. make sure you have the `.env` file, required contents can be found in `.env.production`
-2. run docker
-
-## Deployment (OpenShift)
-
-TBD
-
 ## Getting Help or Reporting an Issue
 
-To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/bcrs-entities-create-ui/issues/).
+To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/bcregistry-sre/issues/).
 
 ## How to Contribute
 
 If you would like to contribute, please see our [CONTRIBUTING](CONTRIBUTING.md) guidelines.
 
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). 
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md).
 By participating in this project you agree to abide by its terms.
 
 ## Issues/Suggestions
-Make Suggestions/Issues [here!](https://github.com/bcgov/bcrs-entities-create-ui/issues/new)
+Make Suggestions/Issues [here!](https://github.com/bcgov/bcregistry-sre/issues/new)
 Issues are [markdown supported](https://guides.github.com/features/mastering-markdown/).
 
 ## License

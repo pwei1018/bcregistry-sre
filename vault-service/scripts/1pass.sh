@@ -7,28 +7,19 @@
 usage() {
   cat <<-EOF
   A helper script to get the secrcts from 1password' vault.
-  Usage: ./1pass.sh [-h -d <subdomainName> -u <accountName>]
-                      -k <secretKey>
-                      -p <masterPassword>
-                      -m <method>
-                      -e <environment(s)>
-                      -v <vaultDetails>
-                      -a <appName>
-                      -n <namespace>
-                      -s <skip>
-                      -f <frontend>
+  Usage: ./1pass.sh [-h ]
+                    -m <method>
+                    -e <environment(s)>
+                    -v <vaultDetails>
+                    -a <appName>
+                    -n <namespace>
+                    -f <frontend>
 
   OPTIONS:
   ========
     -h prints the usage for the script.
-    -d The subdomain name of the 1password account, default is registries.1password.ca.
-    -u The account name of the 1password account, default is bcregistries.devops@gmail.com.
-    -k The secret key of the 1password account.
-    -p The master password of the 1password account.
     -m The methodof using the vaults.
         secret - set vault values to Openshift secrets
-        env - set vault values to github action environment
-        compare - compare two environments vault values
     -e The environment(s) of the vault, for example pytest/dev/test/prod or "dev test".
     -a Openshift application name, for example: auth-api-dev
     -n Openshift namespace name, for example: 1rdehl-dev

@@ -1,0 +1,31 @@
+name: Turn on downpage
+
+on:
+  schedule:
+    - cron: "40 11 25 04 *"
+  workflow_dispatch:
+    inputs:
+      environement:
+        description: "Environment (prod/test/prod)"
+        required: true
+        default: "prod"
+jobs:
+  downpage-on:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set env by input
+        run: |
+          echo "TAG_NAME=${{ github.event.inputs.environement }}" >> $GITHUB_ENV
+      - name: Set env
+        if: env.TAG_NAME == ''
+        run: |
+          echo "TAG_NAME=prod" >> $GITHUB_ENV
+      - name: Login Openshift and Turn on downpage
+        run: |
+          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
+          oc patch route bc-registry-search-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
+          oc patch route bc-registry-namerequest-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
+          oc patch route bc-registry-business-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
+          oc patch route bc-registry-auth-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod

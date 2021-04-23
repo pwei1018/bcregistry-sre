@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
----
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
@@ -23,75 +22,16 @@ objects:
     metadata:
       name: ${NAME}
       labels:
-        app: ${NAME}
+        name: ${NAME}
+        environment: ${TAG}
     rules:
       - verbs:
-        - create
+          - get
+          - list
+          - watch
         apiGroups:
-        - build.openshift.io
-        - ''
+          - ''
         resources:
-        - buildconfigs/instantiate
-      - verbs:
-          - create
-          - get
-          - list
-          apiGroups:
-          - build.openshift.io
-          - ''
-          resources:
-          - buildconfigs
-          - builds
-      - verbs:
-          - get
-          - list
-          apiGroups:
-          - image.openshift.io
-          - ''
-          resources:
-          - imagestreamimages
-          - imagestreams
-      - verbs:
-          - create
-          - get
-          - list
-          apiGroups:
-          - image.openshift.io
-          - ''
-          resources:
-          - imagestreamtags
-      - verbs:
-          - get
-          - list
-          apiGroups:
-          - image.openshift.io
-          - ''
-          resources:
-          - imagestreams
-      - verbs:
-          - get
-          - update
-          apiGroups:
-          - ''
-          - image.openshift.io
-          resources:
-          - imagestreams/layers
-      - verbs:
-          - get
-          - list
-          - watch
-          apiGroups:
-          - build.openshift.io
-          - ''
-          resources:
-          - builds/log
-      - verbs:
-          - get
-          - list
-          - watch
-          apiGroups:
-          - ''
-          resources:
           - pods
       - verbs:
           - create
@@ -99,9 +39,9 @@ objects:
           - deletecollection
           - patch
           - update
-          apiGroups:
+        apiGroups:
           - ''
-          resources:
+        resources:
           - pods/exec
       - verbs:
           - get
@@ -109,10 +49,10 @@ objects:
           - patch
           - update
           - watch
-          apiGroups:
+        apiGroups:
           - ''
           - apps.openshift.io
-          resources:
+        resources:
           - deploymentconfigs
 
   - apiVersion: authorization.openshift.io/v1
@@ -120,15 +60,16 @@ objects:
     metadata:
       name: ${NAME}
       labels:
-        app: ${NAME}
+        name: ${NAME}
+        environment: ${TAG}
     subjects:
       - kind: ServiceAccount
         name: ${NAME}
-        namespace: ${NAMESPACE}-tools
+        namespace: ${OPS_NAMESPACE}-tools
     roleRef:
       kind: Role
       name: ${NAME}
-      namespace: ${NAMESPACE}
+      namespace: ${NAMESPACE}-${TAG}
       apiGroup: authorization.openshift.io
 parameters:
   - displayName: Namespace
@@ -136,7 +77,13 @@ parameters:
       The namespace where all of role are stored.
     name: NAMESPACE
     required: true
-    value: d893f6
+    value: 73c567
+
+  - name: TAG
+    displayName: Environment TAG name
+    description: The TAG name for this environment, e.g., dev, test, prod
+    value: dev
+    required: true
 
   - displayName: Credentials Name
     description: |
@@ -145,3 +92,10 @@ parameters:
     name: NAME
     required: true
     value: github-cicd
+
+  - displayName: OPS Namespace
+    description: |
+      The namespace where all of role are stored.
+    name: OPS_NAMESPACE
+    required: true
+    value: 73c567

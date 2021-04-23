@@ -28,18 +28,52 @@ test:  ## Unit testing
 # expects export TAG_NAME="dev/test/prod"
 # expects export OPS_REPOSITORY=""                                                        #
 #################################################################################
-cd: build push ## CD flow
+cd: ## CD flow
+ifeq ($(TAG_NAME), test)
+cd: update-env
+	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):dev $(DOCKER_NAME):$(TAG_NAME)
+else ifeq ($(TAG_NAME), prod)
+cd: update-env
+	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):$(TAG_NAME) $(DOCKER_NAME):$(TAG_NAME)-$(shell date +%F)
+	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):test $(DOCKER_NAME):$(TAG_NAME)
+else
+TAG_NAME=dev
+cd: build tag
+endif
 
 build: ## Build the docker container
 	docker build . -t $(DOCKER_NAME) \
-		--build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
-		--build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ") \
+	    --platform linux/amd64 \
+	    --build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
+	    --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+build-nc: ## Build the docker container without caching
+	docker build --no-cache -t $(DOCKER_NAME) .
 
 REGISTRY_IMAGE=$(OPENSHIFT_DOCKER_REGISTRY)/$(OPENSHIFT_REPOSITORY)-tools/$(DOCKER_NAME)
 push: #build ## Push the docker container to the registry & tag latest
 	@echo "$(OPENSHIFT_SA_TOKEN)" | docker login $(OPENSHIFT_DOCKER_REGISTRY) -u $(OPENSHIFT_SA_NAME) --password-stdin ;\
     docker tag $(DOCKER_NAME) $(REGISTRY_IMAGE):latest ;\
     docker push $(REGISTRY_IMAGE):latest
+
+tag: push ## tag image
+	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):latest $(DOCKER_NAME):$(TAG_NAME)
+
+IMAGESHA=`oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/$(DOCKER_NAME):$(TAG_NAME) -o=jsonpath="{.image.metadata.name}"`
+image-sha: ## get Image SHA
+	echo "::set-output name=imagesha::$(IMAGESHA)"
+
+update-version: ## update versions file
+	yq eval '.$(TAG_NAME)[].commitSha = "$(shell git rev-parse --short HEAD)" | \
+			 .$(TAG_NAME)[].digest = "$(IMAGE_SHA)" | \
+		     .$(TAG_NAME)[].version= "foobar" | \
+		 	 .$(TAG_NAME)[].branch = "$(shell git rev-parse --abbrev-ref HEAD)" | \
+			 .$(TAG_NAME)[].buildDate = "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"' \
+			-i 'devops/versions.yaml' ;\
+	git config --local user.email "action@github.com" ;\
+	git config --local user.name "GitHub Action" ;\
+	git commit -am "Update version for $(TAG_NAME)" ;\
+	git push origin
 
 #################################################################################
 # Self Documenting Commands                                                     #

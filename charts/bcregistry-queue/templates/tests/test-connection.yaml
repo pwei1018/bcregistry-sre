@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "bcregistry-queue.fullname" . }}-test-connection"
+  labels:
+    {{- include "bcregistry-queue.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test-success
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "bcregistry-queue.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

@@ -16,6 +16,23 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Expand the db miagration name of the chart.
+*/}}
+{{- define "bcregistry-api.dbMiagrationName" -}}
+{{- .Release.Name -}}-db-miagration-{{- .Values.environment -}}
+{{- end -}}
+
+{{/*
+Expand the db miagration name of the chart.
+*/}}
+{{- define "bcregistry-api.secretName" -}}
+{{- .Release.Name -}}-{{- .Values.environment -}}-secret
+{{- end -}}
+
+{{/*
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "bcregistry-api.labels" -}}
@@ -47,7 +64,11 @@ Create the name of the service account to use
 image full path
 */}}
 {{- define "bcregistry-api.image" -}}
-{{- printf "%s/%s:%s-%s" .Values.image.repository .Values.image.namespace (include "bcregistry-api.fullname" .) .Values.environment }}
+{{- if .Values.image.digest -}}
+    {{- printf "%s/%s/%s@%s" .Values.image.repository .Values.image.namespace (include "bcregistry-api.name" .) .Values.image.digest }}
+{{- else -}}
+    {{- printf "%s/%s/%s:%s" .Values.image.repository .Values.image.namespace (include "bcregistry-api.name" .) .Values.environment }}
+{{- end -}}
 {{- end -}}
 
 {{/*

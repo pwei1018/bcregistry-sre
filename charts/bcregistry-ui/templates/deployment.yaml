@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bcregistry-ui.fullname" . }}
+  labels:
+    {{- include "bcregistry-ui.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "bcregistry-ui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      name: {{ include "bcregistry-ui.fullname" . }}
+      labels:
+        {{- include "bcregistry-ui.labels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: web-ui-configuration
+          configMap:
+            name: {{ include "bcregistry-ui.fullname" . }}-ui-configuration
+            defaultMode: 420
+        - name: keycloak-configuration
+          configMap:
+            name: {{ include "bcregistry-ui.fullname" . }}-keycloak-config
+            defaultMode: 420
+      containers:
+        - name: {{ include "bcregistry-ui.fullname" . }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.containerPort }}
+              protocol: {{ .Values.ports.protocol }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          terminationMessagePolicy: File
+          terminationMessagePath: /dev/termination-log
+          image: {{ include "bcregistry-ui.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: web-ui-configuration
+              readOnly: true
+              mountPath: /app/config
+            - name: keycloak-configuration
+              readOnly: true
+              mountPath: /app/config/kc
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      {{- if .Values.securityContext }}
+      {{- if .Values.securityContext.runAsUser }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        {{- if .Values.securityContext.runAsGroup }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

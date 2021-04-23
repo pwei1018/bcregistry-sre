@@ -7,13 +7,13 @@
 usage() {
   cat <<-EOF
   A helper script to get the secrcts from 1password' vault.
-  Usage: ./1pass.sh [-h ]
-                    -m <method>
-                    -e <environment(s)>
-                    -v <vaultDetails>
-                    -a <appName>
-                    -n <namespace>
-                    -f <frontend>
+  Usage: ./1pass.sh [-h <help>
+                     -m <method>
+                     -e <environment(s)>
+                     -v <vaultDetails>
+                     -a <appName>
+                     -n <namespace>
+                     -f <frontend>
 
   OPTIONS:
   ========
@@ -50,14 +50,10 @@ exit
 # -----------------------------------------------------------------------------------------------------------------
 # Initialization:
 # -----------------------------------------------------------------------------------------------------------------
-while getopts h:a:d:u:k:p:v:m:e:n:r:f: FLAG; do
+while getopts h:a:v:m:e:n:r:f: FLAG; do
   case $FLAG in
     h ) usage ;;
     a ) APP_NAME=$OPTARG ;;
-    d ) DOMAIN_NAME=$OPTARG ;;
-    u ) USERNAME=$OPTARG ;;
-    k ) SECRET_KEY=$OPTARG ;;
-    p ) MASTER_PASSWORD=$OPTARG ;;
     v ) VAULT=$OPTARG ;;
     m ) METHOD=$OPTARG ;;
     e ) ENVIRONMENT=$OPTARG ;;
@@ -81,19 +77,6 @@ if [[ " ${deployment_true[@]} " =~ " ${DEPLOYMENT} " ]]; then
   DEPLOYMENT=true
 else
   DEPLOYMENT=false
-fi
-
-if [ -z "${DOMAIN_NAME}" ]; then
-  DOMAIN_NAME=registries.1password.ca
-fi
-
-if [ -z "${USERNAME}" ]; then
-  USERNAME=bcregistries.devops@gmail.com
-fi
-
-if [ -z "${SECRET_KEY}" ] || [ -z "${MASTER_PASSWORD}" ]; then
-  echo -e \\n"Missing parameters - secret key or master password"\\n
-  usage
 fi
 
 if [ -z "${ENVIRONMENT}" ]; then
@@ -147,8 +130,10 @@ fi
 # Login to 1Password../s
 # Assumes you have installed the OP CLI and performed the initial configuration
 # For more details see https://support.1password.com/command-line-getting-started/
-eval $(echo "${MASTER_PASSWORD}" | op signin ${DOMAIN_NAME} ${USERNAME} ${SECRET_KEY})
+op_session=$(echo "${MASTER_PASSWORD}" | op signin ${DOMAIN_NAME} ${USERNAME} ${SECRET_KEY} | grep export | awk -F\" '{print $2}')
+export OP_SESSION_registries="$op_session"
 
+random_name=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
 num=0
 for env_name in "${envs[@]}"; do
 
@@ -169,7 +154,7 @@ for env_name in "${envs[@]}"; do
       # single section. The label is the key, and the value is the value.
       ev=`op get item --vault=$(_vault_json .vault) ${env_name}`
 
-      touch t$num.txt
+      touch t$num-$random_name.txt
 
       # Convert to base64 for multi-line secrets.
       # The schema for the 1Password type uses t as the label, and v as the value.
@@ -178,18 +163,18 @@ for env_name in "${envs[@]}"; do
               echo ${row} | base64 --decode | jq -r ${1}
           }
 
-          echo "${_vault_json_app}: $(_envvars '.t')" >> t$num.txt
+          echo "${_vault_json_app}: $(_envvars '.t')" >> t$num-$random_name.txt
 
           if [[ ${env_name} == ${ENVIRONMENT} ]]; then
             # Frontend applications will create a keycloak json file
             if [ $(_vault_json '.vault') = "keycloak" ] && [ ${FRONTEND} = true ]; then
               if [[ ${env_name} == ${ENVIRONMENT} ]]; then
-                echo "$(_envvars '.t')=$(_envvars '.v')"  >> tkeycloak.txt
+                echo "$(_envvars '.t')=$(_envvars '.v')"  >> tkeycloak-$random_name.txt
               fi
             else
               case  ${METHOD}  in
                 secret)
-                  echo "$(_envvars '.t')=$(_envvars '.v')" >> tsecret.txt
+                  echo "$(_envvars '.t')=$(_envvars '.v')" >> tsecret-$random_name.txt
                   ;;
                 env)
                   echo "Setting environment variable $(_envvars '.t')"
@@ -211,8 +196,8 @@ case  ${METHOD}  in
     # Compare vaults from different environments
     env_true=(test prod)
     if [[ " ${env_true[@]} " =~ " ${ENVIRONMENT} " ]]; then
-      result=$(comm -23 <(sort t1.txt) <(sort t2.txt))
-      result2=$(comm -23 <(sort t2.txt) <(sort t1.txt))
+      result=$(comm -23 <(sort t1-$random_name.txt) <(sort t2-$random_name.txt))
+      result2=$(comm -23 <(sort t2-$random_name.txt) <(sort t1-$random_name.txt))
 
       if [[ ! -z ${result} ]]; then
         matched=false
@@ -228,44 +213,23 @@ case  ${METHOD}  in
     fi
 
     # check the duplicat key(s) from vaults
-    duplicate_key_check=$(sort tsecret.txt | grep -v -P '^\s*#' | sed -E 's/(.*)=.*/\1/' | uniq -d | xargs)
+    duplicate_key_check=$(sort tsecret-$random_name.txt | grep -v -P '^\s*#' | sed -E 's/(.*)=.*/\1/' | uniq -d | xargs)
     if [[ ! -z ${duplicate_key_check} ]]; then
       warning_message="Duplicate key(s) found in 1password. ${duplicate_key_check}"
       echo ::warning "::$warning_message"
-      sort tsecret.txt | uniq > tsecret1.txt
-      cp tsecret1.txt tsecret.txt
+      sort tsecret-$random_name.txt | uniq > tsecret1-$random_name.txt
+      cp tsecret1-$random_name.txt tsecret-$random_name.txt
     fi
 
     if [[ $matched = true ]]; then
       if [[ ${FRONTEND} = false ]]; then
-        COUNTER_SECRETS=$(oc get secret ${APP_NAME}-secret -n ${NAMESPACE} --no-headers --ignore-not-found | wc -l)
-        if [[ $COUNTER_SECRETS > 0 ]]; then
-          # backup current secrets
-          COMMIT_LABEL=$(oc get secret ${APP_NAME}-secret -n ${NAMESPACE} --label-columns=git-commit --no-headers | awk '{ print $5 " " $6}')
-          if [[ ! -z "${COMMIT_LABEL}" ]]; then
-            # delete duplicate secret
-            oc delete secret ${APP_NAME}-secret-${COMMIT_LABEL} -n ${NAMESPACE}
-            # copy existing secret
-            oc get secret ${APP_NAME}-secret -n ${NAMESPACE} -o yaml|sed "s/name: ${APP_NAME}-secret/name: ${APP_NAME}-secret-${commit_label}/g" | oc apply -f -
-          fi
-
-          oc delete secret ${APP_NAME}-secret -n ${NAMESPACE}
-        fi
-
-        # create application secrets and set label
-        oc create secret generic ${APP_NAME}-secret -n ${NAMESPACE}
-        oc label secret ${APP_NAME}-secret -n ${NAMESPACE} app=${APP_NAME} git-commit=$(git rev-parse --short HEAD)
-
-        COUNTER_SECRETS=$(oc get secrets --selector=app=${APP_NAME} -n ${NAMESPACE} --no-headers --ignore-not-found | wc -l)
-        # keep 3 backup secrets
-        if [[ $COUNTER_SECRETS > 4 ]]; then
-          oldest_secret=($(oc get secrets -n ${NAMESPACE} --selector=app=${APP_NAME} --sort-by=.metadata.creationTimestamp --no-headers -o custom-columns=NAME:.metadata.name))
-          oc delete secret ${oldest_secret} -n ${NAMESPACE}
-        fi
-
-        SECRET_JSON=$(oc create secret generic ${APP_NAME}-secret -n ${NAMESPACE} --from-env-file=./tsecret.txt --dry-run=client -o json)
+        LABELS=$(oc get secret ${APP_NAME}-secret -o jsonpath='{.metadata.labels}' -n ${NAMESPACE})
+        ANNOTATIONS=$(oc get secret ${APP_NAME}-secret -o jsonpath='{.metadata.annotations}' -n ${NAMESPACE})
+        SECRET_JSON=$(oc create secret generic ${APP_NAME}-secret -n ${NAMESPACE} --from-env-file=./tsecret-$random_name.txt --dry-run=client -o json)
         # Set secret key and value from 1password
-        oc get secret ${APP_NAME}-secret -n ${NAMESPACE} -o json | jq ". * $SECRET_JSON" | oc apply -f -
+        echo $SECRET_JSON | oc replace -f -
+        oc patch secret ${APP_NAME}-secret --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$LABELS'}]'
+        oc patch secret ${APP_NAME}-secret --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$ANNOTATIONS'}]'
 
         if [[ ${DEPLOYMENT} = true ]]; then
           # Set environment variable of deployment config
@@ -278,23 +242,33 @@ case  ${METHOD}  in
       else
         # frontend application
         # create keycloak configmap
-        while read -r line; do declare  "$line"; done <tkeycloak.txt
+        # remove existing configmap
+        KEYCLOAK_LABELS=$(oc get configmap ${APP_NAME}-keycloak-config -o jsonpath='{.metadata.labels}' -n ${NAMESPACE})
+        KEYCLOAK_ANNOTATIONS=$(oc get configmap ${APP_NAME}-keycloak-config -o jsonpath='{.metadata.annotations}' -n ${NAMESPACE})
+
+        UI_LABELS=$(oc get configmap ${APP_NAME}-ui-configuration -o jsonpath='{.metadata.labels}' -n ${NAMESPACE})
+        UI_ANNOTATIONS=$(oc get configmap ${APP_NAME}-ui-configuration -o jsonpath='{.metadata.annotations}' -n ${NAMESPACE})
+
+        # read each line of keycloak txt to variables
+        while read -r line; do declare  "$line"; done <tkeycloak-$random_name.txt
 
         KEYCLOAK_JSON=$( jq -n \
                           --arg t1 "$KEYCLOAK_REALMNAME" \
-                          --arg t2 "$KEYCLOAK_BASE_URL" \
+                          --arg t2 "$KEYCLOAK_AUTH_BASE_URL" \
                           --arg t3 "$UI_KEYCLOAK_RESOURCE_NAME" \
                           "$KEYCLOAK_TEMPLATE" )
-        oc create configmap ${APP_NAME}-keycloak-config -n ${NAMESPACE} --from-literal=keycloak.json="$KEYCLOAK_JSON" -o json --dry-run=client | oc apply -f -
+        oc create configmap ${APP_NAME}-keycloak-config -n ${NAMESPACE} --from-literal=keycloak.json="$KEYCLOAK_JSON" -o json --dry-run=client | oc replace -f -
+        oc patch configmap ${APP_NAME}-keycloak-config --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$KEYCLOAK_LABELS'}]'
+        oc patch configmap ${APP_NAME}-keycloak-config--type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$KEYCLOAK_ANNOTATIONS'}]'
 
         # create ui configuraiton configmap
-        UI_CONFIG_JSON=$(oc create configmap ${APP_NAME}-configuration -n ${NAMESPACE} --from-env-file=./tsecret.txt --dry-run=client -o json | jq '.data')
-        oc create configmap ${APP_NAME}-ui-configuration -n ${NAMESPACE} --from-literal=configuration.json="$UI_CONFIG_JSON" -o json --dry-run=client | oc apply -f -
+        UI_CONFIG_JSON=$(oc create configmap ${APP_NAME}-configuration -n ${NAMESPACE} --from-env-file=./tsecret-$random_name.txt --dry-run=client -o json | jq '.data')
+        oc create configmap ${APP_NAME}-ui-configuration -n ${NAMESPACE} --from-literal=configuration.json="$UI_CONFIG_JSON" -o json --dry-run=client | oc replace -f -
+        oc patch configmap ${APP_NAME}-ui-configuratio --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$UI_LABELS'}]'
+        oc patch configmap ${APP_NAME}-ui-configuratio --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$UI_ANNOTATIONS'}]'
       fi
-
-      rm t*.txt
     else
-      rm t*.txt
+      rm t*-$random_name.txt
       exit 1
     fi
 
@@ -302,3 +276,5 @@ case  ${METHOD}  in
 
 esac
 
+rm t*-$random_name.txt
+exit 0

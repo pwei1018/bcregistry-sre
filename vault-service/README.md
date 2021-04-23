@@ -13,7 +13,7 @@ The vault service is an application that can retrive the vault vaules from 1pass
 ## Usage
 
 ```shell
-oc -n "$(OPS_REPOSITORY)-tools" exec dc/bcros-cli -- ./scripts/1pass.sh \
+oc -n "$(OPS_REPOSITORY)-tools" exec dc/vault-service -- ./scripts/1pass.sh \
 		-m "secret" \
 		-e "$(TAG_NAME)" \
 		-a "$(DOCKER_NAME)-$(TAG_NAME)" \

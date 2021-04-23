@@ -1,6 +1,15 @@
 
 FROM ubuntu:20.04
 
+ARG VCS_REF="missing"
+ARG BUILD_DATE="missing"
+
+ENV VCS_REF=${VCS_REF}
+ENV BUILD_DATE=${BUILD_DATE}
+
+LABEL org.label-schema.vcs-ref=${VCS_REF} \
+    org.label-schema.build-date=${BUILD_DATE}
+
 ARG OP_VERSION=1.8.0
 ARG OC_VERSION=4.6
 

@@ -15,9 +15,9 @@ Downpage ui is an application that can prevent users from accessing the BC Regis
 ### Turn on Downpage UI
 oc get route bc-registry-search-dev
 
-oc patch route bc-registry-search-dev --type=merge -p '{"spec": {"to": {"name": "downpage-dev"}}}' -p '{"spec": {"port": {"targetPort": "downpage-dev-tcp"}}}'
+oc patch route bc-registry-search-dev -p '{"spec": {"to": {"name": "search-web-dev"}, "port": {"targetPort": "search-web-dev-tcp"}}}' 
 
 ### Turn off Downpage UI
 oc get route bc-registry-search-dev
 
-oc patch route bc-registry-search-dev --type=merge -p '{"spec": {"to": {"name": "search-web-dev"}}}' -p '{"spec": {"port": {"targetPort": "search-web-dev-tcp"}}}'
+oc patch route bc-registry-search-dev -p '{"spec": {"to": {"name": "downpage-dev"}, "port": {"targetPort": "downpage-dev-tcp"}}}'

@@ -9,6 +9,9 @@ ignore: true
 
 TBD.
 
+To work with this repo:
+```gh repo fork https://github.com/bcgov/bcregistry-sre```
+
 ## Getting Help or Reporting an Issue
 
 To report bugs/issues/feature requests, please file an [issue](https://github.com/bcgov/bcregistry-sre/issues/).

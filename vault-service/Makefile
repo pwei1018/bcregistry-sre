@@ -1,8 +1,8 @@
 .PHONY: setup
 .PHONY: ci cd
 
-PROJECT_NAME:=bcros-cli
-DOCKER_NAME:=bcros-cli
+PROJECT_NAME:=vault-service
+DOCKER_NAME:=vault-service
 
 #################################################################################
 # COMMANDS -- Setup                                                             #
@@ -25,7 +25,7 @@ test:  ## Unit testing
 # expects export OPENSHIFT_SA_NAME="$(oc whoami)"
 # expects export OPENSHIFT_SA_TOKEN="$(oc whoami -t)"
 # expects export OPENSHIFT_REPOSITORY=""
-# expects export TAG_NAME="dev/test"
+# expects export TAG_NAME="dev/test/prod"
 # expects export OPS_REPOSITORY=""                                                        #
 #################################################################################
 cd: build push ## CD flow

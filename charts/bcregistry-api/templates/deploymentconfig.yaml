@@ -1,0 +1,86 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: {{ include "bcregistry-api.fullname" . }}
+  labels:
+    {{- include "bcregistry-api.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+      maxUnavailable: {{ .Values.rolling.maxUnavailable }}
+      maxSurge: {{ .Values.rolling.maxSurge }}
+      {{- if .Values.migrations.enabled }}
+      pre:
+        failurePolicy: Abort
+        execNewPod:
+          command:
+            - {{ .Values.migrations.command }}
+          containerName: {{ include "bcregistry-api.fullname" . }}
+      {{- end }}
+    {{- with .Values.resources }}
+    resources:
+      {{- toYaml .Values.resources | nindent 4 }}
+    {{- end }}
+    activeDeadlineSeconds: 21600
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - {{ include "bcregistry-api.fullname" . }}
+        from:
+          kind: ImageStreamTag
+          namespace:  {{ .Values.image.namespace }}
+          name: "{{ include "bcregistry-api.name" . }}:{{ .Values.environment }}"
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    {{- include "bcregistry-api.selectorLabels" . | nindent 4 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+      {{- include "bcregistry-api.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "bcregistry-api.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "bcregistry-api.fullname" . }}
+          securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+          image: {{ include "bcregistry-api.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.args }}
+          args:
+          {{- toYaml . | nindent 12 }}
+          {{ end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.containerPort }}
+              protocol: {{ .Values.ports.protocol }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+

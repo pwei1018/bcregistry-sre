@@ -10,7 +10,7 @@ ENV BUILD_DATE=${BUILD_DATE}
 LABEL org.label-schema.vcs-ref=${VCS_REF} \
     org.label-schema.build-date=${BUILD_DATE}
 
-ARG OP_VERSION=1.8.0
+ARG OP_VERSION=1.10.3
 ARG OC_VERSION=4.6
 
 RUN apt-get update && apt-get install -y curl unzip jq && \

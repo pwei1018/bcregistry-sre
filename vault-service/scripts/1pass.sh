@@ -264,8 +264,8 @@ case  ${METHOD}  in
         # create ui configuraiton configmap
         UI_CONFIG_JSON=$(oc create configmap ${APP_NAME}-configuration -n ${NAMESPACE} --from-env-file=./tsecret-$random_name.txt --dry-run=client -o json | jq '.data')
         oc create configmap ${APP_NAME}-ui-configuration -n ${NAMESPACE} --from-literal=configuration.json="$UI_CONFIG_JSON" -o json --dry-run=client | oc replace -f -
-        oc patch configmap ${APP_NAME}-ui-configuratio --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$UI_LABELS'}]'
-        oc patch configmap ${APP_NAME}-ui-configuratio --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$UI_ANNOTATIONS'}]'
+        oc patch configmap ${APP_NAME}-ui-configuration --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$UI_LABELS'}]'
+        oc patch configmap ${APP_NAME}-ui-configuration --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$UI_ANNOTATIONS'}]'
       fi
     else
       rm t*-$random_name.txt

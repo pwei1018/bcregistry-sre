@@ -82,7 +82,6 @@ jobs:
           oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get is
           oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get istag/vault-service:latest
           oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get istag/vault-service:dev
-          make tag
 
   vault-service-cd-update-version:
     runs-on: ubuntu-20.04
@@ -94,6 +93,14 @@ jobs:
       # Kustomize in the runner, update the image ID, commit the change, and
       # push the changes back to the manifest repository.
       # ------------------------------------------------------------------------
+      - name: Set imagesha
+        id: imagesha
+        shell: bash
+        run: |
+          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
+          IMAGESHA=$(oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
+          echo "::set-output name=imagesha::$(IMAGESHA)"
+
       - name: Prepare deploy key
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -107,8 +114,7 @@ jobs:
 
       - name: Show imagesha
         run: |
-          echo "${{ needs.vault-service-cd-by-push.outputs.imagesha }}"
-          echo "${{ needs.vault-service-cd-by-dispatch.outputs.imagesha }}"
+          echo "${{ steps.imagesha.outputs.imagesha }}"
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v1
@@ -117,7 +123,7 @@ jobs:
         if: ${{ success() }}
         run: |
           cd app1/overlays/dev
-          kustomize edit set image "vault-service-image=image-registry.openshift-image-registry.svc:5000/73c567-tools/app1@${{ needs.vault-service-cd-by-push.outputs.imagesha }}""
+          kustomize edit set image "vault-service-image=image-registry.openshift-image-registry.svc:5000/73c567-tools/vault-service@${{ steps.imagesha.outputs.imagesha }}""
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Update API image ID for Dev"

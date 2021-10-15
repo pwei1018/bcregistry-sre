@@ -117,6 +117,7 @@ jobs:
           echo "::set-output name=imagesha::$IMAGESHA"
           echo "TAG_NAME=${{ needs.*.outputs.ENV_NAME }}"
           echo $TAG_NAME[0]
+          echo $TAG_NAME[1]
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v1

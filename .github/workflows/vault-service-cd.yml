@@ -49,7 +49,6 @@ jobs:
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
           oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get is
-          make tag
 
   vault-service-cd-by-dispatch:
     runs-on: ubuntu-20.04

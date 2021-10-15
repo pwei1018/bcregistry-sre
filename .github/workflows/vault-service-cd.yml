@@ -92,14 +92,6 @@ jobs:
       # Kustomize in the runner, update the image ID, commit the change, and
       # push the changes back to the manifest repository.
       # ------------------------------------------------------------------------
-      - name: Set imagesha
-        id: imagesha
-        shell: bash
-        run: |
-          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
-          IMAGESHA=$(oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
-          echo "::set-output name=imagesha::$(IMAGESHA)"
-
       - name: Prepare deploy key
         uses: webfactory/ssh-agent@v0.5.3
         with:
@@ -110,6 +102,14 @@ jobs:
         with:
           ssh-key: ${{ secrets.MANIFEST_REPO_73C567_DEPLOY_KEY }}
           repository: ${{ secrets.MANIFEST_REPO_73C567 }}
+
+      - name: Set imagesha
+        id: imagesha
+        shell: bash
+        run: |
+          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
+          IMAGESHA=$(oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
+          echo "::set-output name=imagesha::$(IMAGESHA)"
 
       - name: Show imagesha
         run: |

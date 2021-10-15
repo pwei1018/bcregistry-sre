@@ -110,11 +110,6 @@ jobs:
           oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
           export IMAGESHA=$(oc -n "${{ secrets.OPENSHIFT4_REPOSITORY }}-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
           echo "::set-output name=imagesha::$IMAGESHA"
-          ls -l
-
-      - name: Show imagesha
-        run: |
-          echo "${{ steps.imagesha.outputs.imagesha }}"
 
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v1
@@ -122,7 +117,7 @@ jobs:
       - name: Update image ID and commit change
         if: ${{ success() }}
         run: |
-          cd vault-service/overlays/dev
+          cd overlays/dev
           kustomize edit set image "vault-service-image=image-registry.openshift-image-registry.svc:5000/73c567-tools/vault-service@${{ steps.imagesha.outputs.imagesha }}""
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

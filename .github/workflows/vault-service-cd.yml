@@ -80,6 +80,8 @@ jobs:
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
           oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get is
+          oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/vault-service:latest
+          oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/vault-service:dev
           make tag
 
   vault-service-cd-update-version:

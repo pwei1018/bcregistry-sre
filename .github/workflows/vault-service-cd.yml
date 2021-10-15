@@ -85,7 +85,7 @@ jobs:
   vault-service-cd-update-version:
     runs-on: ubuntu-20.04
     needs: [vault-service-cd-by-push, vault-service-cd-by-dispatch]
-
+    if: ${{ always() && contains(needs.*.result, 'success') && !(contains(needs.*.result, 'failure')) }}
     steps:
       # Update the image ID in the manifest repository used by Argo CD.
       # We need to use the SSH deploy key to check out the manifest repo, set up

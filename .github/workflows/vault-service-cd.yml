@@ -110,6 +110,7 @@ jobs:
           oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
           export IMAGESHA=$(oc -n "${{ secrets.OPENSHIFT4_REPOSITORY }}-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
           echo "::set-output name=imagesha::$IMAGESHA"
+          ls -l
 
       - name: Show imagesha
         run: |

@@ -56,9 +56,11 @@ push: #build ## Push the docker container to the registry & tag latest
     docker tag $(DOCKER_NAME) $(REGISTRY_IMAGE):latest ;\
     docker push $(REGISTRY_IMAGE):latest
 
-IMAGESHA=`oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/$(DOCKER_NAME):$(TAG_NAME) -o=jsonpath="{.image.metadata.name}"`
 tag: push ## tag image
-	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):latest $(DOCKER_NAME):$(TAG_NAME) ; \
+	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):latest $(DOCKER_NAME):$(TAG_NAME)
+
+IMAGESHA=`oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/$(DOCKER_NAME):$(TAG_NAME) -o=jsonpath="{.image.metadata.name}"`
+images-sha: ## get Image SHA
 	echo "::set-output name=imagesha::$(IMAGESHA)"
 
 #################################################################################

@@ -78,15 +78,8 @@ jobs:
           OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT4_REPOSITORY }}
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
-          oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get is
-          oc -n ${{ secrets.OPENSHIFT4_REPOSITORY }}-tools get istag/vault-service:${{ env.TAG_NAME }}
-
-      - name: Get imagesha
-        id: imagesha
-        shell: bash
-        run: |
-          export IMAGESHA=$(oc -n "${{ secrets.OPENSHIFT4_REPOSITORY }}-tools" get istag/${{ env.APP_NAME }}:${{ env.TAG_NAME }} -o=jsonpath="{.image.metadata.name}")
-          echo "::set-output name=imagesha::$IMAGESHA"
+          make tag
+          echo $IMAGESHA
 
       # Update the image ID in the manifest repository used by Argo CD.
       # We need to use the SSH deploy key to check out the manifest repo, set up

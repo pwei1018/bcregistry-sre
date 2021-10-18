@@ -60,7 +60,7 @@ tag: push ## tag image
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):latest $(DOCKER_NAME):$(TAG_NAME)
 
 IMAGESHA=`oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/$(DOCKER_NAME):$(TAG_NAME) -o=jsonpath="{.image.metadata.name}"`
-images-sha: ## get Image SHA
+image-sha: ## get Image SHA
 	echo "::set-output name=imagesha::$(IMAGESHA)"
 
 #################################################################################

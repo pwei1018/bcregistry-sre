@@ -78,8 +78,13 @@ jobs:
           OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT4_REPOSITORY }}
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
+          echo $OPS_REPOSITORY
+          echo $OPENSHIFT_DOCKER_REGISTRY
+          echo $OPENSHIFT_SA_NAME
+          echo $OPENSHIFT_REPOSITORY
+          echo $TAG_NAME
           make cd
-          make images-sha
+          make image-sha
           echo $IMAGESHA
 
       # Update the image ID in the manifest repository used by Argo CD.

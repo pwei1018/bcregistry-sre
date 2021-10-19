@@ -1,8 +1,8 @@
 dev:
-  - commitSha: bd1888d
-    digest: asdfdfsdfsdfd
+  - commitSha: 54d60a4
+    digest: sha256:6767277d1abe0b8e501df29a050c8a3870dea9530c877766b7e8efc7a9ecd723
     version: foobar
-    buildDate: "2021-10-19T06:50:04Z"
+    buildDate: "2021-10-19T15:47:54Z"
 test:
   - commitSha:
     digest: sha256:286feed23070c4375566a489364433ed249230ffeb00826c8c2f735cf9a32934

@@ -69,6 +69,7 @@ jobs:
           oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
 
       - name: Push Image to Repo
+        id: imagePushing
         shell: bash
         env:
           OPS_REPOSITORY: ${{ secrets.OPS_REPOSITORY }}
@@ -78,14 +79,8 @@ jobs:
           OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT4_REPOSITORY }}
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
-          echo $OPS_REPOSITORY
-          echo $OPENSHIFT_DOCKER_REGISTRY
-          echo $OPENSHIFT_SA_NAME
-          echo $OPENSHIFT_REPOSITORY
-          echo $TAG_NAME
           make cd
           make image-sha
-          echo $IMAGESHA
 
       # Update the image ID in the manifest repository used by Argo CD.
       # We need to use the SSH deploy key to check out the manifest repo, set up
@@ -110,7 +105,7 @@ jobs:
         if: ${{ success() }}
         run: |
           cd overlays/${{ env.TAG_NAME }}
-          kustomize edit set image "vault-service-image=${{ secrets.OPENSHIFT4_IMAGE_REGISTRY }}/${{ secrets.OPENSHIFT4_REPOSITORY }}tools/vault-service@${{ steps.imagesha.outputs.imagesha }}"
+          kustomize edit set image "vault-service-image=${{ secrets.OPENSHIFT4_IMAGE_REGISTRY }}/${{ secrets.OPENSHIFT4_REPOSITORY }}tools/vault-service@${{ steps.imagePushing.outputs.imagesha }}"
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "Update image ID for ${{ env.TAG_NAME }}"

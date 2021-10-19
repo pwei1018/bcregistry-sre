@@ -80,7 +80,12 @@ jobs:
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
           make cd
-          make image-sha
+
+      - name: Update Version
+        id: updateVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: make update-version
 
       # Update the image ID in the manifest repository used by Argo CD.
       # We need to use the SSH deploy key to check out the manifest repo, set up

@@ -1,0 +1,16 @@
+dev:
+  - commitSha: 5b632b3
+    digest: asdfdfsdfsdfd
+    version: foobar
+    buildDate: "2021-10-19T06:39:33Z"
+test:
+  - commitSha:
+    digest: sha256:286feed23070c4375566a489364433ed249230ffeb00826c8c2f735cf9a32934
+    version:
+    date:
+prod:
+  - commitSha:
+    digest: sha256:286feed23070c4375566a489364433ed249230ffeb00826c8c2f735cf9a32934
+    version:
+    date:
+    release:

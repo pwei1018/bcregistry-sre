@@ -83,7 +83,7 @@ jobs:
 
       - name: Update Version
         id: updateVersion
-        uses: mikefarah/yq@master
+        shell: bash
         run: |
           make update-version
 

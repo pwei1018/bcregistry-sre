@@ -80,11 +80,6 @@ jobs:
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
           make cd
-
-      - name: Update Version
-        id: updateVersion
-        shell: bash
-        run: |
           make update-version
 
       # Update the image ID in the manifest repository used by Argo CD.

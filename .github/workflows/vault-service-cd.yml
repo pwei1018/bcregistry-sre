@@ -80,6 +80,15 @@ jobs:
           TAG_NAME: ${{ env.TAG_NAME }}
         run: |
           make cd
+          make image-sha
+
+      - name: Update Version
+        id: updateVersion
+        shell: bash
+        env:
+          TAG_NAME: ${{ env.TAG_NAME }}
+          IMAGE_SHA: ${{ steps.imagePushing.outputs.imagesha }}
+        run: |
           make update-version
 
       # Update the image ID in the manifest repository used by Argo CD.

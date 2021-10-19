@@ -63,8 +63,8 @@ IMAGESHA=`oc -n "$(OPENSHIFT_REPOSITORY)-tools" get istag/$(DOCKER_NAME):$(TAG_N
 image-sha: ## get Image SHA
 	echo "::set-output name=imagesha::$(IMAGESHA)"
 
-update-version: image-sha ## update versions file
-	yq eval '.$(TAG_NAME)[].commitSha = "$(shell git rev-parse --short HEAD)" | .$(TAG_NAME)[].digest = "$(IMAGESHA)" | .$(TAG_NAME)[].version= "foobar" | .$(TAG_NAME)[].buildDate = "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"' -i 'devops/versions.yaml' ;\
+update-version: ## update versions file
+	yq eval '.$(TAG_NAME)[].commitSha = "$(shell git rev-parse --short HEAD)" | .$(TAG_NAME)[].digest = "$(IMAGE_SHA)" | .$(TAG_NAME)[].version= "foobar" | .$(TAG_NAME)[].buildDate = "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"' -i 'devops/versions.yaml' ;\
 	git config --local user.email "action@github.com" ;\
 	git config --local user.name "GitHub Action" ;\
 	git commit -am "Update version for $(TAG_NAME)" ;\

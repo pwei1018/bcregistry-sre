@@ -5,14 +5,14 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "bcregistry-api.fullname" -}}
-{{- .Release.Name -}}-{{- .Values.environment -}}
+{{- .Chart.Name -}}-{{- .Values.environment -}}
 {{- end -}}
 
 {{/*
 Expand the name of the chart.
 */}}
 {{- define "bcregistry-api.name" -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- .Chart.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

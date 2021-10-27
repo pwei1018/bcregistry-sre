@@ -64,7 +64,12 @@ image-sha: ## get Image SHA
 	echo "::set-output name=imagesha::$(IMAGESHA)"
 
 update-version: ## update versions file
-	yq eval '.$(TAG_NAME)[].commitSha = "$(shell git rev-parse --short HEAD)" | .$(TAG_NAME)[].digest = "$(IMAGE_SHA)" | .$(TAG_NAME)[].version= "foobar" | .$(TAG_NAME)[].buildDate = "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"' -i 'devops/versions.yaml' ;\
+	yq eval '.$(TAG_NAME)[].commitSha = "$(shell git rev-parse --short HEAD)" | \
+			 .$(TAG_NAME)[].digest = "$(IMAGE_SHA)" | \
+		     .$(TAG_NAME)[].version= "foobar" | \
+		 	 .$(TAG_NAME)[].branch = "$(shell git rev-parse --abbrev-ref HEAD)" | \
+			 .$(TAG_NAME)[].buildDate = "$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")"' \
+			-i 'devops/versions.yaml' ;\
 	git config --local user.email "action@github.com" ;\
 	git config --local user.name "GitHub Action" ;\
 	git commit -am "Update version for $(TAG_NAME)" ;\

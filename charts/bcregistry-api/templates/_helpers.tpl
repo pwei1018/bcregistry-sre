@@ -47,7 +47,7 @@ Create the name of the service account to use
 image full path
 */}}
 {{- define "bcregistry-api.image" -}}
-{{- printf "%s/%s:%s-%s" .Values.image.repository .Values.image.namespace (include "bcregistry-api.fullname" .) .Values.environment }}
+{{- printf "%s/%s:%s@%s" .Values.image.repository .Values.image.namespace (include "bcregistry-api.name" .) .Values.image.digest }}
 {{- end -}}
 
 {{/*

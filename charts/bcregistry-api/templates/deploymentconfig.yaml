@@ -25,6 +25,16 @@ spec:
       {{- toYaml .Values.resources | nindent 4 }}
     {{- end }}
     activeDeadlineSeconds: 21600
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - {{ include "bcregistry-api.fullname" . }}
+        from:
+          kind: ImageStreamTag
+          namespace:  {{ .Values.image.namespace }}
+          name: "{{ include "bcregistry-api.name" . }}:{{ .Values.environment }}"
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   selector:

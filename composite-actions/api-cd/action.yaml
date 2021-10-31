@@ -36,17 +36,17 @@ runs:
     - name: Login Openshift
       shell: bash
       run: |
-        oc login --server=${{secrets.LOGIN_REGISTRY}} --token=${{secrets.SA_TOKEN}}
+        oc login --server=${{inputs.LOGIN_REGISTRY}} --token=${{inputs.SA_TOKEN}}
 
     - name: Push Image to Repo
       id: imagePushing
       shell: bash
       env:
-        OPS_REPOSITORY: ${{ secrets.OPS_REPOSITORY }}
-        OPENSHIFT_DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
-        OPENSHIFT_SA_NAME: ${{ secrets.SA_NAME }}
-        OPENSHIFT_SA_TOKEN: ${{ secrets.SA_TOKEN }}
-        OPENSHIFT_REPOSITORY: ${{ secrets.REPOSITORY }}
+        OPS_REPOSITORY: ${{ inputs.OPS_REPOSITORY }}
+        OPENSHIFT_DOCKER_REGISTRY: ${{ inputs.DOCKER_REGISTRY }}
+        OPENSHIFT_SA_NAME: ${{ inputs.SA_NAME }}
+        OPENSHIFT_SA_TOKEN: ${{ inputs.SA_TOKEN }}
+        OPENSHIFT_REPOSITORY: ${{ inputs.REPOSITORY }}
         TAG_NAME: ${{ env.TAG_NAME }}
       run: |
         make cd
@@ -69,13 +69,13 @@ runs:
     - name: Prepare deploy key
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.GITOPS_REPOSITORY_DEPLOY_KEY }}
+        ssh-private-key: ${{ inputs.GITOPS_REPOSITORY_DEPLOY_KEY }}
 
     - name: Check out manifest repo
       uses: actions/checkout@v2
       with:
-        ssh-key: ${{ secrets.GITOPS_REPOSITORY_DEPLOY_KEY }}
-        repository: ${{ secrets.GITOPS_REPOSITORY }}
+        ssh-key: ${{ inputs.GITOPS_REPOSITORY_DEPLOY_KEY }}
+        repository: ${{ inputs.GITOPS_REPOSITORY }}
 
     - name: Update image ID and commit change
       shell: bash

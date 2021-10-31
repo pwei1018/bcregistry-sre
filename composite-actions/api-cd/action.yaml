@@ -6,19 +6,22 @@ inputs:
     description: "The application running environment"
     required: true
   LOGIN_REGISTRY:
-    description: "The openshift registry"
+    description: "The login registry"
     required: true
   DOCKER_REGISTRY:
-    description: "The openshift docker registry"
+    description: "The docker registry"
     required: true
   SA_NAME:
-    description: "The openshift service account name"
+    description: "The service account name"
     required: true
   SA_TOKEN:
-    description: "The openshift service account token"
+    description: "The service account token"
     required: true
   REPOSITORY:
-    description: "The openshift repository"
+    description: "The application repository"
+    required: true
+  OPS_REPOSITORY:
+    description: "The ops repository"
     required: true
   GITOPS_REPOSITORY:
     description: "The gitops repository"

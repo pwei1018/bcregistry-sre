@@ -1,0 +1,84 @@
+name: "BC Registries Apps CD action"
+author: "Patrick Wei"
+description: "CD for BC Registries Apps"
+inputs:
+  TAG_NAME:
+    description: "The application running environment"
+    required: true
+  LOGIN_REGISTRY:
+    description: "The openshift registry"
+    required: true
+  DOCKER_REGISTRY:
+    description: "The openshift docker registry"
+    required: true
+  SA_NAME:
+    description: "The openshift service account name"
+    required: true
+  SA_TOKEN:
+    description: "The openshift service account token"
+    required: true
+  REPOSITORY:
+    description: "The openshift repository"
+    required: true
+  GITOPS_REPOSITORY:
+    description: "The gitops repository"
+    required: true
+  GITOPS_REPOSITORY_DEPLOY_KEY:
+    description: "The gitops repository deploy key"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login Openshift
+      shell: bash
+      run: |
+        oc login --server=${{secrets.LOGIN_REGISTRY}} --token=${{secrets.SA_TOKEN}}
+
+    - name: Push Image to Repo
+      id: imagePushing
+      shell: bash
+      env:
+        OPS_REPOSITORY: ${{ secrets.OPS_REPOSITORY }}
+        OPENSHIFT_DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+        OPENSHIFT_SA_NAME: ${{ secrets.SA_NAME }}
+        OPENSHIFT_SA_TOKEN: ${{ secrets.SA_TOKEN }}
+        OPENSHIFT_REPOSITORY: ${{ secrets.REPOSITORY }}
+        TAG_NAME: ${{ env.TAG_NAME }}
+      run: |
+        make cd
+        make get-imagesha
+
+    - name: Update Version
+      id: updateVersion
+      shell: bash
+      env:
+        TAG_NAME: ${{ env.TAG_NAME }}
+        IMAGE_SHA: ${{ steps.imagePushing.outputs.imagesha }}
+      run: |
+        make update-version
+
+    # Update the image ID in the manifest repository used by Argo CD.
+    # We need to use the SSH deploy key to check out the manifest repo, set up
+    # Kustomize in the runner, update the image ID, commit the change, and
+    # push the changes back to the manifest repository.
+    # ------------------------------------------------------------------------
+    - name: Prepare deploy key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.GITOPS_REPOSITORY_DEPLOY_KEY }}
+
+    - name: Check out manifest repo
+      uses: actions/checkout@v2
+      with:
+        ssh-key: ${{ secrets.GITOPS_REPOSITORY_DEPLOY_KEY }}
+        repository: ${{ secrets.GITOPS_REPOSITORY }}
+
+    - name: Update image ID and commit change
+      shell: bash
+      run: |
+        yq eval '.bcregistry-api.image.digest = "${{ steps.imagePushing.outputs.imagesha }}"' -i values-${{ env.TAG_NAME }}.yaml
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -am "Update image ID for ${{ env.TAG_NAME }}"
+        git push origin

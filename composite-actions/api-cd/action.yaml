@@ -32,6 +32,9 @@ inputs:
   GITOPS_REPOSITORY_DEPLOY_KEY:
     description: "The gitops repository deploy key"
     required: true
+  GITOPS_WORKING_DIRECTORY:
+    description: "The gitops repository directory"
+    required: true
 
 runs:
   using: "composite"
@@ -84,6 +87,7 @@ runs:
 
     - name: Update image ID and commit change
       shell: bash
+      working-directory: ${{inputs.GITOPS_WORKING_DIRECTORY}}
       run: |
         ls -l
         yq eval '.bcregistry-api.image.digest = "${{ steps.imagePushing.outputs.imagesha }}"' -i values-${{ env.TAG_NAME }}.yaml

@@ -85,6 +85,7 @@ runs:
     - name: Update image ID and commit change
       shell: bash
       run: |
+        ls -l
         yq eval '.bcregistry-api.image.digest = "${{ steps.imagePushing.outputs.imagesha }}"' -i values-${{ env.TAG_NAME }}.yaml
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"

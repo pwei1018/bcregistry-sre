@@ -2,6 +2,9 @@ name: "BC Registries Apps CD action"
 author: "Patrick Wei"
 description: "CD for BC Registries Apps"
 inputs:
+  WORKING_DIRECTORY:
+    description: "The application directory"
+    required: true
   TAG_NAME:
     description: "The application running environment"
     required: true
@@ -41,6 +44,7 @@ runs:
     - name: Push Image to Repo
       id: imagePushing
       shell: bash
+      working-directory: ${{inputs.WORKING_DIRECTORY}}
       env:
         OPS_REPOSITORY: ${{ inputs.OPS_REPOSITORY }}
         OPENSHIFT_DOCKER_REGISTRY: ${{ inputs.DOCKER_REGISTRY }}
@@ -55,6 +59,7 @@ runs:
     - name: Update Version
       id: updateVersion
       shell: bash
+      working-directory: ${{inputs.WORKING_DIRECTORY}}
       env:
         TAG_NAME: ${{ env.TAG_NAME }}
         IMAGE_SHA: ${{ steps.imagePushing.outputs.imagesha }}

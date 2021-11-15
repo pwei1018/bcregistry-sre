@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bcregistry-queue.fullname" . }}
+  labels:
+    {{- include "bcregistry-queue.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "bcregistry-queue.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      name: {{ include "bcregistry-queue.fullname" . }}
+      labels:
+        {{- include "bcregistry-queue.labels" . | nindent 8 }}
+    spec:
+      {{- if .Values.migrations.enabled }}
+      initContainers:
+        - name:  {{ include "bcregistry-queue.dbMiagrationName" . }}
+          image: {{ include "bcregistry-queue.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - {{ .Values.migrations.command }}
+          {{- if .Values.envFrom.secretRef }}
+          envFrom:
+            - secretRef:
+                name: {{ include "bcregistry-queue.secretName" . }}
+          {{- end }}
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      {{- end }}
+      containers:
+        - name: {{ include "bcregistry-queue.fullname" . }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.ports.containerPort }}
+              protocol: {{ .Values.ports.protocol }}
+          {{- if .Values.livenessProbe }}
+          livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe }}
+          readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          terminationMessagePolicy: File
+          terminationMessagePath: /dev/termination-log
+          {{- if .Values.envFrom.secretRef }}
+          envFrom:
+            - secretRef:
+                name: {{ include "bcregistry-queue.secretName" . }}
+          {{- end }}
+          image: {{ include "bcregistry-queue.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

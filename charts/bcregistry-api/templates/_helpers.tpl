@@ -16,6 +16,23 @@ Expand the name of the chart.
 {{- end -}}
 
 {{/*
+Expand the db miagration name of the chart.
+*/}}
+{{- define "bcregistry-api.dbMiagrationName" -}}
+{{- .Release.Name -}}-db-miagration-{{- .Values.environment -}}
+{{- end -}}
+
+{{/*
+Expand the db miagration name of the chart.
+*/}}
+{{- define "bcregistry-api.secretName" -}}
+{{- .Release.Name -}}-{{- .Values.environment -}}-secret
+{{- end -}}
+
+{{/*
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "bcregistry-api.labels" -}}

@@ -7,9 +7,9 @@ role: "api"
 
 image:
   repository: "image-registry.openshift-image-registry.svc:5000"
-  namespace: "6e0e49-tools"
+  namespace: "73c567-tools"
   pullPolicy: "IfNotPresent"
-  digest: ""
+  digest: "sha256:953e89d9882cf710750ee760e557d8b49381691fe6bee0bbe9675de1c6679b6e"
   tag: "dev"
 
 imagePullSecrets: []
@@ -70,6 +70,10 @@ env:
   # SOME_SEC_ENV_VAR:
   #   value: "var"
   #   secure: true
+
+envFrom:
+  secretRef: ture
+  configMapRef: true
 
 service:
   type: ClusterIP

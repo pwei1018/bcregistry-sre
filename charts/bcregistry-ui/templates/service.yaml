@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bcregistry-ui.fullname" . }}
+  labels:
+    {{- include "bcregistry-ui.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: {{ .Values.service.protocol }}
+      name: "{{ include "bcregistry-ui.fullname" . }}-{{ lower .Values.service.protocol }}"
+  selector:
+    {{- include "bcregistry-ui.selectorLabels" . | nindent 4 }}

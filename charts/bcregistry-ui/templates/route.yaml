@@ -1,0 +1,31 @@
+{{- if .Values.route.create -}}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "bcregistry-ui.fullname" . }}
+  labels:
+    {{- include "bcregistry-ui.labels" . | nindent 4 }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  host: {{ include "bcregistry-ui.host" . }}
+  {{- with .Values.route.path }}
+  path: {{ . }}
+  {{- end }}
+  {{- with .Values.route.tls }}
+  tls:
+  {{- toYaml . | nindent 4 }}
+  {{- end }}
+  to:
+    kind: Service
+    name: {{ include "bcregistry-ui.fullname" . }}
+    weight: 100
+  port:
+    targetPort: "{{ include "bcregistry-ui.fullname" . }}-{{ lower .Values.service.protocol }}"
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: {{ .Values.route.wildcardPolicy }}
+{{- end }}

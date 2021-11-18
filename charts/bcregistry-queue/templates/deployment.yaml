@@ -58,7 +58,22 @@ spec:
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst
-      securityContext: {}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
+      {{- if .Values.securityContext }}
+      {{- if .Values.securityContext.runAsUser }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        {{- if .Values.securityContext.runAsGroup }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      imagePullSecrets: {{- toYaml .Values.imagePullSecrets | nindent 12 }}
       schedulerName: default-scheduler
   strategy:
     type: RollingUpdate

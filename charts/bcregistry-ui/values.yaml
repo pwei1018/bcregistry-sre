@@ -1,22 +1,18 @@
-# Default values for bcregistry-queue.
+# Default values for bcregistry-ui.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 environment: "dev"
-role: "queue"
+role: "ui"
 
 image:
   repository: "image-registry.openshift-image-registry.svc:5000"
   namespace: "73c567-tools"
   pullPolicy: "IfNotPresent"
+  pullSecrets:
+    - name: artifactory-creds
   digest: "sha256:953e89d9882cf710750ee760e557d8b49381691fe6bee0bbe9675de1c6679b6e"
   tag: "dev"
-
-imagePullSecrets: []
-
-migrations:
-  enabled: true
-  command: "/opt/app-root/pre-hook-update-db.sh"
 
 ports:
   containerPort: 8080
@@ -30,8 +26,8 @@ revisionHistoryLimit: 10
 
 livenessProbe:
   httpGet:
-    path: /healthz
-    port: 7070
+    path: /
+    port: http
     scheme: HTTP
   initialDelaySeconds: 3
   timeoutSeconds: 1
@@ -41,8 +37,8 @@ livenessProbe:
 
 readinessProbe:
   httpGet:
-    path: /readyz
-    port: 7070
+    path: /
+    port: http
     scheme: HTTP
   initialDelaySeconds: 3
   timeoutSeconds: 30
@@ -68,13 +64,28 @@ env:
   #   secure: true
 
 envFrom:
-  secretRef: true
+  secretRef: false
+  configMapRef: true
 
 service:
   type: ClusterIP
   port: 8080
   targetPort: 8080
   protocol: TCP
+
+route:
+  create: true
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # haproxy.router.openshift.io/ip_whitelist: ''
+    # haproxy.router.openshift.io/timeout: 900s
+  routerCanonicalHostname: apps.silver.devops.gov.bc.ca
+  path: ""
+  service: {}
+  wildcardPolicy: None
+  tls: {}
 
 autoscaling:
   # Specifies whether the autoscaling should be created

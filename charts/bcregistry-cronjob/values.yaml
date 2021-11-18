@@ -1,0 +1,52 @@
+# Default values for bcregistry-cronjob.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+environment: "dev"
+role: "job"
+
+image:
+  repository: "image-registry.openshift-image-registry.svc:5000"
+  namespace: "73c567-tools"
+  pullPolicy: "IfNotPresent"
+  digest: "sha256:953e89d9882cf710750ee760e557d8b49381691fe6bee0bbe9675de1c6679b6e"
+  tag: "dev"
+
+imagePullSecrets: []
+
+schedule: "0 7 * * *"
+concurrencyPolicy: "Forbid"
+
+resources: {}
+
+replicas: 1
+
+revisionHistoryLimit: 10
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+command:
+  - /bin/sh
+  - "-c"
+  - cd /opt/app-root; ./run.sh
+
+env:
+  {}
+  # SOME_ENV_VAR:
+  #   value: "var2"
+  #   secure: false
+  # SOME_SEC_ENV_VAR:
+  #   value: "var"
+  #   secure: true
+
+envFrom:
+  secretRef: true
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""

@@ -1,38 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "bcregistry-api.fullname" . }}
+  name: {{ include "bcregistry-ui.fullname" . }}
   labels:
-    {{- include "bcregistry-api.labels" . | nindent 4 }}
+    {{- include "bcregistry-ui.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "bcregistry-api.selectorLabels" . | nindent 6 }}
+      {{- include "bcregistry-ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      name: {{ include "bcregistry-api.fullname" . }}
+      name: {{ include "bcregistry-ui.fullname" . }}
       labels:
-        {{- include "bcregistry-api.labels" . | nindent 8 }}
+        {{- include "bcregistry-ui.labels" . | nindent 8 }}
     spec:
-      {{- if .Values.migrations.enabled }}
-      initContainers:
-        - name:  {{ include "bcregistry-api.dbMiagrationName" . }}
-          image: {{ include "bcregistry-api.image" . }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - {{ .Values.migrations.command }}
-          {{- if .Values.envFrom.secretRef }}
-          envFrom:
-            - secretRef:
-                name: {{ include "bcregistry-api.secretName" . }}
-          {{- end }}
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-      {{- end }}
+      volumes:
+        - name: web-ui-configuration
+          configMap:
+            name: {{ include "bcregistry-ui.fullname" . }}-ui-configuration
+            defaultMode: 420
+        - name: keycloak-configuration
+          configMap:
+            name: {{ include "bcregistry-ui.fullname" . }}-keycloak-config
+            defaultMode: 420
       containers:
-        - name: {{ include "bcregistry-api.fullname" . }}
+        - name: {{ include "bcregistry-ui.fullname" . }}
           ports:
             - name: http
               containerPort: {{ .Values.ports.containerPort }}
@@ -48,13 +41,15 @@ spec:
           resources: {{- toYaml .Values.resources | nindent 12 }}
           terminationMessagePolicy: File
           terminationMessagePath: /dev/termination-log
-          {{- if .Values.envFrom.secretRef }}
-          envFrom:
-            - secretRef:
-                name: {{ include "bcregistry-api.secretName" . }}
-          {{- end }}
-          image: {{ include "bcregistry-api.image" . }}
+          image: {{ include "bcregistry-ui.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: web-ui-configuration
+              readOnly: true
+              mountPath: /app/config
+            - name: keycloak-configuration
+              readOnly: true
+              mountPath: /app/config/kc
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
       dnsPolicy: ClusterFirst

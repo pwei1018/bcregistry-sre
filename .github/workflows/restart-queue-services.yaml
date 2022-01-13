@@ -33,7 +33,7 @@ jobs:
           oc scale --replicas=0 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
           oc scale --replicas=1 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
           oc rollout status dc/nats-streaming-${{ env.TAG_NAME }} -n  d893f6-${{ env.TAG_NAME }} -w
-          timeout-minutes: 10 
+          sleep 10m
 
       - name: Restart namex-pay
         run: |

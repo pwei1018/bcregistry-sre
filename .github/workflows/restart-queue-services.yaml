@@ -12,7 +12,7 @@ on:
         default: "prod"
 
 jobs:
-  restart-mailhog:
+  restartqueue-services:
     runs-on: ubuntu-20.04
 
     steps:

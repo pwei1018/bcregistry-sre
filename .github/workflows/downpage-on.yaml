@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       environement:
-        description: "Environment (prod/test/prod)"
+        description: "Environment (dev/test/prod)"
         required: true
         default: "prod"
 jobs:

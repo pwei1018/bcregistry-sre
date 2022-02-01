@@ -9,8 +9,7 @@ image:
   repository: "image-registry.openshift-image-registry.svc:5000"
   namespace: "d893f6-tools"
   pullPolicy: "IfNotPresent"
-  pullSecrets:
-    - name: artifactory-creds
+  pullSecrets: ""
   digest: ""
   tag: "dev"
 

@@ -7,7 +7,7 @@ role: "api"
 
 image:
   repository: "image-registry.openshift-image-registry.svc:5000"
-  namespace: "73c567-tools"
+  namespace: "d893f6-tools"
   pullPolicy: "IfNotPresent"
   pullSecrets:
     - name: artifactory-creds
@@ -15,7 +15,7 @@ image:
   tag: "dev"
 
 migrations:
-  enabled: true
+  enabled: false
   command: "/opt/app-root/pre-hook-update-db.sh"
 
 ports:

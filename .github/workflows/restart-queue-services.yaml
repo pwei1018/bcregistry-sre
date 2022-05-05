@@ -1,4 +1,4 @@
-name: Restart Queue services
+name: Restart Services
 
 on:
   schedule:
@@ -12,7 +12,7 @@ on:
         default: "prod"
 
 jobs:
-  restartqueue-services:
+  restart-services:
     runs-on: ubuntu-20.04
 
     steps:
@@ -34,6 +34,15 @@ jobs:
           for i in $report_pods;
           do
             oc delete pod $i -n 1dfe78-${{ env.TAG_NAME }} 
+            sleep 1m
+          done
+
+      - name: Restart Report API
+        run: |
+          report_pods=`oc get pods --selector=name=report-api -o name -n d893f6-${{ env.TAG_NAME }} | sed "s/^.\{4\}//"`
+          for i in $report_pods;
+          do
+            oc delete pod $i -n d893f6-${{ env.TAG_NAME }} 
             sleep 1m
           done
 

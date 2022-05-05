@@ -28,6 +28,15 @@ jobs:
         run: |
           oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
 
+      - name: Restart PPR Report API
+        run: |
+          report_pods=`oc get pods --selector=name=report-api -o name -n 1dfe78-${{ env.TAG_NAME }} | sed "s/^.\{4\}//"`
+          for i in $report_pods;
+          do
+            oc delete pod $i -n 1dfe78-${{ env.TAG_NAME }} 
+            sleep 1m
+          done
+
       - name: Restart nats-streaming
         run: |
           oc scale --replicas=0 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}

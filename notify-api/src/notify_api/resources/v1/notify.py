@@ -47,6 +47,7 @@ def send_notification(body: NotificationRequest):
 
     return jsonify(notification.json), HTTPStatus.OK
 
+
 @bp.route('/sms', methods=['POST'])
 @cross_origin(origin='*')
 @jwt.requires_auth
@@ -62,6 +63,7 @@ def send_sms_notification(body: NotificationRequest):
 
     return jsonify(notification.json), HTTPStatus.OK
 
+
 @bp.route('/<string:notification_id>', methods=['GET', 'OPTIONS'])
 @cross_origin(origin='*')
 @jwt.requires_auth
@@ -76,6 +78,7 @@ def find_notification(notification_id: str):
         return {'error': babel('Notification not found.')}, HTTPStatus.NOT_FOUND
 
     return jsonify(notification.json), HTTPStatus.OK
+
 
 @bp.route('/status/<string:notification_status>', methods=['GET', 'OPTIONS'])
 @cross_origin(origin='*')

@@ -1,21 +1,16 @@
 [
     {
-        "vault": "shared",
+        "vault": "notify",
         "application": [
-            "email"
+            "smtp",
+            "gc-notify"
         ]
     },
     {
         "vault": "keycloak",
         "application": [
-            "jwt-base"
-        ]
-    },
-    {
-        "vault": "nats",
-        "application": [
-            "base",
-            "notify"
+            "jwt-base",
+            "account-services-account"
         ]
     },
     {
@@ -27,14 +22,7 @@
     {
         "vault": "database",
         "application": [
-            "notify-db"
-        ]
-    },
-    {
-        "vault": "relationship",
-        "application": [
-            "notify-api",
-            "jwt"
+            "notify-db-new"
         ]
     }
 ]

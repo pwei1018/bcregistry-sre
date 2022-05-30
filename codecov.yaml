@@ -1,0 +1,39 @@
+codecov:
+  require_ci_to_pass: true
+  branch: main
+  max_report_age: false
+
+coverage:
+  precision: 2
+  round: down
+  range: "80...100"
+  status:
+    patch: false
+    project:
+      default: false
+      backend:
+        target: 80%
+        flags:
+          - notifyapi
+
+ignore:
+  - "^/tests/**/*" # ignore test harness code
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: true
+      loop: true
+      method: false
+      macro: false
+
+comment:
+  layout: "diff,flags,tree"
+  behavior: default
+  require_changes: true
+
+flags:
+  notifyapi:
+    paths:
+      - notify-api/src/notify_api
+    carryforward: true

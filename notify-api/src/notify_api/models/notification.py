@@ -62,6 +62,7 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
         alias_generator = to_camel
 
+
 class Notification(db.Model):
     """Immutable Notification record. Represents Notification."""
 

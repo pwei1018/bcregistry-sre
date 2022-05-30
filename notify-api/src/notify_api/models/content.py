@@ -56,6 +56,7 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
         alias_generator = to_camel
 
+
 class Content(db.Model):
     """Immutable Content record. Represents Content."""
 

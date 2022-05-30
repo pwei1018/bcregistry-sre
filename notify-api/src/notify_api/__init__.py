@@ -21,7 +21,7 @@ import logging.config
 import os
 from http import HTTPStatus
 
-from flask import redirect, url_for, Flask
+from flask import Flask, redirect, url_for
 from flask_migrate import Migrate
 
 from notify_api import config, models
@@ -65,6 +65,7 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'production')):
     register_shellcontext(app)
 
     return app
+
 
 def setup_jwt_manager(app, jwt_manager):
     """Use flask app to configure the JWTManager to work for a particular Realm."""

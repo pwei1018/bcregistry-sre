@@ -98,6 +98,8 @@ jobs:
         env:
           OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT4_REPOSITORY }}
           TAG_NAME: ${{ env.TAG_NAME }}
+        run: |
+          make watch-deploy
       - name: Rocket.Chat Notification
         uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@master
         if: failure()

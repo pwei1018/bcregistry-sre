@@ -33,7 +33,7 @@ jobs:
           report_pods=`oc get pods --selector=name=report-api -o name -n 1dfe78-${{ env.TAG_NAME }} | sed "s/^.\{4\}//"`
           for i in $report_pods;
           do
-            oc delete pod $i -n 1dfe78-${{ env.TAG_NAME }} 
+            oc delete pod $i -n 1dfe78-${{ env.TAG_NAME }}
             sleep 1m
           done
 
@@ -42,7 +42,7 @@ jobs:
           report_pods=`oc get pods --selector=name=report-api -o name -n d893f6-${{ env.TAG_NAME }} | sed "s/^.\{4\}//"`
           for i in $report_pods;
           do
-            oc delete pod $i -n d893f6-${{ env.TAG_NAME }} 
+            oc delete pod $i -n d893f6-${{ env.TAG_NAME }}
             sleep 1m
           done
 
@@ -102,8 +102,3 @@ jobs:
         run: |
           oc scale --replicas=0 dc/events-listener-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
           oc scale --replicas=1 dc/events-listener-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
-
-      - name: Restart notify-queue
-        run: |
-          oc scale --replicas=0 dc/notify-queue-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/notify-queue-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}

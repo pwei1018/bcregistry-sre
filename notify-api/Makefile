@@ -92,7 +92,7 @@ cd: update-env
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):test $(DOCKER_NAME):$(TAG_NAME)
 else
 TAG_NAME=dev
-cd: build update-env tag
+cd: build update-env deploy
 endif
 
 build: ## Build the docker container
@@ -124,6 +124,12 @@ update-env: ## Update env from 1pass
 
 tag: push ## tag image
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):latest $(DOCKER_NAME):$(TAG_NAME)
+
+deploy: tag ## deploy image
+	oc -n "$(OPENSHIFT_REPOSITORY)-$(TAG_NAME)" rollout restart deployment $(DOCKER_NAME)-$(TAG_NAME)
+
+watch-deploy: ## watch deployment
+	oc -n "$(OPENSHIFT_REPOSITORY)-$(TAG_NAME)" rollout status -w deployment $(DOCKER_NAME)-$(TAG_NAME)
 
 #################################################################################
 # COMMANDS - Local                                                              #

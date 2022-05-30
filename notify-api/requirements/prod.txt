@@ -32,3 +32,4 @@ email-validator
 notifications-python-client
 beautifulsoup4
 phonenumbers
+gevent

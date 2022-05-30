@@ -38,7 +38,6 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
         self.mail_server = current_app.config.get('MAIL_SERVER')
         self.mail_port = current_app.config.get('MAIL_PORT')
         self.mail_from_id = current_app.config.get('MAIL_FROM_ID')
-        self.mail_debug = current_app.config.get('MAIL_DEBUG')
         self.notification = notification
 
     def send(self):
@@ -71,8 +70,8 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
 
                     message.attach(part)
 
-            server = smtplib.SMTP(host=self.mail_server, port=self.mail_port)
-            server.set_debuglevel(self.mail_debug)
+            server = smtplib.SMTP()
+            server.connect(host=self.mail_server, port=self.mail_port)
             server.sendmail(message['From'], [message['To']], message.as_string())
             server.quit()
 

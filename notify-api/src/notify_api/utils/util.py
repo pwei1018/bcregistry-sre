@@ -33,6 +33,7 @@ def cors_preflight(methods: str = 'GET'):
         return f
     return wrapper
 
+
 def download_file(url: str) -> bytes:
     """Download file from url."""
     file_contents = None
@@ -40,6 +41,7 @@ def download_file(url: str) -> bytes:
         file_contents = response.read()
 
     return file_contents
+
 
 def to_camel(string: str) -> str:
     """Convert string to camel format."""

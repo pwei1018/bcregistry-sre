@@ -8,19 +8,19 @@ role: "api"
 image:
   repository: "image-registry.openshift-image-registry.svc:5000"
   namespace: "d893f6-tools"
-  pullPolicy: "IfNotPresent"
+  pullPolicy: "Always"
   pullSecrets: ""
   digest: ""
   tag: "dev"
 
 migrations:
-  enabled: false
+  enabled: true
 
 ports:
   containerPort: 8080
   protocol: TCP
 
-resources: {wwwwwww}
+resources: {}
 
 replicas: 1
 

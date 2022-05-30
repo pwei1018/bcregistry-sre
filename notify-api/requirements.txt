@@ -1,4 +1,5 @@
 Babel==2.9.1
+Faker==13.12.0
 Flask-Babel==2.0.0
 Flask-Cors==3.0.10
 Flask-Migrate==3.1.0
@@ -62,6 +63,7 @@ flask-jwt-oidc==0.3.0
 flask-restx==0.5.1
 freezegun==1.1.0
 future==0.18.2
+gevent==21.12.0
 greenlet==1.1.2
 gunicorn==20.1.0
 httplib2==0.20.2
@@ -92,7 +94,7 @@ pycodestyle==2.8.0
 pycountry==22.3.5
 pycparser==2.21
 pycryptodome==3.3.1
-pydantic==1.9.0
+pydantic==1.9.1
 pydocstyle==6.1.1
 pyflakes==2.4.0
 pyhumps==3.7.1
@@ -132,3 +134,5 @@ unicorn==1.0.3
 urllib3==1.26.7
 websocket-client==0.59.0
 wrapt==1.13.3
+zope.event==4.5.0
+zope.interface==5.4.0

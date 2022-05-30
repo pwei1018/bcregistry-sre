@@ -72,11 +72,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = 'migrations/alembic.ini'
 
-    DB_USER = os.getenv('DATABASE_USERNAME', '')
-    DB_PASSWORD = os.getenv('DATABASE_PASSWORD', '')
-    DB_NAME = os.getenv('DATABASE_NAME', '')
-    DB_HOST = os.getenv('DATABASE_HOST', '')
-    DB_PORT = os.getenv('DATABASE_PORT', '5432')  # POSTGRESQL
+    DB_USER = os.getenv('NOTIFY_DATABASE_USERNAME', '')
+    DB_PASSWORD = os.getenv('NOTIFY_DATABASE_PASSWORD', '')
+    DB_NAME = os.getenv('NOTIFY_DATABASE_NAME', '')
+    DB_HOST = os.getenv('NOTIFY_DATABASE_HOST', '')
+    DB_PORT = os.getenv('NOTIFY_DATABASE_PORT', '5432')  # POSTGRESQL
     # POSTGRESQL
     SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
@@ -100,7 +100,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     GC_NOTIFY_API_URL = os.getenv('GC_NOTIFY_API_URL', '')
     GC_NOTIFY_API_KEY = os.getenv('GC_NOTIFY_API_KEY', '')
     GC_NOTIFY_TEMPLATE_ID = os.getenv('GC_NOTIFY_TEMPLATE_ID', '')
-    GC_NOTIFY_SMS_TEMPLATE_ID= os.getenv('GC_NOTIFY_SMS_TEMPLATE_ID', '')
+    GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv('GC_NOTIFY_SMS_TEMPLATE_ID', '')
 
     # Email SMTP
     MAIL_SERVER = os.getenv('MAIL_SERVER', '')
@@ -117,7 +117,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     JWT_OIDC_ALGORITHMS = os.getenv('JWT_OIDC_ALGORITHMS')
     JWT_OIDC_JWKS_URI = os.getenv('JWT_OIDC_JWKS_URI')
     JWT_OIDC_ISSUER = os.getenv('JWT_OIDC_ISSUER')
-    JWT_OIDC_AUDIENCE = os.getenv('JWT_OIDC_AUDIENCE')
+    JWT_OIDC_AUDIENCE = os.getenv('ACCOUNT_SERVICES_SERVICE_ACCOUNT_CLIENT_ID')
     JWT_OIDC_CLIENT_SECRET = os.getenv('JWT_OIDC_CLIENT_SECRET')
     JWT_OIDC_CACHING_ENABLED = os.getenv('JWT_OIDC_CACHING_ENABLED')
     JWT_OIDC_TOKEN_URL = os.getenv('JWT_OIDC_TOKEN_URL')

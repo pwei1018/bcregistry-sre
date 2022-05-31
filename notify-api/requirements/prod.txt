@@ -9,8 +9,6 @@ Flask-RESTX
 Flask-Script
 Flask-SQLAlchemy
 SQLAlchemy-Continuum
-asyncio-nats-client
-asyncio-nats-streaming
 attrs
 flask-jwt-oidc
 datedelta
@@ -32,4 +30,3 @@ email-validator
 notifications-python-client
 beautifulsoup4
 phonenumbers
-gevent

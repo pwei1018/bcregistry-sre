@@ -17,10 +17,7 @@ from __future__ import annotations
 import base64
 from http import HTTPStatus
 
-from pydantic import (  # noqa: I001; pylint: disable=E0611; not sure why pylint is unable to scan module
-    BaseModel,
-    validator,
-)
+from pydantic import BaseModel, validator
 
 from notify_api.errors import NotifyException
 from notify_api.utils.util import download_file, to_camel

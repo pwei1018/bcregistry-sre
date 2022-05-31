@@ -42,14 +42,21 @@ build-req: clean ## Upgrade requirements
 	pip install -Ur requirements/bcregistry-libraries.txt
 
 install: clean ## Install python virtrual environment
-	pip install -Ur requirements.txt
+	test -f venv/bin/activate || python3 -m venv  $(CURRENT_ABS_DIR)/venv ;\
+	. venv/bin/activate ;\
+	pip install --upgrade pip ;\
+	pip install -Ur requirements/prod.txt ;\
+	pip freeze | sort > requirements.txt ;\
+	cat requirements/repo-libraries.txt >> requirements.txt ;\
+	pip install -Ur requirements/repo-libraries.txt ;\
+	pip install -Ur requirements/dev.txt  ;\
+	touch venv/bin/activate  # update so it's as new as requirements/prod.txt
 
 install-dev: ## Install local application
-	pip install -Ur requirements/dev.txt; \
-	pip install -e .
+	. venv/bin/activate && pip install -e .
 
 db: ## local DB migration
-	flask db upgrade
+	. venv/bin/activate && flask db upgrade
 
 #################################################################################
 # COMMANDS - CI                                                                 #
@@ -59,15 +66,15 @@ db: ## local DB migration
 ci: pylint flake8 test ## CI flow
 
 pylint: ## Linting with pylint
-	pylint --rcfile=setup.cfg src/$(PROJECT_NAME)
+	. venv/bin/activate && pylint --rcfile=setup.cfg src/$(PROJECT_NAME)
 
 flake8: ## Linting with flake8 ## tests
-	flake8 src/$(PROJECT_NAME)
+	. venv/bin/activate && flake8 src/$(PROJECT_NAME)
 
 lint: pylint flake8 ## run all lint type scripts
 
 test: ## Unit testing
-	pytest
+	. venv/bin/activate && pytest
 
 mac-cov: test ## Run the coverage report and display in a browser window (mac)
 	@open -a "Google Chrome" htmlcov/index.html
@@ -86,10 +93,12 @@ cd: ## CD flow
 ifeq ($(TAG_NAME), test)
 cd: update-env
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):dev $(DOCKER_NAME):$(TAG_NAME)
+	oc -n "$(OPENSHIFT_REPOSITORY)-$(TAG_NAME)" rollout restart deployment $(DOCKER_NAME)-$(TAG_NAME)
 else ifeq ($(TAG_NAME), prod)
 cd: update-env
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):$(TAG_NAME) $(DOCKER_NAME):$(TAG_NAME)-$(shell date +%F)
 	oc -n "$(OPENSHIFT_REPOSITORY)-tools" tag $(DOCKER_NAME):test $(DOCKER_NAME):$(TAG_NAME)
+	oc -n "$(OPENSHIFT_REPOSITORY)-$(TAG_NAME)" rollout restart deployment $(DOCKER_NAME)-$(TAG_NAME)
 else
 TAG_NAME=dev
 cd: build update-env deploy

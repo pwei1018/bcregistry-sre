@@ -26,6 +26,3 @@ pylint-flask
 pylint-flask-sqlalchemy
 isort<5
 pytest-cov
-
-# docker
-lovely-pytest-docker

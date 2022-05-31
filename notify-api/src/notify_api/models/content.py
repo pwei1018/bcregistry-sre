@@ -16,10 +16,7 @@ from __future__ import annotations
 
 from typing import ForwardRef, List, Optional  # noqa: F401 # pylint: disable=unused-import
 
-from pydantic import (  # noqa: I001; pylint: disable=E0611; not sure why pylint is unable to scan module
-    BaseModel,
-    validator,
-)
+from pydantic import BaseModel, validator
 
 from notify_api.utils.util import to_camel
 

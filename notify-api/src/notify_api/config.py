@@ -65,9 +65,8 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     POD_NAMESPACE = os.getenv('POD_NAMESPACE', '')
 
-#    SENTRY_DSN = os.getenv('SENTRY_DSN', None)
-#    LD_SDK_KEY = os.getenv('LD_SDK_KEY', None)
-#    SECRET_KEY = 'a secret'
+    SENTRY_ENABLE = os.getenv('SENTRY_ENABLE', 'False')
+    SENTRY_DSN = os.getenv('SENTRY_DSN', None)
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = 'migrations/alembic.ini'

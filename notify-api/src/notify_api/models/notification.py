@@ -18,10 +18,7 @@ from typing import Optional
 
 import phonenumbers
 from email_validator import EmailNotValidError, validate_email
-from pydantic import (  # noqa: I001; pylint: disable=E0611; not sure why pylint is unable to scan module
-    BaseModel,
-    validator,
-)
+from pydantic import BaseModel, validator
 
 from notify_api.utils.base import BaseEnum
 from notify_api.utils.util import to_camel

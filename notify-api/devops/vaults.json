@@ -22,7 +22,7 @@
     {
         "vault": "database",
         "application": [
-            "notify-db-new"
+            "notify-db"
         ]
     }
 ]

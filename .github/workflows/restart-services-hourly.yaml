@@ -1,0 +1,56 @@
+name: Restart Services hourly
+
+on:
+  schedule:
+    # At every hour
+    - cron: "0 * * * *"
+  workflow_dispatch:
+    inputs:
+      environement:
+        description: "Environment (dev/test/prod)"
+        required: true
+        default: "prod"
+
+jobs:
+  restart-services:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set env by input
+        run: |
+          echo "TAG_NAME=${{ github.event.inputs.environement }}" >> $GITHUB_ENV
+      - name: Set env
+        if: env.TAG_NAME == ''
+        run: |
+          echo "TAG_NAME=prod" >> $GITHUB_ENV
+      - name: Login Openshift
+        run: |
+          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
+
+
+      - name: Restart namex-pay
+        run: |
+          oc scale --replicas=0 dc/namex-pay-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/namex-pay-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
+
+      - name: Restart entity-pay
+        run: |
+          oc scale --replicas=0 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+
+      - name: Restart entity-filer
+        run: |
+          oc scale --replicas=0 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+
+      - name: Restart entity-emailer
+        run: |
+          oc scale --replicas=0 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+
+      - name: Restart account-mailer
+        run: |
+          oc scale --replicas=0 dc/account-mailer-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/account-mailer-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
+

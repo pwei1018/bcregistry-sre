@@ -68,6 +68,7 @@ class NotifyService():
                 for recipient in notification.recipients.split(','):
                     is_safe_to_send = SafeList.is_in_safe_list(recipient.lower().strip())
                     if not is_safe_to_send:
+                        logger.info('[%s] is not in the safe list', recipient.lower().strip())
                         break
 
             if is_safe_to_send:

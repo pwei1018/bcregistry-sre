@@ -1,0 +1,98 @@
+name: UI CD
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment"
+        required: true
+        type: choice
+        options:
+        - dev
+        - test
+        - prod
+      tagname:
+        description: "Specify the version (git tag) to deploy"
+        required: false
+        default: ""
+    secrets:
+      APP_NAME:
+        required: true
+      REPO_NAME:
+        required: true
+      OP_CONNECT_URL:
+        required: true
+      OP_CONNECT_TOKEN:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ui-cd-worklfow:
+    runs-on: ubuntu-20.04
+
+    # Allow add the tag in the repo.
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'write'
+      id-token: 'write'
+
+    steps:
+      - name: Set env
+        run: |-
+          echo "ENVIRONMENT=$(
+            if ${{ github.event_name == 'push' }}; then
+              echo dev
+            else
+              if ${{ inputs.environment }}; then
+                echo ${{ inputs.environment }}
+              else
+                echo dev
+              fi
+            fi
+            )" >> $GITHUB_ENV
+
+      - name: Test env
+        run: echo "woo!!" ${{ env.ENVIRONMENT }}
+
+      - name: Get git tag preix
+        if: inputs.tagname == null
+        id: tagprefix
+        run: |
+          if [ "${{ env.TAG_NAME }}" = "test" ]
+          then
+            echo "TAG_PREFIX=dev" >> $GITHUB_OUTPUT
+          elif [ "${{ env.TAG_NAME }}" = "prod" ]
+          then
+            echo "TAG_PREFIX=test" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_PREFIX=dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get lastest git tag by tag preix
+        uses: oprypin/find-latest-tag@v1
+        if: inputs.tagname == null
+        id: latesttag
+        with:
+          repository: ${{ secrets.REPO_NAME }}
+          releases-only: false
+          prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX}}
+
+      - name: Checkout out the code by the git tag
+        if: inputs.tagname == null
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ steps.latesttag.outputs.tag  }}
+
+      - name: Checkout out the code by the input git tag
+        if: inputs.tagname != null
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.tagname }}
+
+      - name: Test env
+        run: |
+          pwd
+          ls -la

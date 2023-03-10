@@ -1,0 +1,71 @@
+name: UI CD
+
+on:
+  workflow_call:
+    secrets:
+      APP_NAME:
+        required: true
+      ENVIRONMENT_NAME:
+        required: true
+      OP_CONNECT_URL:
+        required: true
+      OP_CONNECT_TOKEN:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  clouldbuild-workflow:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Get environment variables from 1password
+      - name: Setup .env file
+        env:
+          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          APP_ENV: ${{ secrets.ENVIRONMENT_NAME }}
+        run: |
+          curl -sSfo op.zip \
+              https://cache.agilebits.com/dist/1P/op2/pkg/v2.0.0/op_linux_amd64_v2.0.0.zip \
+              && unzip -od /usr/local/bin/ op.zip \
+              && rm op.zip ;\
+          op inject -i ./devops/vaults.env -o .env -f
+
+          NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
+          echo "::add-mask::$NODE_VERSION"
+          echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
+
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/FIREBASE_HOST_NAME)
+          echo "::add-mask::$FIREBASE_HOST_NAME"
+          echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
+
+          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
+          echo "::add-mask::$WORKLOAD_IDENTIFY_POOLS_PROVIDER"
+          echo WORKLOAD_IDENTIFY_POOLS_PROVIDER=$WORKLOAD_IDENTIFY_POOLS_PROVIDER >> $GITHUB_ENV
+
+          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/GCP_SERVICE_ACCOUNT)
+          echo "::add-mask::$GCP_SERVICE_ACCOUNT"
+          echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      # Build and push image to Google Container Registry
+      - name: Build
+        run: |-
+          gcloud builds submit \
+            --substitutions _DEPLOYMENT_ENVIRONMENT=${{ secrets.ENVIRONMENT_NAME }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
+            --config ./devops/cloudbuild-cd.yaml

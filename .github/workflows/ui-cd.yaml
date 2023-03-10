@@ -6,7 +6,7 @@ on:
       environment:
         required: true
         type: string
-        defult: ""
+        default: ""
       tagname:
         type: string
     secrets:

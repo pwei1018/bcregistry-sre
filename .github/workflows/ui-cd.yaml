@@ -4,17 +4,10 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: "Environment"
         required: true
-        type: choice
-        options:
-        - dev
-        - test
-        - prod
+        type: string
       tagname:
-        description: "Specify the version (git tag) to deploy"
-        required: false
-        default: ""
+        type: string
     secrets:
       APP_NAME:
         required: true

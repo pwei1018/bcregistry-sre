@@ -25,7 +25,9 @@ jobs:
   ui-cd-worklfow:
     runs-on: ubuntu-20.04
 
-    container: 1password/op:2
+    container:
+      image: 1password/op:2
+      options: --user root
 
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.

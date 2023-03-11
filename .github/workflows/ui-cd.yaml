@@ -36,7 +36,7 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: Set env
+      - name: Set target deployment environment
         run: |-
           echo "ENVIRONMENT=$(
             if [[ ${{ github.event_name == 'push' }} ]]; then
@@ -55,11 +55,11 @@ jobs:
         id: tagprefix
         run: |
           echo "TAG_PREFIX=$(
-            if [[ ${{ env.TAG_NAME == 'test' }} ]]; then
+            if [[ ${{ env.ENVIRONMENT == 'test' }} ]]; then
               echo dev
-            elif [[ ${{ env.TAG_NAME == 'sandbox' }} ]]; then
+            elif [[ ${{ env.ENVIRONMENT == 'sandbox' }} ]]; then
               echo test
-            elif [[ ${{ env.TAG_NAME == 'prod' }} ]]; then
+            elif [[ ${{ env.ENVIRONMENT == 'prod' }} ]]; then
               echo test
             else
               echo dev
@@ -95,6 +95,9 @@ jobs:
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           APP_ENV: ${{ env.ENVIRONMENT }}
         run: |
+          echo ${{ secrets.OP_CONNECT_URL }}
+          cat ./devops/vaults.env
+
           op inject -i ./devops/vaults.env -o .env -f
 
           NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)

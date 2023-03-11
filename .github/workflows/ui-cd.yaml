@@ -93,7 +93,7 @@ jobs:
         env:
           OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
-          APP_ENV: ${{ secrets.ENVIRONMENT_NAME }}
+          APP_ENV: ${{ secrets.ENVIRONMENT }}
         run: |
           op inject -i ./devops/vaults.env -o .env -f
 
@@ -101,14 +101,14 @@ jobs:
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
 
-          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/FIREBASE_HOST_NAME)
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ secrets.ENVIRONMENT }}/bcregistry/FIREBASE_HOST_NAME)
           echo "::add-mask::$FIREBASE_HOST_NAME"
           echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
 
-          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
+          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ secrets.ENVIRONMENT }}/bcregistry/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
           echo "::add-mask::$WORKLOAD_IDENTIFY_POOLS_PROVIDER"
           echo WORKLOAD_IDENTIFY_POOLS_PROVIDER=$WORKLOAD_IDENTIFY_POOLS_PROVIDER >> $GITHUB_ENV
 
-          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ secrets.ENVIRONMENT_NAME }}/bcregistry/GCP_SERVICE_ACCOUNT)
+          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ secrets.ENVIRONMENT }}/bcregistry/GCP_SERVICE_ACCOUNT)
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV

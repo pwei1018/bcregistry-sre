@@ -95,7 +95,7 @@ jobs:
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           APP_ENV: ${{ env.ENVIRONMENT }}
         run: |
-          echo ${{ secrets.OP_CONNECT_URL }}
+          op --version
           cat ./devops/vaults.env
 
           op inject -i ./devops/vaults.env -o .env -f

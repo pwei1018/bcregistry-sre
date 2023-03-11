@@ -53,9 +53,9 @@ jobs:
           echo "TAG_PREFIX=$(
             if [[ ${{ env.TAG_NAME == 'test' }} ]]; then
               echo dev
-            elif [[ "${{ env.TAG_NAME = 'sandbox' }} ]]; then
+            elif [[ ${{ env.TAG_NAME == 'sandbox' }} ]]; then
               echo test
-            elif [[ "${{ env.TAG_NAME = 'prod' }} ]]; then
+            elif [[ ${{ env.TAG_NAME == 'prod' }} ]]; then
               echo test
             else
               echo dev

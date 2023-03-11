@@ -67,7 +67,7 @@ jobs:
         if: inputs.tagname == null
         id: latesttag
         with:
-          repository: ${{ github.event.repository.name }}
+          repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           releases-only: false
           prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX}}
 

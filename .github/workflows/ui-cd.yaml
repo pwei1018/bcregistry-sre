@@ -89,6 +89,10 @@ jobs:
             fi
             )" >> $GITHUB_OUTPUT
 
+      - name: test
+        run: |
+          echo ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
+
       - name: Checkout out the code
         uses: actions/checkout@v3
         with:

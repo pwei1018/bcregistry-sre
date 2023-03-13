@@ -6,7 +6,6 @@ on:
       environment:
         required: true
         type: string
-        default: ""
       tagname:
         type: string
     secrets:
@@ -37,7 +36,7 @@ jobs:
 
     steps:
       - name: Set target deployment environment
-        run: |-
+        run: |
           echo "ENVIRONMENT=$(
             if [[ ${{ github.event_name == 'push' }} ]]; then
               echo dev
@@ -73,19 +72,27 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           releases-only: false
-          prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX}}
+          prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX }}
 
-      - name: Checkout out the code by the git tag
-        if: inputs.tagname == null
+      - name: Determine the tag/ref for checkout
+        id: checkoutref
+        run: |
+          echo "CHECKOUT_REF=$(
+            if [[ ${{ github.event_name == 'push' }} ]]; then
+              echo ''
+            else
+              if [[ ${{ inputs.tagname }} ]]; then
+                echo ${{ inputs.tagname }}
+              else
+                echo ${{ steps.latesttag.outputs.tag }}
+              fi
+            fi
+            )" >> $GITHUB_OUTPUT
+
+      - name: Checkout out the code
         uses: actions/checkout@v3
         with:
-          ref: ${{ steps.latesttag.outputs.tag  }}
-
-      - name: Checkout out the code by the input git tag
-        if: inputs.tagname != null
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ inputs.tagname }}
+          ref: ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
 
       # Get environment variables from 1password
       - name: Setup .env file

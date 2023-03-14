@@ -100,7 +100,7 @@ jobs:
 
       - name: Write to workflow job summary
         run: |
-          SUMMARY=$'# ${{ secret.APP_NAME }} Deployment Summary\n Deployment Date: `date +'%Y%m%d%H%M'` \n Deployment Environment: ${{ env.ENVIRONMENT }} \n Deployment git ref: `git log -1 --format='%h'`\n '
+          SUMMARY=$'# ${{ secrets.APP_NAME }} Deployment Summary\n Deployment Date: `date +'%Y%m%d%H%M'` \n Deployment Environment: ${{ env.ENVIRONMENT }} \n Deployment git ref: `git log -1 --format='%h'`\n '
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
       # Get environment variables from 1password

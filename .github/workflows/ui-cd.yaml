@@ -41,7 +41,7 @@ jobs:
             if [[ ${{ github.event_name == 'push' }} ]]; then
               echo dev
             else
-              if [[ ${{ -z inputs.environment }} ]]; then
+              if [[ -z ${{ inputs.environment }} ]]; then
                 echo dev
               else
                 echo ${{ inputs.environment }}
@@ -94,7 +94,7 @@ jobs:
             if [[ ${{ github.event_name == 'push' }} ]]; then
               echo ''
             else
-              if [[ ${{ -z inputs.tagname }} ]]; then
+              if [[ -z ${{ inputs.tagname }} ]]; then
                 echo ${{ steps.latesttag.outputs.tag }}
               else
                 echo ${{ inputs.tagname }}

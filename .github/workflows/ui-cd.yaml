@@ -98,6 +98,10 @@ jobs:
         with:
           ref: ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
 
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
       # Get environment variables from 1password
       - name: Setup .env file
 
@@ -124,10 +128,36 @@ jobs:
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+
+
+      # Bump version and push tag
+      - name: Set git tag format - datetime.short-sha
+        id: customtag
+        run: echo "tag=`date +'%Y%m%d%H%M'`.`git rev-parse --short ${{ github.sha }}`" >> $GITHUB_OUTPUT
+
+      - name: Add git tag
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ steps.customtag.outputs.tag }}
+          tag_prefix: ${{ env.ENVIRONMENT }}.
+
       - name: Job summary
         if: always()
         run: |
           echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- From Branch: ${{ github.ref_name }} Tag: ${{ input.tagName }}" >> $GITHUB_STEP_SUMMARY
           echo "- Date: $(date +"%Y-%m-%d %H:%M")" >> $GITHUB_STEP_SUMMARY
           echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Deployment from Branch: ${{ github.ref_name }} " >> $GITHUB_STEP_SUMMARY
+          echo "- Package Version: ${{ steps.package-version.outputs.current-version}}" >> $GITHUB_STEP_SUMMARY

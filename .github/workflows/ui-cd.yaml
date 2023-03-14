@@ -38,31 +38,31 @@ jobs:
       - name: Set target deployment environment
         run: |
           echo "ENVIRONMENT=$(
-            if [[ ${{ github.event_name == 'push' }} ]]; then
+            if [ '$github.event_name' == 'push' ]; then
               echo dev
             else
-              if [[ -z ${{ inputs.environment }} ]]; then
+              if [ '$inputs.environment' == '' ]; then
                 echo dev
               else
-                echo ${{ inputs.environment }}
+                echo $inputs.environment
               fi
             fi
             )" >> $GITHUB_ENV
 
       - name: echo Environment
         run: |
-          echo ${{ env.ENVIRONMENT }}
+          echo $env.ENVIRONMENT
 
       - name: Get git tag preix
         if: inputs.tagname == null
         id: tagprefix
         run: |
           echo "TAG_PREFIX=$(
-            if [[ ${{ env.ENVIRONMENT == 'test' }} ]]; then
+            if [ '$env.ENVIRONMENT' == 'test' ]; then
               echo dev
-            elif [[ ${{ env.ENVIRONMENT == 'sandbox' }} ]]; then
+            elif [ '$env.ENVIRONMENT' == 'sandbox' ]; then
               echo test
-            elif [[ ${{ env.ENVIRONMENT == 'prod' }} ]]; then
+            elif [ '$env.ENVIRONMENT' == 'prod' ]; then
               echo test
             else
               echo dev
@@ -71,7 +71,7 @@ jobs:
 
       - name: echo tag prfix
         run: |
-          echo ${{ steps.tagprefix.outputs.TAG_PREFIX }}
+          echo $steps.tagprefix.outputs.TAG_PREFIX
 
       - name: Get lastest git tag by tag preix
         uses: oprypin/find-latest-tag@v1
@@ -84,27 +84,27 @@ jobs:
 
       - name: echo tag
         run: |
-          echo ${{ steps.latesttag.outputs.tag }}
+          echo $steps.latesttag.outputs.tag
 
 
       - name: Determine the tag/ref for checkout
         id: checkoutref
         run: |
           echo "CHECKOUT_REF=$(
-            if [[ ${{ github.event_name == 'push' }} ]]; then
+            if [ '$github.event_name' == 'push' ]; then
               echo ''
             else
-              if [[ -z ${{ inputs.tagname }} ]]; then
-                echo ${{ steps.latesttag.outputs.tag }}
+              if [ '$inputs.tagname' == '' ]; then
+                echo $steps.latesttag.outputs.tag
               else
-                echo ${{ inputs.tagname }}
+                echo $inputs.tagname
               fi
             fi
             )" >> $GITHUB_OUTPUT
 
       - name: echo checkout tag name
         run: |
-          echo ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
+          echo $steps.checkoutref.outputs.CHECKOUT_REF
 
       - name: Checkout out the code
         uses: actions/checkout@v3

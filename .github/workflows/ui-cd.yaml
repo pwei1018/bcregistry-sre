@@ -104,7 +104,7 @@ jobs:
 
       # Get last commit sha
       - name: Prepare
-        uses: ./.github/actions/prepare
+        uses: ./cd-prepare/build-tag.yaml
 
       # Get environment variables from 1password
       - name: Setup .env file

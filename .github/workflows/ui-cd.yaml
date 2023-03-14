@@ -95,7 +95,7 @@ jobs:
               echo ''
             else
               if [ '${{ inputs.tagname }}' == '' ]; then
-                if [ '${{ env.ENVIRONMENT }}' == 'test' ]; then
+                if [ '${{ env.ENVIRONMENT }}' == 'dev' ]; then
                   echo ''
                 else
                   echo ${{ steps.latesttag.outputs.tag }}

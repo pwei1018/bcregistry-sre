@@ -49,10 +49,6 @@ jobs:
             fi
             )" >> $GITHUB_ENV
 
-      - name: echo Environment
-        run: |
-          echo ${{ env.ENVIRONMENT }}
-
       - name: Get git tag preix
         if: inputs.tagname == null
         id: tagprefix
@@ -69,10 +65,6 @@ jobs:
             fi
             )" >> $GITHUB_OUTPUT
 
-      - name: echo tag prfix
-        run: |
-          echo ${{ steps.tagprefix.outputs.TAG_PREFIX }}
-
       - name: Get lastest git tag by tag preix
         uses: oprypin/find-latest-tag@v1
         if: inputs.tagname == null
@@ -81,11 +73,6 @@ jobs:
           repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
           releases-only: false
           prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX }}
-
-      - name: echo tag
-        run: |
-          echo ${{ steps.latesttag.outputs.tag }}
-
 
       - name: Determine the tag/ref for checkout
         id: checkoutref
@@ -106,14 +93,15 @@ jobs:
             fi
             )" >> $GITHUB_OUTPUT
 
-      - name: echo checkout tag name
-        run: |
-          echo ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
-
       - name: Checkout out the code
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
+
+      - name: Write to workflow job summary
+        run: |
+          SUMMARY=$'# ${{ secret.APP_NAME }} Deployment Summary\n Deployment Date: `date +'%Y%m%d%H%M'` \n Deployment Environment: ${{ env.ENVIRONMENT }} \n Deployment git ref: `git log -1 --format='%h'`\n '
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
       # Get environment variables from 1password
       - name: Setup .env file

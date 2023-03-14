@@ -71,7 +71,7 @@ jobs:
 
       - name: echo tag prfix
         run: |
-          echo ${{ steps.latesttag.outputs.tag }}
+          echo ${{ steps.tagprefix.outputs.TAG_PREFIX }}
 
       - name: Get lastest git tag by tag preix
         uses: oprypin/find-latest-tag@v1
@@ -102,7 +102,7 @@ jobs:
             fi
             )" >> $GITHUB_OUTPUT
 
-      - name: test
+      - name: echo checkout tag name
         run: |
           echo ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
 

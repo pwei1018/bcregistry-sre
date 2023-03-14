@@ -37,6 +37,7 @@ jobs:
     steps:
       - name: Set target deployment environment
         run: |
+          echo ${{ toJSON(github) }}
           echo "ENVIRONMENT=$(
             if [ '${{ github.event_name }}' == 'push' ]; then
               echo dev
@@ -101,7 +102,7 @@ jobs:
       - name: Write to workflow job summary
         run: |
           echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- Date: '$(date +"%Y%m%d%H%M")'" >> $GITHUB_STEP_SUMMARY
+          echo "- Date: $(date +"%Y-%m-%d %H:%M")" >> $GITHUB_STEP_SUMMARY
           echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
           echo "- Git ref: '$(git log -1 --format="%h")'" >> $GITHUB_STEP_SUMMARY
 

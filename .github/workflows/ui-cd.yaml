@@ -106,7 +106,7 @@ jobs:
 
       # Get last commit sha
       - name: Prepare
-        uses: pwei1018/bcregistry-sre/./.github/actions/cd-prepare.yml
+        uses: pwei1018/bcregistry-sre/.github/actions/cd-prepare.yml
 
       # Get environment variables from 1password
       - name: Setup .env file

@@ -37,68 +37,17 @@ jobs:
       id-token: 'write'
 
     steps:
-      - name: Set target deployment environment
-        run: |
-          echo "ENVIRONMENT=$(
-            if [ '${{ github.event_name }}' == 'push' ]; then
-              echo dev
-            else
-              if [ '${{ inputs.environment }}' == '' ]; then
-                echo dev
-              else
-                echo ${{ inputs.environment }}
-              fi
-            fi
-            )" >> $GITHUB_ENV
-
-      - name: Get git tag preix
-        if: inputs.tagname == null
-        id: tagprefix
-        run: |
-          echo "TAG_PREFIX=$(
-            if [ '${{ env.ENVIRONMENT }}' == 'test' ]; then
-              echo dev
-            elif [ '${{ env.ENVIRONMENT }}' == 'sandbox' ]; then
-              echo test
-            elif [ '${{ env.ENVIRONMENT }}' == 'prod' ]; then
-              echo test
-            else
-              echo dev
-            fi
-            )" >> $GITHUB_OUTPUT
-
-      - name: Get lastest git tag by tag preix
-        uses: oprypin/find-latest-tag@v1
-        if: inputs.tagname == null
-        id: latesttag
+      # Get checkout ref and determine deployment environment
+      - name:  Add git tag
+        uses: pwei1018/bcregistry-sre/.github/actions/get_checkout_ref@reuseable-workflow
         with:
-          repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
-          releases-only: false
-          prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine the tag/ref for checkout
-        id: checkoutref
-        run: |
-          echo "CHECKOUT_REF=$(
-            if [ '${{ github.event_name }}' == 'push' ]; then
-              echo ''
-            else
-              if [ '${{ inputs.tagname }}' == '' ]; then
-                if [ '${{ env.ENVIRONMENT }}' == 'dev' ]; then
-                  echo ''
-                else
-                  echo ${{ steps.latesttag.outputs.tag }}
-                fi
-              else
-                echo ${{ inputs.tagname }}
-              fi
-            fi
-            )" >> $GITHUB_OUTPUT
 
       - name: Checkout out the code
         uses: actions/checkout@v3
         with:
-          ref: ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
+          ref: ${{ env.CHECKOUT_REF }}
 
       # Get environment variables from 1password
       - name: Setup .env file
@@ -152,7 +101,5 @@ jobs:
         run: |
           echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Deployment Tag: ${{ env.CUSTOM_TAG }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Date: $(date +"%Y-%m-%d %H:%M")" >> $GITHUB_STEP_SUMMARY
-          echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment Tag: ${{ env.ENVIRONMENT }}.${{ env.CUSTOM_TAG }}" >> $GITHUB_STEP_SUMMARY
           echo "- Package Version: ${{ steps.package-version.outputs.current-version}}" >> $GITHUB_STEP_SUMMARY

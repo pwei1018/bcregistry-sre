@@ -1,0 +1,71 @@
+name: 'Get checkout git ref'
+description: 'Determine deployment environment and git ref'
+
+inputs:
+  environment:
+    required: true
+  tagname:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set target deployment environment
+      shell: bash
+      run: |
+        echo "ENVIRONMENT=$(
+          if [ '${{ github.event_name }}' == 'push' ]; then
+            echo dev
+          else
+            if [ '${{ inputs.environment }}' == '' ]; then
+              echo dev
+            else
+              echo ${{ inputs.environment }}
+            fi
+          fi
+          )" >> $GITHUB_ENV
+
+    - name: Get git tag preix
+      if: inputs.tagname == null
+      id: tagprefix
+      shell: bash
+      run: |
+        echo "TAG_PREFIX=$(
+          if [ '${{ env.ENVIRONMENT }}' == 'test' ]; then
+            echo dev
+          elif [ '${{ env.ENVIRONMENT }}' == 'sandbox' ]; then
+            echo test
+          elif [ '${{ env.ENVIRONMENT }}' == 'prod' ]; then
+            echo test
+          else
+            echo dev
+          fi
+          )" >> $GITHUB_OUTPUT
+
+    - name: Get lastest git tag by tag preix
+      uses: oprypin/find-latest-tag@v1
+      if: inputs.tagname == null
+      id: latesttag
+      with:
+        repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
+        releases-only: false
+        prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX }}
+
+    - name: Determine the tag/ref for checkout
+      shell: bash
+      run: |
+        echo "CHECKOUT_REF=$(
+          if [ '${{ github.event_name }}' == 'push' ]; then
+            echo ''
+          else
+            if [ '${{ inputs.tagname }}' == '' ]; then
+              if [ '${{ env.ENVIRONMENT }}' == 'dev' ]; then
+                echo ''
+              else
+                echo ${{ steps.latesttag.outputs.tag }}
+              fi
+            else
+              echo ${{ inputs.tagname }}
+            fi
+          fi
+          )" >> ${GITHUB_ENV}s

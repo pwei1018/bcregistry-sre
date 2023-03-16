@@ -140,6 +140,8 @@ jobs:
       # Add git tag
       - name:  Add git tag
         uses: pwei1018/bcregistry-sre/.github/actions/add-git-tag@reuseable-workflow
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: get-npm-version
         id: package-version

@@ -38,11 +38,8 @@ jobs:
 
     steps:
       # Get checkout ref and determine deployment environment
-      - name:  Add git tag
-        uses: pwei1018/bcregistry-sre/.github/actions/get_checkout_ref@reuseable-workflow
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Get checkout ref
+        uses: pwei1018/bcregistry-sre/.github/actions/get-checkout-ref@reuseable-workflow
 
       - name: Checkout out the code
         uses: actions/checkout@v3

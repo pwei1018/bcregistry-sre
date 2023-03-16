@@ -22,6 +22,7 @@ defaults:
 
 jobs:
   ui-cd-worklfow:
+    # Only allow run the CD flow in protected branch
     if: github.ref_protected == true
 
     runs-on: ubuntu-20.04
@@ -72,6 +73,7 @@ jobs:
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 
+      # GCP authentication
       - id: 'auth'
         name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
@@ -89,10 +91,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Get NPM package version
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
 
+      # Generate Job summary
       - name: Job summary
         if: always()
         run: |

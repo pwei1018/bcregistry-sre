@@ -3,12 +3,12 @@ description: ''
 
 inputs:
   token:
-    description: 'A Github PAT'
     required: true
 
 runs:
   using: "composite"
   steps:
+    # Get commit sha
     - name: Setup Environment (PR)
       if: ${{ github.event_name == 'pull_request' }}
       shell: bash
@@ -27,12 +27,13 @@ runs:
       run: |
         echo "LAST_COMMIT_SHA=${GITHUB_SHA}" >> ${GITHUB_ENV}
 
-    # Bump version and push tag
+    # Set custom tag
     - name: Set git tag format - datetime.short-sha
       id: customtag
       shell: bash
       run: echo "CUSTOM_TAG=`date +'%Y%m%d%H%M'`.${LAST_COMMIT_SHA:0:7}" >> ${GITHUB_ENV}
 
+    # Add new git tag
     - name: Add git tag
       uses: mathieudutour/github-tag-action@v6.1
       with:

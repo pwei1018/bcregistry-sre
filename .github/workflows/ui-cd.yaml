@@ -152,7 +152,7 @@ jobs:
         run: |
           echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Deployment Tag: ${{ steps.customtag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment Tag: ${{ env.CUSTOM_TAG }}" >> $GITHUB_STEP_SUMMARY
           echo "- Date: $(date +"%Y-%m-%d %H:%M")" >> $GITHUB_STEP_SUMMARY
           echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
           echo "- Package Version: ${{ steps.package-version.outputs.current-version}}" >> $GITHUB_STEP_SUMMARY

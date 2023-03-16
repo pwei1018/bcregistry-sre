@@ -100,14 +100,6 @@ jobs:
         with:
           ref: ${{ steps.checkoutref.outputs.CHECKOUT_REF }}
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-
-      # Get last commit sha
-      - name: Prepare
-        uses: pwei1018/bcregistry-sre/.github/actions/cd-prepare@reuseable-workflow
-
       # Get environment variables from 1password
       - name: Setup .env file
 
@@ -145,17 +137,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
-      # Bump version and push tag
-      - name: Set git tag format - datetime.short-sha
-        id: customtag
-        run: echo "tag=`date +'%Y%m%d%H%M'`.${LAST_COMMIT_SHA:0:7}" >> $GITHUB_OUTPUT
+      # Add git tag
+      - name:  Add git tag
+        uses: pwei1018/bcregistry-sre/.github/actions/add-git-tag@reuseable-workflow
 
-      - name: Add git tag
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.customtag.outputs.tag }}
-          tag_prefix: ${{ env.ENVIRONMENT }}.
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
 
       - name: Job summary
         if: always()

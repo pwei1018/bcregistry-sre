@@ -1,5 +1,11 @@
 name: 'Add git tag'
 description: ''
+
+inputs:
+  token:
+    description: 'A Github PAT'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -24,11 +30,12 @@ runs:
     # Bump version and push tag
     - name: Set git tag format - datetime.short-sha
       id: customtag
+      shell: bash
       run: echo "tag=`date +'%Y%m%d%H%M'`.${LAST_COMMIT_SHA:0:7}" >> $GITHUB_OUTPUT
 
     - name: Add git tag
       uses: mathieudutour/github-tag-action@v6.1
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ inputs.token }}
         custom_tag: ${{ steps.customtag.outputs.tag }}
         tag_prefix: ${{ env.ENVIRONMENT }}.

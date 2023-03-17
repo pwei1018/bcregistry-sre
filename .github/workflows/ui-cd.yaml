@@ -40,7 +40,7 @@ jobs:
     steps:
       # Get checkout ref and determine deployment environment
       - name: Get checkout ref
-        uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@reuseable-workflow
+        uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@main
 
       - name: Checkout out the code
         uses: actions/checkout@v3
@@ -94,7 +94,7 @@ jobs:
 
       # Add git tag
       - name:  Add git tag
-        uses: bcgov/bcregistry-sre/.github/actions/add-git-tag@reuseable-workflow
+        uses: bcgov/bcregistry-sre/.github/actions/add-git-tag@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 

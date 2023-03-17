@@ -1,0 +1,113 @@
+name: UI CD
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      tagname:
+        type: string
+    secrets:
+      APP_NAME:
+        required: true
+      OP_CONNECT_URL:
+        required: true
+      OP_CONNECT_TOKEN:
+        required: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ui-cd-worklfow:
+    # Only allow run the CD flow in protected branch
+    if: github.ref_protected == true
+
+    runs-on: ubuntu-20.04
+
+    container:
+      image: 1password/op:2
+      options: --user root
+
+    # Allow add the tag in the repo.
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'write'
+      id-token: 'write'
+
+    steps:
+      # Get checkout ref and determine deployment environment
+      - name: Get checkout ref
+        uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@reuseable-workflow
+
+      - name: Checkout out the code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      # Get environment variables from 1password
+      - name: Setup .env file
+
+        env:
+          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          APP_ENV: ${{ env.ENVIRONMENT }}
+        run: |
+          op inject -i ./devops/vaults.env -o .env -f
+
+          NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
+          echo "::add-mask::$NODE_VERSION"
+          echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
+
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/FIREBASE_HOST_NAME)
+          echo "::add-mask::$FIREBASE_HOST_NAME"
+          echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
+
+          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
+          echo "::add-mask::$WORKLOAD_IDENTIFY_POOLS_PROVIDER"
+          echo WORKLOAD_IDENTIFY_POOLS_PROVIDER=$WORKLOAD_IDENTIFY_POOLS_PROVIDER >> $GITHUB_ENV
+
+          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/GCP_SERVICE_ACCOUNT)
+          echo "::add-mask::$GCP_SERVICE_ACCOUNT"
+          echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
+
+      # GCP authentication
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+
+      # Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      # Build and push image to Google Container Registry
+      - name: Build
+        run: |-
+          gcloud builds submit \
+            --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.TAG_NAME }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
+            --config ./devops/cloudbuild-cd.yaml
+
+      # Add git tag
+      - name:  Add git tag
+        uses: bcgov/bcregistry-sre/.github/actions/add-git-tag@reuseable-workflow
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Get NPM package version
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      # Generate Job summary
+      - name: Job summary
+        if: always()
+        run: |
+          echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment Tag: ${{ env.ENVIRONMENT }}.${{ env.CUSTOM_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Package Version: ${{ steps.package-version.outputs.current-version}}" >> $GITHUB_STEP_SUMMARY

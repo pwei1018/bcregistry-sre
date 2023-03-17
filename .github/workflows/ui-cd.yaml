@@ -85,6 +85,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
+      # Build and push image to Google Container Registry
+      - name: Build
+        run: |-
+          gcloud builds submit \
+            --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.TAG_NAME }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
+            --config ./devops/cloudbuild-cd.yaml
+
       # Add git tag
       - name:  Add git tag
         uses: pwei1018/bcregistry-sre/.github/actions/add-git-tag@reuseable-workflow

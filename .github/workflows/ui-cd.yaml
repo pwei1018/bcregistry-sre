@@ -9,6 +9,8 @@ on:
       tagname:
         type: string
     secrets:
+      APP_NAME:
+        required: true
       OP_CONNECT_URL:
         required: true
       OP_CONNECT_TOKEN:
@@ -59,15 +61,15 @@ jobs:
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
 
-          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/FIREBASE_HOST_NAME)
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/FIREBASE_HOST_NAME)
           echo "::add-mask::$FIREBASE_HOST_NAME"
           echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
 
-          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
+          WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ env.ENVIRONMENT }}/base/WORKLOAD_IDENTIFY_POOLS_PROVIDER)
           echo "::add-mask::$WORKLOAD_IDENTIFY_POOLS_PROVIDER"
           echo WORKLOAD_IDENTIFY_POOLS_PROVIDER=$WORKLOAD_IDENTIFY_POOLS_PROVIDER >> $GITHUB_ENV
 
-          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ env.ENVIRONMENT }}/bcregistry/GCP_SERVICE_ACCOUNT)
+          GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ env.ENVIRONMENT }}/base/GCP_SERVICE_ACCOUNT)
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 

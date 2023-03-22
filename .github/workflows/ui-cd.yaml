@@ -25,6 +25,9 @@ jobs:
     # Only allow run the CD flow in protected branch
     if: github.ref_protected == true
 
+    environment:
+      name: "${{ github.event_name == 'push' && 'dev' || inputs.environment }}"
+
     runs-on: ubuntu-20.04
 
     container:

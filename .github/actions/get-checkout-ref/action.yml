@@ -26,7 +26,7 @@ runs:
           )" >> $GITHUB_ENV
 
     - name: Get git tag preix
-      if: inputs.tagname == null
+      if: github.event_name != 'push' && inputs.tagname == null
       id: tagprefix
       shell: bash
       run: |
@@ -44,7 +44,7 @@ runs:
 
     - name: Get lastest git tag by tag preix
       uses: oprypin/find-latest-tag@v1
-      if: inputs.tagname == null
+      if: github.event_name != 'push' && inputs.tagname == null
       id: latesttag
       with:
         repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}

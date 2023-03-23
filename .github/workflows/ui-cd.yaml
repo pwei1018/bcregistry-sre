@@ -8,6 +8,9 @@ on:
         type: string
       tagname:
         type: string
+      working_directory:
+        type: string
+        default: "."
     secrets:
       APP_NAME:
         required: true
@@ -29,6 +32,11 @@ jobs:
       name: "${{ github.event_name == 'push' && 'dev' || inputs.environment }}"
 
     runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
 
     container:
       image: 1password/op:2
@@ -76,24 +84,7 @@ jobs:
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 
-      # GCP authentication
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
-          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
 
-      # Setup gcloud CLI
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-
-      # Build and push image to Google Container Registry
-      - name: Build
-        run: |-
-          gcloud builds submit \
-            --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
-            --config ./devops/cloudbuild-cd.yaml
 
       # Add git tag
       - name:  Add git tag

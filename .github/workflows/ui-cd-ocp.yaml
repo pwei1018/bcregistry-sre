@@ -1,0 +1,101 @@
+name: UI CD for OCP
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      tagname:
+        type: string
+      working_directory:
+        type: string
+        default: "."
+    secrets:
+      APP_NAME:
+        required: true
+      OP_CONNECT_URL:
+        required: true
+      OP_CONNECT_TOKEN:
+        required: true
+      OPENSHIFT4_LOGIN_REGISTRY:
+        required: true
+      OPENSHIFT4_SA_TOKEN:
+        required: true
+      OPS_REPOSITORY:
+        required: true
+      OPENSHIFT_DOCKER_REGISTRY:
+        required: true
+      OPENSHIFT_SA_NAME:
+        required: true
+      OPENSHIFT_SA_TOKEN:
+        required: true
+      OPENSHIFT_REPOSITORY:
+        required: true
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ui-cd-ocp-worklfow:
+    # Only allow run the CD flow in protected branch
+    if: github.ref_protected == true
+
+    environment:
+      name: "${{ github.event_name == 'push' && 'dev' || inputs.environment }}"
+
+    runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+    container:
+      image: 1password/op:2
+      options: --user root
+
+    # Allow add the tag in the repo.
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'write'
+      id-token: 'write'
+
+    steps:
+      # Get checkout ref and determine deployment environment
+      - name: Get checkout ref
+        uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@main
+
+      - name: Checkout out the code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      # Get environment variables from 1password
+      - name: Setup .env file
+        env:
+          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          APP_ENV: ${{ env.ENVIRONMENT }}
+        run: |
+          op inject -i ./devops/vaults.env -o .env -f
+
+      # Add git tag
+      - name:  Add git tag
+        uses: bcgov/bcregistry-sre/.github/actions/add-git-tag@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Get NPM package version
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      # Generate Job summary
+      - name: Job summary
+        if: always()
+        run: |
+          echo "# Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployment Tag: ${{ env.ENVIRONMENT }}.${{ env.CUSTOM_TAG }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Package Version: ${{ steps.package-version.outputs.current-version}}" >> $GITHUB_STEP_SUMMARY

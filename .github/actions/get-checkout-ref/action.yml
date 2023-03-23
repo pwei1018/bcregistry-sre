@@ -44,12 +44,13 @@ runs:
 
     - name: Get lastest git tag by tag preix
       uses: oprypin/find-latest-tag@v1
-      if: github.event_name != 'push' && inputs.tagname == null
+      if: env.ENVIRONMENT != 'dev' && inputs.tagname == null
       id: latesttag
       with:
         repository: ${{ github.repository_owner }}/${{ github.event.repository.name }}
         releases-only: false
         prefix: ${{ steps.tagprefix.outputs.TAG_PREFIX }}
+      continue-on-error: true
 
     - name: Determine the tag/ref for checkout
       shell: bash

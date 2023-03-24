@@ -25,7 +25,7 @@ runs:
           fi
           )" >> $GITHUB_ENV
 
-    - name: Get git tag preix
+    - name: Get git tag prefix
       if: github.event_name != 'push' && inputs.tagname == null
       id: tagprefix
       shell: bash
@@ -42,7 +42,7 @@ runs:
           fi
           )" >> $GITHUB_OUTPUT
 
-    - name: Get lastest git tag by tag preix
+    - name: Get lastest git tag by tag prefix
       uses: oprypin/find-latest-tag@v1
       if: env.ENVIRONMENT != 'dev' && inputs.tagname == null
       id: latesttag
@@ -69,4 +69,4 @@ runs:
               echo ${{ inputs.tagname }}
             fi
           fi
-          )" >> ${GITHUB_ENV}s
+          )" >> $GITHUB_ENV

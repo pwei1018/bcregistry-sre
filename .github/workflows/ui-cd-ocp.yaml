@@ -18,11 +18,7 @@ on:
         required: true
       OP_CONNECT_TOKEN:
         required: true
-      OPENSHIFT4_LOGIN_REGISTRY:
-        required: true
-      OPENSHIFT4_SA_TOKEN:
-        required: true
-      OPS_REPOSITORY:
+      OPENSHIFT_LOGIN_REGISTRY:
         required: true
       OPENSHIFT_DOCKER_REGISTRY:
         required: true
@@ -82,22 +78,21 @@ jobs:
 
       - name: Login Openshift
         run: |
-          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
+          oc login --server=${{secrets.OPENSHIFT_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT_SA_TOKEN}}
 
       - name: CD Flow
         env:
-          OPS_REPOSITORY: ${{ secrets.OPS_REPOSITORY }}
-          OPENSHIFT_DOCKER_REGISTRY: ${{ secrets.OPENSHIFT4_DOCKER_REGISTRY }}
-          OPENSHIFT_SA_NAME: ${{ secrets.OPENSHIFT4_SA_NAME }}
-          OPENSHIFT_SA_TOKEN: ${{ secrets.OPENSHIFT4_SA_TOKEN }}
-          OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT4_FRONTEND_REPOSITORY }}
+          OPENSHIFT_DOCKER_REGISTRY: ${{ secrets.OPENSHIFT_DOCKER_REGISTRY }}
+          OPENSHIFT_SA_NAME: ${{ secrets.OPENSHIFT_SA_NAME }}
+          OPENSHIFT_SA_TOKEN: ${{ secrets.OPENSHIFT_SA_TOKEN }}
+          OPENSHIFT_REPOSITORY: ${{ secrets.OPENSHIFT_REPOSITORY }}
           TAG_NAME: ${{ env.ENVIRONMENT }}
         run: |
           make cd
 
       - name: Watch new rollout (trigger by image change in Openshift)
         run: |
-          oc rollout status dc/${{ secrets.APP_NAME }}-${{ env.ENVIRONMENT }} -n ${{ secrets.OPENSHIFT4_FRONTEND_REPOSITORY }}-${{ env.ENVIRONMENT }} -w
+          oc rollout status dc/${{ secrets.APP_NAME }}-${{ env.ENVIRONMENT }} -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ env.ENVIRONMENT }} -w
 
       # Add git tag
       - name:  Add git tag

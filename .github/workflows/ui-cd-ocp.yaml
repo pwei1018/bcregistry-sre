@@ -57,6 +57,9 @@ jobs:
       # Get checkout ref and determine deployment environment
       - name: Get checkout ref
         uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@main
+        with:
+          environment: ${{ inputs.environment }}
+          tagname: ${{ inputs.tagname }}
 
       - name: Checkout out the code
         uses: actions/checkout@v3
@@ -78,6 +81,7 @@ jobs:
           op inject -i ./devops/vaults.env -o .env -f
 
           export OCP_CONTENT_PATH=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/OCP_CONTENT_PATH)
+          echo $OCP_CONTENT_PATH
           sed -i "/^VUE_APP_PATH=/s/=.*/=$OCP_CONTENT_PATH/" .env
 
       - name: Login Openshift

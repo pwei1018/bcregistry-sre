@@ -52,6 +52,9 @@ jobs:
       # Get checkout ref and determine deployment environment
       - name: Get checkout ref
         uses: bcgov/bcregistry-sre/.github/actions/get-checkout-ref@main
+        with:
+          environment: ${{ inputs.environment }}
+          tagname: ${{ inputs.tagname }}
 
       - name: Checkout out the code
         uses: actions/checkout@v3

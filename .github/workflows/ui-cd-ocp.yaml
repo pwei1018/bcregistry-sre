@@ -78,9 +78,8 @@ jobs:
           op inject -i ./devops/vaults.env -o .env -f
 
           export OCP_CONTENT_PATH=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/OCP_CONTENT_PATH)
-          echo $OCP_CONTENT_PATH
           
-          sed -i "/^VUE_APP_PATH=/s/=.*/=$OCP_CONTENT_PATH/" .env
+          sed -i "/^VUE_APP_PATH=/s|=.*|=$OCP_CONTENT_PATH|" .env 
 
       - name: Login Openshift
         run: |

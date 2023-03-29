@@ -63,14 +63,15 @@ jobs:
 
       # Get environment variables from 1password
       - name: Setup .env file
-
+        working-directory: ${{ inputs.working_directory }}
         env:
           OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           APP_ENV: ${{ env.ENVIRONMENT }}
         run: |
+          pwd
           op inject -i ./devops/vaults.env -o .env -f
-
+          ls -l
           NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
@@ -101,6 +102,7 @@ jobs:
 
       # Build and push image to Google Container Registry
       - name: Build
+        working-directory: ${{ inputs.working_directory }}
         run: |-
           gcloud builds submit \
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \

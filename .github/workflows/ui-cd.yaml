@@ -69,10 +69,7 @@ jobs:
           OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           APP_ENV: ${{ env.ENVIRONMENT }}
         run: |
-          pwd
           op inject -i ./devops/vaults.env -o .env -f
-          ls -la
-          cat .env
           
           NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
           echo "::add-mask::$NODE_VERSION"

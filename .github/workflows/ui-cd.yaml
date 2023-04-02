@@ -71,7 +71,7 @@ jobs:
           APP_ENV: ${{ env.ENVIRONMENT }}-gcp
         run: |
           op inject -i ./devops/vaults.env -o .env -f
-          
+
           NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
@@ -93,8 +93,8 @@ jobs:
         uses: bcgov/bcregistry-sre/.github/actions/firebase@main
 
       # GCP authentication
-      - name: Authenticate to Google Cloud
-        id: auth
+      - name: 'Authenticate to Google Cloud'
+        id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
@@ -121,8 +121,9 @@ jobs:
       # Get NPM package version
       - name: get-npm-version
         id: package-version
-        working-directory: ${{ inputs.working_directory }}
         uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: ${{ inputs.working_directory }}/packages.json
 
       # Generate Job summary
       - name: Job summary

@@ -56,6 +56,7 @@ jobs:
           environment: ${{ inputs.environment }}
           tagname: ${{ inputs.tagname }}
 
+      # Checkout code
       - name: Checkout out the code
         uses: actions/checkout@v3
         with:
@@ -87,9 +88,13 @@ jobs:
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 
+      # Copy firebase.json and cloud build yaml to the build
+      - name: Copy firebase build deployment files
+        uses: bcgov/bcregistry-sre/.github/actions/firebase@main
+
       # GCP authentication
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
+      - name: Authenticate to Google Cloud
+        id: auth
         uses: 'google-github-actions/auth@v1'
         with:
           workload_identity_provider: ${{ env.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
@@ -105,7 +110,7 @@ jobs:
         run: |-
           gcloud builds submit \
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
-            --config ./devops/cloudbuild-cd.yaml
+            --config cloudbuild-cd.yaml
 
       # Add git tag
       - name:  Add git tag
@@ -116,6 +121,7 @@ jobs:
       # Get NPM package version
       - name: get-npm-version
         id: package-version
+        working-directory: ${{ inputs.working_directory }}
         uses: martinbeentjes/npm-get-version-action@main
 
       # Generate Job summary

@@ -1,0 +1,11 @@
+name: 'Copy firebase build deployment files'
+description: ''
+
+runs:
+  using: "composite"
+  steps:
+    # Copy files
+    - name: Copy build/deployment files
+      shell: bash
+      run: |
+        cp  ${{ github.action_path }}/files/* .

@@ -1,4 +1,4 @@
-name: UI CD
+name: UI CD for GCP
 
 on:
   workflow_call:
@@ -19,10 +19,6 @@ on:
       OP_CONNECT_TOKEN:
         required: true
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   ui-cd-worklfow:
     # Only allow run the CD flow in protected branch
@@ -32,15 +28,6 @@ jobs:
       name: "${{ github.event_name == 'push' && 'dev' || inputs.environment }}"
 
     runs-on: ubuntu-20.04
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
-
-    container:
-      image: 1password/op:2
-      options: --user root
 
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.
@@ -61,6 +48,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ env.CHECKOUT_REF }}
+
+      # Install 1password cli tool
+      - name: Install 1password cli tool
+        uses: bcgov/bcregistry-sre/.github/actions/install-1pass@main
 
       # Get environment variables from 1password
       - name: Setup .env file
@@ -87,6 +78,10 @@ jobs:
           GCP_SERVICE_ACCOUNT=$(op read -n op://CD/${{ env.ENVIRONMENT }}/base/GCP_SERVICE_ACCOUNT)
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
+
+      # Copy firebase.json and cloud build yaml to the build
+      - name: Copy firebase build deployment files
+        uses: bcgov/bcregistry-sre/.github/actions/firebase@main
 
       # GCP authentication
       - name: 'Authenticate to Google Cloud'

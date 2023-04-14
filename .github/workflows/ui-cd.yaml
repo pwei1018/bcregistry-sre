@@ -88,10 +88,6 @@ jobs:
           echo "::add-mask::$GCP_SERVICE_ACCOUNT"
           echo GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT >> $GITHUB_ENV
 
-      # Copy firebase.json and cloud build yaml to the build
-      - name: Copy firebase build deployment files
-        uses: bcgov/bcregistry-sre/.github/actions/firebase@main
-
       # GCP authentication
       - name: 'Authenticate to Google Cloud'
         id: 'auth'
@@ -110,7 +106,7 @@ jobs:
         run: |-
           gcloud builds submit \
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
-            --config cloudbuild-cd.yaml
+            --config ./devops/cloudbuild-cd.yaml
 
       # Add git tag
       - name:  Add git tag

@@ -71,7 +71,7 @@ jobs:
           APP_ENV: ${{ env.ENVIRONMENT }}-gcp
         run: |
           op inject -i ./devops/vaults.env -o .env -f
-
+          
           NODE_VERSION=$(op read -n op://CD/app-version/NODE_VERSION)
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV

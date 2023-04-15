@@ -3,6 +3,9 @@ name: UI CD for GCP
 on:
   workflow_call:
     inputs:
+      app_name:
+        type: string
+        default: "."
       environment:
         required: true
         type: string
@@ -67,7 +70,7 @@ jobs:
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
 
-          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/FIREBASE_HOST_NAME)
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ inputs.app_name }}/FIREBASE_HOST_NAME)
           echo "$FIREBASE_HOST_NAME"
           echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
 

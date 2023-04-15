@@ -70,7 +70,7 @@ jobs:
           echo "::add-mask::$NODE_VERSION"
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
 
-          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ inputs.app_name }}/FIREBASE_HOST_NAME)
+          FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/FIREBASE_HOST_NAME)
           echo "$FIREBASE_HOST_NAME"
           echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
 
@@ -102,7 +102,7 @@ jobs:
       - name: Build
         working-directory: ${{ inputs.working_directory }}
         run: |-
-          firebase="$(jq '.hosting.site=${{ env.FIREBASE_HOST_NAME }}' firebase-${{ env.ENVIRONMENT }}.json)"
+          firebase="$(jq '.hosting.site="${{ env.FIREBASE_HOST_NAME }}"' firebase-${{ env.ENVIRONMENT }}.json)"
           echo -E "${firebase}" > firebase-${{ env.ENVIRONMENT }}.json
           gcloud builds submit \
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \

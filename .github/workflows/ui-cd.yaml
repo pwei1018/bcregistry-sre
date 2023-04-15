@@ -3,9 +3,6 @@ name: UI CD for GCP
 on:
   workflow_call:
     inputs:
-      app_name:
-        type: string
-        default: "."
       environment:
         required: true
         type: string

@@ -68,7 +68,7 @@ jobs:
           echo NODE_VERSION=$NODE_VERSION >> $GITHUB_ENV
 
           FIREBASE_HOST_NAME=$(op read -n op://CD/${{ env.ENVIRONMENT }}/${{ secrets.APP_NAME }}/FIREBASE_HOST_NAME)
-          echo "::add-mask::$FIREBASE_HOST_NAME"
+          echo "$FIREBASE_HOST_NAME"
           echo FIREBASE_HOST_NAME=$FIREBASE_HOST_NAME >> $GITHUB_ENV
 
           WORKLOAD_IDENTIFY_POOLS_PROVIDER=$(op read -n op://CD/${{ env.ENVIRONMENT }}/base/WORKLOAD_IDENTIFY_POOLS_PROVIDER)

@@ -29,6 +29,11 @@ jobs:
 
     runs-on: ubuntu-20.04
 
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.
     permissions:

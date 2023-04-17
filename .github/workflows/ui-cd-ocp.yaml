@@ -29,11 +29,6 @@ on:
       OPENSHIFT_REPOSITORY:
         required: true
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ${{ inputs.working_directory }}
-
 jobs:
   ui-cd-ocp-worklfow:
     # Only allow run the CD flow in protected branch
@@ -43,6 +38,11 @@ jobs:
       name: "${{ github.event_name == 'push' && 'dev' || inputs.environment }}"
 
     runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
 
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.

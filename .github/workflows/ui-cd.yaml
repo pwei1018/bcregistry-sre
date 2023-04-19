@@ -87,6 +87,8 @@ jobs:
       # Copy firebase.json and cloud build yaml to the build
       - name: Copy firebase build deployment files
         uses: bcgov/bcregistry-sre/.github/actions/firebase@main
+        with:
+          working-directory: ${{ inputs.working_directory }}
 
       # GCP authentication
       - name: 'Authenticate to Google Cloud'

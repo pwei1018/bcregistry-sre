@@ -108,7 +108,7 @@ jobs:
           echo -E "${firebase}" > firebase-${{ env.ENVIRONMENT }}.json
           gcloud builds submit \
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }} \
-            --config ./devops/cloudbuild-cd.yaml
+            --config cloudbuild-cd.yaml
 
       # Add git tag
       - name:  Add git tag

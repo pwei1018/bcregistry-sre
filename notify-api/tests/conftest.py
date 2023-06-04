@@ -33,48 +33,50 @@ def not_raises(exception):
     try:
         yield
     except exception:
-        raise pytest.fail(f'DID RAISE {exception}')
+        raise pytest.fail(f"DID RAISE {exception}")
 
 
 # fixture to freeze utcnow to a fixed date-time
 @pytest.fixture
 def freeze_datetime_utcnow(monkeypatch):
     """Fixture to return a static time for utcnow()."""
+
     class _Datetime:
         @classmethod
         def utcnow(cls):
             return FROZEN_DATETIME
 
-    monkeypatch.setattr(datetime, 'datetime', _Datetime)
+    monkeypatch.setattr(datetime, "datetime", _Datetime)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def app():
     """Return a session-wide application configured in TEST mode."""
-    _app = create_app('unitTesting')
+    _app = create_app("unitTesting")
 
     with _app.app_context():
         yield _app
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def client(app):  # pylint: disable=redefined-outer-name
     """Return a session-wide Flask test client."""
     return app.test_client()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def jwt():
     """Return a session-wide jwt manager."""
     return _jwt
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def db(app, request):
     """Session-wide test database."""
 
     def teardown():
         _db.drop_all()
+
     _db.app = app
 
     _db.create_all()
@@ -82,18 +84,22 @@ def db(app, request):
     return _db
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def session(db, request):
     """Return a function-scoped session."""
     db.session.begin_nested()
+
     def commit():
         db.session.flush()
+
     # patch commit method
     old_commit = db.session.commit
     db.session.commit = commit
+
     def teardown():
         db.session.rollback()
         db.session.close()
         db.session.commit = old_commit
+
     request.addfinalizer(teardown)
     return db.session

@@ -43,3 +43,13 @@ def safe_list(body: SafeListRequest):  # pylint: disable=unused-argument
             logger.debug(err)
 
     return {}, HTTPStatus.OK
+
+
+@bp.route('/', methods=['GET', 'OPTIONS'])
+@cross_origin(origin='*')
+@jwt.requires_auth
+@jwt.has_one_of_roles([Role.SYSTEM.value, Role.STAFF.value])
+@validate()
+def get_safe_list():
+    """Get safe list."""
+    return [safe_list.json for safe_list in SafeList.find_all()], HTTPStatus.OK

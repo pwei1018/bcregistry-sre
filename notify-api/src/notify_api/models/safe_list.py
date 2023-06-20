@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Safe List data model."""
+from __future__ import annotations
+
 from typing import List
 
 from pydantic import BaseModel
@@ -66,3 +68,9 @@ class SafeList(db.Model):
             is_safe = True
 
         return is_safe
+
+    @classmethod
+    def find_all(cls) -> List[SafeList]:
+        """Return all of the safe emails."""
+        safe_emails = cls.query.all()
+        return safe_emails

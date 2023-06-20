@@ -34,12 +34,6 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
-    # Allow add the tag in the repo.
-    # Add "id-token" with the intended permissions.
-    permissions:
-      contents: 'write'
-      id-token: 'write'
-
     steps:
       # Get checkout ref and determine deployment environment
       - name: Get checkout ref

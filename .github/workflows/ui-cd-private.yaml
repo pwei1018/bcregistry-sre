@@ -38,7 +38,7 @@ jobs:
     # Add "id-token" with the intended permissions.
     permissions:
       contents: 'write'
-      id-token: 'read'
+      id-token: 'write'
 
     steps:
       # Get checkout ref and determine deployment environment

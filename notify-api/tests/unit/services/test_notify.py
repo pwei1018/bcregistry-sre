@@ -15,10 +15,12 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
+import copy
 import pytest
 
 from notify_api.errors import BadGatewayException, NotifyException
 from notify_api.models.notification import Notification, NotificationRequest
+from notify_api.models.safe_list import SafeList
 from notify_api.services.notify_service import NotifyService
 from notify_api.services.providers.email_smtp import EmailSMTP
 from notify_api.services.providers.gc_notify import GCNotify
@@ -123,3 +125,43 @@ def test_notify_exception(app, session):  # pylint: disable=unused-argument
             NotifyService().notify(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
 
         assert exception.value.args[0] == 'mocked error'
+
+
+def test_safe_list_notify(app, session):
+    """Test removal of non-safe emails."""
+    app.config['DEVELOPMENT'] = True
+
+    # None are safe - still gets logged in the table.
+    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+        service = NotifyService()
+        notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
+        notification.recipients = 'recipient1, recipient2, recipient3'
+        result = service.notify(notification)
+        assert result is not None
+        # All emails are included, but this email isn't sent
+        assert result.recipients == 'recipient1, recipient2, recipient3'
+        gc_notify.assert_not_called()
+
+    # Some are safe - Note we wont be logging unsafe emails here.
+    safelist = SafeList()
+    safelist.add_email('recipient2')
+    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+        service = NotifyService()
+        notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
+        notification.recipients = 'Recipient1,recipient2, reCipient3'
+        result = service.notify(notification)
+        assert result is not None
+        assert result.recipients == 'recipient2'
+        gc_notify.assert_called()
+
+    # All are safe - all will be emailed and included in the row.
+    safelist.add_email('recipient1')
+    safelist.add_email('recipient3')
+    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+        service = NotifyService()
+        notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
+        notification.recipients = 'Recipient1,recipient2, reCipient3'
+        result = service.notify(notification)
+        assert result is not None
+        assert result.recipients == 'Recipient1,recipient2,reCipient3'
+        gc_notify.assert_called()

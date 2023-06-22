@@ -65,11 +65,17 @@ class NotifyService():
 
             # Email must set in safe list of Dev and Test environment
             if current_app.config.get('DEVELOPMENT'):
-                for recipient in notification.recipients.split(','):
-                    is_safe_to_send = SafeList.is_in_safe_list(recipient.lower().strip())
-                    if not is_safe_to_send:
-                        logger.info('[%s] is not in the safe list', recipient.lower().strip())
-                        break
+                recipients = [r.strip() for r in notification.recipients.split(',')
+                              if SafeList.is_in_safe_list(r.lower().strip())]
+                unsafe_recipients = [r for r in notification.recipients.split(',')
+                                     if r.strip() not in recipients]
+                if not recipients:
+                    logger.info('None of the recipients are in the safe list')
+                    is_safe_to_send = False
+                else:
+                    for recipient in unsafe_recipients:
+                        logger.info('%s is not in the safe list', recipient.strip())
+                    notification.recipients = ','.join(recipients)
 
             if is_safe_to_send:
                 if notification.type_code == Notification.NotificationType.TEXT:

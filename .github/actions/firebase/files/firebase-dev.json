@@ -28,6 +28,38 @@
             { "key": "Feature-Policy", "value": "microphone 'self'" },
             { "key": "Strict-Transport-Security", "value": "max-age=31536000;" }
           ]
+        },
+        {
+          "source": "**/*.@(ico|jpg|jpeg|gif|png|svg|eot|otf|ttf|ttc|woff|woff2)",
+          "headers": [
+            {
+              "key": "Cache-Control", "value": "public,max-age=31536000"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(css|js)",
+          "headers": [
+            {
+              "key": "Cache-Control", "value": "public,max-age=31536000"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(service-worker.js)",
+          "headers": [
+            {
+              "key": "Cache-Control", "value": "public,no-cache"
+            }
+          ]
+        },
+        {
+          "source": "**/*.@(html|json)",
+          "headers": [
+            {
+              "key": "Cache-Control", "value": "private, no-cache, no-store, must-revalidate"
+            }
+          ]
         }
       ]
     }

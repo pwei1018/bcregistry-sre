@@ -26,6 +26,7 @@ class Role(BaseEnum):
     SMS = auto()
     JOB = auto()
     INVALID = auto()
+    GC_NOTIFY_CALLBACK = auto()
 
 
 class MillionverifierResult(BaseEnum):

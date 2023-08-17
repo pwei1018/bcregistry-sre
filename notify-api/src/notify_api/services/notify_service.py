@@ -21,7 +21,13 @@ from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 from flask import current_app
 
 from notify_api.errors import BadGatewayException, NotifyException
-from notify_api.models import Notification, NotificationHistory, NotificationRequest, SafeList
+from notify_api.models import (
+    Notification,
+    NotificationHistory,
+    NotificationRequest,
+    NotificationSendResponses,
+    SafeList,
+)
 from notify_api.services.providers import _all_providers  # noqa: E402
 
 
@@ -30,7 +36,7 @@ logger = logging.getLogger(__name__)
 warnings.filterwarnings('ignore', category=MarkupResemblesLocatorWarning, module='bs4')
 
 
-class NotifyService():
+class NotifyService:
     """Provides services to manages notification."""
 
     def __init__(self):
@@ -45,7 +51,9 @@ class NotifyService():
                 return Notification.NotificationProvider.GC_NOTIFY
 
             # Send email through GC Notify if email body is not html
-            if not bool(BeautifulSoup(notification.content[0].body, 'html.parser').find()):
+            if not bool(
+                BeautifulSoup(notification.content[0].body, 'html.parser').find()
+            ):
                 return Notification.NotificationProvider.GC_NOTIFY
         else:
             if notification.type_code == Notification.NotificationType.TEXT:
@@ -65,34 +73,55 @@ class NotifyService():
 
             # Email must set in safe list of Dev and Test environment
             if current_app.config.get('DEVELOPMENT'):
-                recipients = [r.strip() for r in notification.recipients.split(',')
-                              if SafeList.is_in_safe_list(r.lower().strip())]
-                unsafe_recipients = [r for r in notification.recipients.split(',')
-                                     if r.strip() not in recipients]
+                recipients = [
+                    r.strip()
+                    for r in notification.recipients.split(',')
+                    if SafeList.is_in_safe_list(r.lower().strip())
+                ]
+                unsafe_recipients = [
+                    r
+                    for r in notification.recipients.split(',')
+                    if r.strip() not in recipients
+                ]
                 if unsafe_recipients:
-                    logger.info('%s are not in the safe list', ','.join(unsafe_recipients))
+                    logger.info(
+                        '%s are not in the safe list', ','.join(unsafe_recipients)
+                    )
                 if not recipients:
                     is_safe_to_send = False
                 else:
                     notification.recipients = ','.join(recipients)
 
+            responses: NotificationSendResponses = None
+
             if is_safe_to_send:
                 if notification.type_code == Notification.NotificationType.TEXT:
-                    _all_providers[provider](notification).send_sms()
+                    responses = _all_providers[provider](notification).send_sms()
                 else:
-                    _all_providers[provider](notification).send()
+                    responses = _all_providers[provider](notification).send()
 
             # update the notification status
             notification.sent_date = datetime.utcnow()
-            notification.status_code = Notification.NotificationStatus.DELIVERED
+            notification.status_code = Notification.NotificationStatus.SENT
             notification.provider_code = provider
             notification.update_notification()
 
-            # save to history
-            notification_history = NotificationHistory.create_history(notification)
+            if responses:
+                for response in responses.recipients:
+                    # save to history as per recipient
+                    notification_history = NotificationHistory.create_history(
+                        notification, response.recipient, response.response_id
+                    )
+            else:
+                notification_history = NotificationHistory.create_history(notification)
+
             notification.delete_notification()
 
-        except (BadGatewayException, NotifyException, Exception) as err:  # NOQA # pylint: disable=broad-except
+        except (
+            BadGatewayException,
+            NotifyException,
+            Exception,
+        ) as err:  # NOQA # pylint: disable=broad-except
             logger.error('Send notification Error: %s', err)
             notification.sent_date = datetime.utcnow()
             notification.status_code = Notification.NotificationStatus.FAILURE
@@ -116,7 +145,7 @@ class NotifyService():
 
                 # update the notification status
                 notification.sent_date = datetime.utcnow()
-                notification.status_code = Notification.NotificationStatus.DELIVERED
+                notification.status_code = Notification.NotificationStatus.SENT
                 notification.provider_code = provider
                 notification.update_notification()
 
@@ -124,7 +153,11 @@ class NotifyService():
                 NotificationHistory.create_history(notification)
                 notification.delete_notification()
 
-        except (BadGatewayException, NotifyException, Exception) as err:  # NOQA # pylint: disable=broad-except
+        except (
+            BadGatewayException,
+            NotifyException,
+            Exception,
+        ) as err:  # NOQA # pylint: disable=broad-except
             logger.error('Send notification Error: %s', err)
             notification.sent_date = datetime.utcnow()
             notification.status_code = Notification.NotificationStatus.FAILURE

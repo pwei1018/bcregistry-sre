@@ -20,11 +20,12 @@ from email.encoders import encode_base64
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import List
 
 from flask import current_app
 
 from notify_api.errors import BadGatewayException
-from notify_api.models import Notification
+from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
 
 
 logger = logging.getLogger(__name__)
@@ -70,10 +71,20 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
 
                     message.attach(part)
 
+            response_list: List[NotificationSendResponse] = []
+
             server = smtplib.SMTP()
             server.connect(host=self.mail_server, port=self.mail_port)
-            server.sendmail(message['From'], [message['To']], message.as_string())
+            for email in message['To'].split(','):
+                server.sendmail(message['From'], [email], message.as_string())
+
+                sent_response = NotificationSendResponse(response_id=None,
+                                                         recipient=email)
+                response_list.append(sent_response)
+
             server.quit()
+
+            return NotificationSendResponses(**{'recipients': response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
             logger.error('Email SMTP Error: %s', err)

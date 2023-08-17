@@ -138,10 +138,13 @@ class NotifyService:
 
             for notification in notifications:
                 provider: str = self.get_provider(notification)
+
+                responses: NotificationSendResponses = None
+
                 if notification.type_code == Notification.NotificationType.TEXT:
-                    _all_providers[provider](notification).send_sms()
+                    responses = _all_providers[provider](notification).send_sms()
                 else:
-                    _all_providers[provider](notification).send()
+                    responses = _all_providers[provider](notification).send()
 
                 # update the notification status
                 notification.sent_date = datetime.utcnow()
@@ -149,8 +152,15 @@ class NotifyService:
                 notification.provider_code = provider
                 notification.update_notification()
 
-                # save to history
-                NotificationHistory.create_history(notification)
+                if responses:
+                    for response in responses.recipients:
+                        # save to history as per recipient
+                        NotificationHistory.create_history(
+                            notification, response.recipient, response.response_id
+                        )
+                else:
+                    NotificationHistory.create_history(notification)
+
                 notification.delete_notification()
 
         except (

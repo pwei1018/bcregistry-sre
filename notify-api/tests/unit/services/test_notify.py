@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """The Unit Test for the Service."""
+import copy
 from http import HTTPStatus
 from unittest.mock import patch
 
-import copy
 import pytest
 
 from notify_api.errors import BadGatewayException, NotifyException
-from notify_api.models.notification import Notification, NotificationRequest
+from notify_api.models.notification import Notification, NotificationRequest, NotificationSendResponses
 from notify_api.models.safe_list import SafeList
 from notify_api.services.notify_service import NotifyService
 from notify_api.services.providers.email_smtp import EmailSMTP
@@ -74,8 +74,9 @@ def test_get_provider_gc_notify_disable(app, session, monkeypatch):  # pylint: d
 
 def test_notify_by_email(session, monkeypatch):  # pylint: disable=unused-argument
     """Assert the test can create notification."""
-    with patch.object(EmailSMTP, 'send', return_value=True), \
-         patch.object(GCNotify, 'send', return_value=True):
+    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE])
+    with patch.object(EmailSMTP, 'send', return_value=responses), \
+         patch.object(GCNotify, 'send', return_value=responses):
         service = NotifyService()
         notification = NotificationRequest(**NotificationFactory.RequestProviderData.REQUEST_PROVIDER_2['data'])
         result = service.notify(notification)
@@ -85,7 +86,8 @@ def test_notify_by_email(session, monkeypatch):  # pylint: disable=unused-argume
 
 def test_notify_by_sms(session, monkeypatch):  # pylint: disable=unused-argument
     """Assert the test can create sms notification."""
-    with patch.object(GCNotify, 'send_sms', return_value=True):
+    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SMS_SEND_RESPONSE])
+    with patch.object(GCNotify, 'send_sms', return_value=responses):
         service = NotifyService()
         notification = NotificationRequest(**NotificationFactory.RequestProviderData.REQUEST_PROVIDER_3['data'])
         notification.notify_type = Notification.NotificationType.TEXT
@@ -132,7 +134,8 @@ def test_safe_list_notify(app, session):
     app.config['DEVELOPMENT'] = True
 
     # None are safe - still gets logged in the table.
-    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE_2])
+    with patch.object(GCNotify, 'send', return_value=responses) as gc_notify:
         service = NotifyService()
         notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
         notification.recipients = 'recipient1, recipient2, recipient3'
@@ -145,7 +148,8 @@ def test_safe_list_notify(app, session):
     # Some are safe - Note we wont be logging unsafe emails here.
     safelist = SafeList()
     safelist.add_email('recipient2')
-    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE_2])
+    with patch.object(GCNotify, 'send', return_value=responses) as gc_notify:
         service = NotifyService()
         notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
         notification.recipients = 'Recipient1,recipient2, reCipient3'
@@ -157,11 +161,12 @@ def test_safe_list_notify(app, session):
     # All are safe - all will be emailed and included in the row.
     safelist.add_email('recipient1')
     safelist.add_email('recipient3')
-    with patch.object(GCNotify, 'send', return_value=True) as gc_notify:
+    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE_2])
+    with patch.object(GCNotify, 'send', return_value=responses) as gc_notify:
         service = NotifyService()
         notification = copy.copy(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
         notification.recipients = 'Recipient1,recipient2, reCipient3'
         result = service.notify(notification)
         assert result is not None
-        assert result.recipients == 'Recipient1,recipient2,reCipient3'
+        assert result.recipients == 'recipient2'
         gc_notify.assert_called()

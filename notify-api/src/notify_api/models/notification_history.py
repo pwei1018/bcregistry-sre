@@ -32,6 +32,8 @@ class NotificationHistory(db.Model):
     type_code = db.Column(db.String(15), nullable=False)
     status_code = db.Column(db.String(15), nullable=False)
     provider_code = db.Column(db.String(15), nullable=False)
+    gc_notify_response_id = db.Column(db.String, nullable=True)
+    gc_notify_status = db.Column(db.String, nullable=True)
 
     @property
     def json(self) -> dict:
@@ -46,23 +48,43 @@ class NotificationHistory(db.Model):
             'notifyType': self.type_code,
             'notifyStatus': self.status_code,
             'notifyProvider': self.provider_code,
+            'gc_notify_response_id': self.gc_notify_response_id,
+            'gc_notify_status': self.gc_notify_status,
         }
 
         return history_json
 
     @classmethod
-    def create_history(cls, notification: Notification):
+    def create_history(cls, notification: Notification, recipient: str = None, response_id: str = None):
         """Create notification."""
-        db_history = NotificationHistory(recipients=notification.recipients,
+        db_history = NotificationHistory(recipients=recipient if recipient else notification.recipients,
                                          request_date=notification.request_date,
                                          request_by=notification.request_by,
                                          sent_date=notification.sent_date,
                                          subject=notification.content[0].subject,
                                          type_code=notification.type_code.upper(),
                                          status_code=notification.status_code.upper(),
-                                         provider_code=notification.provider_code.upper())
+                                         provider_code=notification.provider_code.upper(),
+                                         gc_notify_response_id=response_id)
         db.session.add(db_history)
         db.session.commit()
         db.session.refresh(db_history)
 
         return db_history
+
+    @classmethod
+    def find_by_response_id(cls, response_id: str = None):
+        """Return a Notification by the gc notify response id."""
+        notification_history = None
+        if response_id:
+            notification_history = cls.query.filter_by(gc_notify_response_id=response_id).one_or_none()
+
+        return notification_history
+
+    def update(self):
+        """Update notification."""
+        db.session.add(self)
+        db.session.flush()
+        db.session.commit()
+
+        return self

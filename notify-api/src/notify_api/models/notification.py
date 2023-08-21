@@ -14,7 +14,7 @@
 """Notification data model."""
 from datetime import datetime
 from enum import auto
-from typing import Optional
+from typing import List, Optional
 
 import phonenumbers
 from email_validator import EmailNotValidError, validate_email
@@ -61,6 +61,19 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
         alias_generator = to_camel
 
 
+class NotificationSendResponse(BaseModel):  # pylint: disable=too-few-public-methods
+    """Model for GC notify send response."""
+
+    response_id: str = None
+    recipient: str = None
+
+
+class NotificationSendResponses(BaseModel):  # pylint: disable=too-few-public-methods
+    """Notification model for resquest."""
+
+    recipients: List[NotificationSendResponse] = None
+
+
 class Notification(db.Model):
     """Immutable Notification record. Represents Notification."""
 
@@ -74,6 +87,7 @@ class Notification(db.Model):
         """Enum for the Notification Status."""
 
         PENDING = auto()
+        SENT = auto()
         DELIVERED = auto()
         FAILURE = auto()
 

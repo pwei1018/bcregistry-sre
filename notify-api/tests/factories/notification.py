@@ -18,7 +18,7 @@ from enum import Enum
 
 from faker import Faker
 
-from notify_api.models import Notification
+from notify_api.models import Notification, NotificationSendResponse
 from tests.factories.attachment import AttachmentFactory
 from tests.factories.content import ContentFactory
 
@@ -123,8 +123,8 @@ class NotificationFactory():  # pylint: disable=too-few-public-methods
 
         # bad phone
         REQUEST_BAD_61 = {'recipients': '+345678901230',
-                         'requestBy': faker.user_name(),
-                         'content': ContentFactory.RequestData.CONTENT_REQUEST_1}
+                          'requestBy': faker.user_name(),
+                          'content': ContentFactory.RequestData.CONTENT_REQUEST_1}
 
         # subject empty
         REQUEST_BAD_7 = {'recipients': faker.safe_email(),
@@ -174,6 +174,13 @@ class NotificationFactory():  # pylint: disable=too-few-public-methods
                           'content': {'subject': faker.text(),
                                       'body': faker.text(),
                                       'attachments': [AttachmentFactory.RequestBadData.FILE_REQUEST_BAD_6]}}
+
+    class SendResponseData(dict, Enum):
+        """Notification post request payload data."""
+
+        SEND_RESPONSE = NotificationSendResponse(responseId=faker.text(), recipient='abc@gmail.com')
+        SEND_RESPONSE_2 = NotificationSendResponse(responseId=faker.text(), recipient='recipient2')
+        SMS_SEND_RESPONSE = NotificationSendResponse(responseId=faker.text(), recipient='+12508888888')
 
     @ staticmethod
     def create_model(session, notification_info: dict = Models.PENDING_1):

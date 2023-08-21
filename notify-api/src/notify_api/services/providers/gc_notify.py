@@ -14,12 +14,13 @@
 """This provides send email through GC Notify Service."""
 import base64
 import logging
+from typing import List
 
 from flask import current_app
 from notifications_python_client import NotificationsAPIClient
 
 from notify_api.errors import BadGatewayException
-from notify_api.models import Notification
+from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
 
 
 logger = logging.getLogger(__name__)
@@ -55,35 +56,51 @@ class GCNotify:
                         'sending_method': 'attach'
                     }
 
+            response_list: List[NotificationSendResponse] = []
+
             # send one email at a time
             for recipient in self.notification.recipients.split(','):
-                client.send_email_notification(
+
+                response = client.send_email_notification(
                     email_address=recipient,
                     template_id=self.gc_notify_template_id,
                     personalisation=email_content
                 )
+
+                sent_response = NotificationSendResponse(response_id=response['id'],
+                                                         recipient=recipient)
+                response_list.append(sent_response)
+
+            return NotificationSendResponses(**{'recipients': response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
             # bypass team-only API key bad request error
             if 'this recipient using a team-only API key' not in f'{err}':
                 logger.error('Email GC Notify Error: %s', err)
                 raise BadGatewayException(error=f'Email GC Notify Error {err}') from err
-        return True
+        return None
 
     def send_sms(self):
         """Send TEXT through GC Notify."""
         try:
             client = NotificationsAPIClient(api_key=self.api_key, base_url=self.gc_notify_url)
 
+            response_list: List[NotificationSendResponse] = []
+
             for phone in self.notification.recipients.split(','):
-                client.send_sms_notification(
+                response = client.send_sms_notification(
                     phone_number=phone,
                     template_id=self.gc_notify_sms_template_id,
                     personalisation={
                         'sms_body': self.notification.content[0].body
                     })
 
+                sent_response = NotificationSendResponse(response_id=response['id'],
+                                                         recipient=phone)
+                response_list.append(sent_response)
+
+            return NotificationSendResponses(**{'recipients': response_list})
+
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
             logger.error('TEXT GC Notify Error: %s', err)
             raise BadGatewayException(error=f'TEXT GC Notify Error {err}') from err
-        return True

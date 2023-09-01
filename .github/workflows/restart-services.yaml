@@ -112,3 +112,8 @@ jobs:
         run: |
           oc scale --replicas=0 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
           oc scale --replicas=1 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }} 
+
+      - name: Restart bor-solr-updater
+        run: |
+          oc scale --replicas=0 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }} 

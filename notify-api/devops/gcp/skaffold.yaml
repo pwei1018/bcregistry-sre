@@ -1,0 +1,19 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: notify-api-config
+profiles:
+- name: dev
+  manifests:
+    rawYaml:
+    - k8s/service.dev.yaml
+- name: test
+  manifests:
+    rawYaml:
+    - k8s/service.test.yaml
+- name: prod
+  manifests:
+    rawYaml:
+    - k8s/service.prod.yaml
+deploy:
+  cloudrun: {}

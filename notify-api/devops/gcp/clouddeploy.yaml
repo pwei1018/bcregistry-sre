@@ -1,0 +1,88 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
+metadata:
+ name: notify-api-pipeline
+description: Notify API deployment pipeline
+serialPipeline:
+ stages:
+ - targetId: dev
+   profiles: [dev]
+   strategy:
+    standard:
+      verify: false
+ - targetId: test
+   profiles: [test]
+   strategy:
+    standard:
+      verify: false
+ - targetId: prod
+   profiles: [prod]
+   strategy:
+    standard:
+      verify: false
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: dev
+description: Notify API Dev service
+deployParameters:
+  service-name: "notify-api-dev"
+  app-env: "dev"
+  cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-dev"
+  max-scale: "5"
+  container-concurrency: "2"
+  timeout-seconds: "300"
+  container-port: "8080"
+run:
+ location: projects/c4hnrd-dev/locations/northamerica-northeast1
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: test
+description: Notify API Test service
+deployParameters:
+  service-name: "notify-api-test"
+  app-env: "test"
+  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-test"
+  max-scale: "5"
+  container-concurrency: "2"
+  timeout-seconds: "300"
+  container-port: "8080"
+run:
+ location: projects/c4hnrd-test/locations/northamerica-northeast1
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: prod
+description: Notify API Production service
+requireApproval: true
+deployParameters:
+  service-name: "notify-api-prod"
+  app-env: "production"
+  cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-prod"
+  max-scale: "50"
+  container-concurrency: "20"
+  timeout-seconds: "300"
+  container-port: "8080"
+run:
+ location: projects/c4hnrd-prod/locations/northamerica-northeast1

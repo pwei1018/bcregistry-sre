@@ -1,0 +1,33 @@
+name: Notify API CD GCP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "notify-api/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment"
+        required: true
+        type: choice
+        options:
+        - dev
+        - test
+        - sandbox
+        - prod
+
+jobs:
+  notify-api-cd:
+    uses: pwei1018/bcregistry-sre/.github/workflows/api-cd.yaml@main
+    with:
+      environment: ${{ inputs.environment }}
+      tagname: ${{ inputs.tagname }}
+      working_directory: "./notify-api"
+    secrets:
+      APP_NAME: "notify-api"
+      WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      OP_CONNECT_URL: ${{ secrets.OP_CONNECT_URL }}
+      OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}

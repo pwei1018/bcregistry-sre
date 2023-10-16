@@ -24,8 +24,17 @@ serialPipeline:
    strategy:
     standard:
       verify: false
+      #predeploy:
+      #    actions: ["predeploy-action"]
+      #postdeploy:
+      #  actions: ["postdeploy-action"]
  - targetId: test
    profiles: [test]
+   strategy:
+    standard:
+      verify: false
+ - targetId: sandbox
+   profiles: [sandbox]
    strategy:
     standard:
       verify: false
@@ -42,7 +51,9 @@ metadata:
  name: dev
 description: Notify API Dev service
 deployParameters:
+  deploy-project-id: "c4hnrd-dev"
   service-name: "notify-api-dev"
+  migration-job-name: "notify-api-db-migration-dev"
   app-env: "dev"
   cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-dev"
   max-scale: "5"
@@ -59,7 +70,9 @@ metadata:
  name: test
 description: Notify API Test service
 deployParameters:
+  deploy-project-id: "c4hnrd-test"
   service-name: "notify-api-test"
+  migration-job-name: "notify-api-db-migration-test"
   app-env: "test"
   cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-test"
   max-scale: "5"
@@ -73,11 +86,33 @@ run:
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
+ name: sandbox
+description: Notify API Sandbox service
+requireApproval: true
+deployParameters:
+  deploy-project-id: "c4hnrd-tools"
+  service-name: "notify-api-sandbox"
+  migration-job-name: "notify-api-db-migration-sandbox"
+  app-env: "sandbox"
+  cloudsql-instances: "c4hnrd-tools:northamerica-northeast1:notify-sandbox"
+  max-scale: "50"
+  container-concurrency: "20"
+  timeout-seconds: "300"
+  container-port: "8080"
+run:
+ location: projects/c4hnrd-tools/locations/northamerica-northeast1
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
  name: prod
 description: Notify API Production service
 requireApproval: true
 deployParameters:
+  deploy-project-id: "c4hnrd-prod"
   service-name: "notify-api-prod"
+  migration-job-name: "notify-api-db-migration-prod"
   app-env: "production"
   cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-prod"
   max-scale: "50"

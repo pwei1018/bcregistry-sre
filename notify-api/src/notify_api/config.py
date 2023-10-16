@@ -35,9 +35,6 @@ class Config:  # pylint: disable=too-few-public-methods
 
     POD_NAMESPACE = os.getenv('POD_NAMESPACE', '')
 
-    SENTRY_ENABLE = os.getenv('SENTRY_ENABLE', 'False')
-    SENTRY_DSN = os.getenv('SENTRY_DSN', None)
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = 'migrations/alembic.ini'
 
@@ -52,21 +49,6 @@ class Config:  # pylint: disable=too-few-public-methods
     else:
         SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
-    # Connection pool settings
-    DB_MIN_POOL_SIZE = os.getenv('DATABASE_MIN_POOL_SIZE', '5')
-    DB_MAX_POOL_SIZE = os.getenv('DATABASE_MAX_POOL_SIZE', '5')
-    DB_CONN_WAIT_TIMEOUT = os.getenv('DATABASE_CONN_WAIT_TIMEOUT', '5')
-    DB_CONN_TIMEOUT = os.getenv('DATABASE_CONN_TIMEOUT', '900')
-
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        # 'echo_pool': 'debug',
-        'pool_size': int(DB_MIN_POOL_SIZE),
-        'max_overflow': (int(DB_MAX_POOL_SIZE) - int(DB_MIN_POOL_SIZE)),
-        'pool_recycle': int(DB_CONN_TIMEOUT),
-        'pool_timeout': int(DB_CONN_WAIT_TIMEOUT)
-    }
-
     # GC Notify
     GC_NOTIFY_ENABLE = os.getenv('GC_NOTIFY_ENABLE', 'True')
     GC_NOTIFY_API_URL = os.getenv('GC_NOTIFY_API_URL', '')
@@ -75,6 +57,7 @@ class Config:  # pylint: disable=too-few-public-methods
     GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv('GC_NOTIFY_SMS_TEMPLATE_ID', '')
 
     # Email SMTP
+    MAIL_ENABLE = os.getenv('MAIL_ENABLE', 'Trues')
     MAIL_SERVER = os.getenv('MAIL_SERVER', '')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', '')
     MAIL_USE_TLS = os.getenv('MAIL_USE_TLS', '')
@@ -142,8 +125,6 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     else:
         SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
 
-    SENTRY_ENABLE = os.getenv('SENTRY_ENABLE', 'False')
-    SENTRY_DSN = os.getenv('SENTRY_DSN', None)
     LD_SDK_KEY = os.getenv('LD_SDK_KEY', None)
     SECRET_KEY = 'a secret'
 

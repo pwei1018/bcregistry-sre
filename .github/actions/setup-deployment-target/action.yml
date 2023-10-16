@@ -1,0 +1,65 @@
+name: 'Setup deployment target'
+description: 'Setup deployment target'
+
+inputs:
+  environment:
+    required: true
+  app_name:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup targets
+      shell: bash
+      run: |
+        # define pipeline name and pipeline targets
+        targets="dev test prod"
+
+        echo "branch name: ${{ github.ref_name }}"
+
+        case ${{ github.ref_name }} in
+        hotfix*)
+          echo DEPLOY_PIPELINE=${{ inputs.app_name }}-hotfix-pipeline >> $GITHUB_ENV
+          targets="test prod"
+          ;;
+        feature*)
+          echo DEPLOY_PIPELINE=${{ inputs.app_name }}-feature-pipeline >> $GITHUB_ENV
+          targets="dev test sandbox prod"
+          ;;
+        *)
+          echo DEPLOY_PIPELINE=${{ inputs.app_name }}-pipeline >> $GITHUB_ENV
+          ;;
+        esac
+
+        target_arrary=(${targets})
+        target=${{ inputs.environment }}
+        target_index=
+
+        if [ -z ${target} ]; then
+          # from 'push/PR' or pick a wrong target in the input, then reset the target to first item in the targets
+          target=${target_arrary[0]}
+        fi
+
+        for index in "${!target_arrary[@]}"; do
+          if [ "${target_arrary[index]}" = "$target" ]; then
+            target_index=$index
+            break
+          fi
+        done
+
+        if [ -z $target_index ] || [ $target_index -lt 0 ]; then
+          echo "The $target is not on the deployment target list ($targets)!" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+        echo DEPLOY_TARGETS=${targets} >> $GITHUB_ENV
+        echo DEPLOY_TARGET=${target} >> $GITHUB_ENV
+        echo DEPLOY_TARGET_FROM= >> $GITHUB_ENV
+
+        # find the 'from target'
+        declare -i target_index_n="$target_index"
+        target_index=$((target_index_n-1))
+        if [ $target_index -ge 0 ]; then
+          echo DEPLOY_TARGET_FROM=${target_arrary[target_index]} >> $GITHUB_ENV
+        fi

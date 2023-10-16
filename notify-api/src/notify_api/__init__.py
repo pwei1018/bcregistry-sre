@@ -15,43 +15,26 @@
 
 This module is the API for the BC Registries Notify application.
 """
-import asyncio
-import logging
-import logging.config
 import os
-from http import HTTPStatus
 
-import sentry_sdk
-from flask import Flask, redirect, url_for
+from flask import Flask
 from flask_migrate import Migrate
-from sentry_sdk.integrations.flask import FlaskIntegration
 
-from notify_api import models
 from notify_api.config import config
 from notify_api.models import db
 from notify_api.resources import v1_endpoint, v2_endpoint
 from notify_api.translations import babel
 from notify_api.utils.auth import jwt
 from notify_api.utils.logging import setup_logging
-from notify_api.utils.run_version import get_run_version
 
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))
 
 
-def create_app(config_name):
+def create_app(run_mode=os.getenv('FLASK_ENV', 'production'), **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
-    app.url_map.strict_slashes = False
-    app.config.from_object(config[config_name])
-
-    # Configure Sentry
-    if app.config.get('SENTRY_ENABLE') == 'True':
-        if app.config.get('SENTRY_DSN', None):
-            sentry_sdk.init(
-               dsn=app.config.get('SENTRY_DSN'),
-               integrations=[FlaskIntegration()]
-            )
+    app.config.from_object(config[run_mode])
 
     db.init_app(app)
     Migrate(app, db)
@@ -60,20 +43,6 @@ def create_app(config_name):
     v2_endpoint.init_app(app)
 
     setup_jwt_manager(app, jwt)
-
-    register_shellcontext(app)
-
-    @app.route('/')
-    def be_nice_swagger_redirect():  # pylint: disable=unused-variable
-        return redirect('/api/v1', code=HTTPStatus.MOVED_PERMANENTLY)
-
-    @app.after_request
-    def add_version(response):  # pylint: disable=unused-variable
-        version = get_run_version()
-        response.headers['API'] = f'notify_api/{version}'
-        return response
-
-    register_shellcontext(app)
 
     return app
 
@@ -85,16 +54,3 @@ def setup_jwt_manager(app, jwt_manager):
     app.config['JWT_ROLE_CALLBACK'] = get_roles
 
     jwt_manager.init_app(app)
-
-
-def register_shellcontext(app):
-    """Register shell context objects."""
-    def shell_context():
-        """Shell context objects."""
-        return {
-            'app': app,
-            'jwt': jwt,
-            'db': db,
-            'models': models}  # pragma: no cover
-
-    app.shell_context_processor(shell_context)

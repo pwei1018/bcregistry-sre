@@ -13,111 +13,94 @@
 # limitations under the License.
 
 apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
-metadata:
- name: notify-api-pipeline
-description: Notify API deployment pipeline
-serialPipeline:
- stages:
- - targetId: dev
-   profiles: [dev]
-   strategy:
-    standard:
-      verify: false
-      #predeploy:
-      #    actions: ["predeploy-action"]
-      #postdeploy:
-      #  actions: ["postdeploy-action"]
- - targetId: test
-   profiles: [test]
-   strategy:
-    standard:
-      verify: false
- - targetId: sandbox
-   profiles: [sandbox]
-   strategy:
-    standard:
-      verify: false
- - targetId: prod
-   profiles: [prod]
-   strategy:
-    standard:
-      verify: false
----
-
-apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
  name: dev
-description: Notify API Dev service
+description: Dev Environment
 deployParameters:
   deploy-project-id: "c4hnrd-dev"
   service-name: "notify-api-dev"
+  container-name: "notify-api-dev"
   migration-job-name: "notify-api-db-migration-dev"
   app-env: "dev"
-  cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-dev"
+  cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-db-dev"
   max-scale: "5"
   container-concurrency: "2"
   timeout-seconds: "300"
   container-port: "8080"
 run:
  location: projects/c4hnrd-dev/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
 ---
 
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
  name: test
-description: Notify API Test service
+description: Test Environment
 deployParameters:
   deploy-project-id: "c4hnrd-test"
   service-name: "notify-api-test"
+  container-name: "notify-api-test"
   migration-job-name: "notify-api-db-migration-test"
   app-env: "test"
-  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-test"
+  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
   max-scale: "5"
   container-concurrency: "2"
   timeout-seconds: "300"
   container-port: "8080"
 run:
  location: projects/c4hnrd-test/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
 ---
 
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
  name: sandbox
-description: Notify API Sandbox service
+description: Sandbox Environment
 requireApproval: true
 deployParameters:
   deploy-project-id: "c4hnrd-tools"
   service-name: "notify-api-sandbox"
-  migration-job-name: "notify-api-db-migration-sandbox"
+  container-name: "notify-api-sandbox"
+  migration-job-name: "notify-api-db-migration-test"
   app-env: "sandbox"
-  cloudsql-instances: "c4hnrd-tools:northamerica-northeast1:notify-sandbox"
-  max-scale: "50"
+  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
+  max-scale: "5"
   container-concurrency: "20"
   timeout-seconds: "300"
   container-port: "8080"
 run:
  location: projects/c4hnrd-tools/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
 ---
 
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
  name: prod
-description: Notify API Production service
+description: Production Environment
 requireApproval: true
 deployParameters:
   deploy-project-id: "c4hnrd-prod"
   service-name: "notify-api-prod"
+  container-name: "notify-api-sandbox"
   migration-job-name: "notify-api-db-migration-prod"
   app-env: "production"
-  cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-prod"
-  max-scale: "50"
+  cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-db-prod"
+  max-scale: "10"
   container-concurrency: "20"
   timeout-seconds: "300"
   container-port: "8080"
 run:
  location: projects/c4hnrd-prod/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'

@@ -16,12 +16,6 @@
         ]
     },
     {
-        "vault": "sentry",
-        "application": [
-            "relationship-api"
-        ]
-    },
-    {
         "vault": "database",
         "application": [
             "notify-db"

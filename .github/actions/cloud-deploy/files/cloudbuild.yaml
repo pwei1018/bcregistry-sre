@@ -1,0 +1,143 @@
+steps:
+# build image if not exists in artifact registry
+- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
+  script: |
+    #!/usr/bin/env bash
+    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA --verbosity=none` ]]
+    then
+      docker build -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA .
+      docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA
+    else
+      echo 'image tag exists'
+    fi
+
+# prepare/setup service and cloud deploy manifest files
+- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
+  secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
+  script: |
+    #!/usr/bin/env bash
+
+    echo $(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID) > /workspace/project_id.txt
+
+    targets=(${_DEPLOY_TARGETS})
+    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
+      # update the pipeline name
+      export PIPELINE_NAME=${_DEPLOY_PIPELINE}
+      yq e -i '.metadata.name = env(PIPELINE_NAME)' ./devops/gcp/clouddeploy.yaml
+
+      for env_name in "${targets[@]}"; do
+        export APP_ENV=${env_name}
+        op inject  -f -i ./devops/vaults.gcp.env -o ./devops/vaults.${env_name}
+        export VAL=$(awk -F= '{printf "- name: %s\n  value: %s\n", $1,$2}' ./devops/vaults.${env_name} | sed 's/\"/\"/g')
+
+        # generate manifest for each environment
+        yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/service.template.yaml > ./devops/gcp/k8s/service.${env_name}.yaml
+
+        # sidecard OAS proxy service, only Test environment need this service
+        #if [[ "$env_name" != "test" ]]; then
+        #  # remove sidecard container
+        #  yq -i 'del(.spec.template.spec.containers[1])' ./devops/gcp/k8s/service.${env_name}.yaml
+        #else
+        #  # add run.googleapis.com/container-dependencies
+        #  yq -i'.spec.template.metadata.annotations["run.googleapis.com/container-dependencies"] = "{'${_APP_NAME}-${_DEPLOY_TARGET}':['prism']}"' ./devops/gcp/k8s/service.test.yaml
+        #fi
+      done
+
+      targets_full=(${_DEPLOY_FULL_TARGETS})
+
+      # find difference of targets compare with full targets
+      envs_diff=($(echo ${targets_full[@]} ${targets[@]} | tr ' ' '\n' | sort | uniq -u))
+      for env_name in "${envs_diff[@]}"; do
+        # remove the target from cloud deploy manifest
+        export APP_ENV=${env_name}
+        yq -i 'del(.serialPipeline.stages[] | select(.targetId == env(APP_ENV)))' ./devops/gcp/clouddeploy.yaml
+      done
+    fi
+
+    cat ./devops/gcp/clouddeploy.yaml
+
+    # Update Cloud Deploy deployment manifests and skaffold.yaml
+    gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
+      --region=${_REGION} \
+      --project=${_DEPLOY_RUNNING_PROJECT_ID}
+
+    # Update Cloud Deploy deployment targets manifests and skaffold.yaml
+    gcloud deploy apply --file=./devops/gcp/clouddeploy-targets.yaml  \
+      --region=${_REGION} \
+      --project=${_DEPLOY_RUNNING_PROJECT_ID}
+
+# deploy
+- name: 'gcr.io/cloud-builders/gcloud'
+  script: |
+    #!/usr/bin/env bash
+
+    # tag image
+    gcloud artifacts docker tags add \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
+
+    cd ./devops/gcp/
+
+    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${_DEPLOY_TARGET} ]; then
+      RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
+
+      gcloud deploy releases create v-$SHORT_SHA-${RELEASE_TIMESTAMP} \
+        --delivery-pipeline=${_DEPLOY_PIPELINE} \
+        --region=${_REGION} \
+        --to-target=${_DEPLOY_TARGET} \
+        --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA
+    else
+      # prompt the existing release
+      gcloud artifacts docker tags add \
+        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET_FROM} \
+        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
+
+      LATEST_RELEASE_NAME=$(gcloud deploy targets describe ${_DEPLOY_TARGET_FROM} \
+            --delivery-pipeline=${_DEPLOY_PIPELINE} \
+            --region=${_REGION} \
+            --format="value('Latest release')")
+
+      gcloud deploy releases promote --release=${LATEST_RELEASE_NAME} \
+        --delivery-pipeline=${_DEPLOY_PIPELINE}\
+        --region=${_REGION} \
+        --to-target=${_DEPLOY_TARGET}
+    fi
+
+# trigger db migration job
+- name: 'gcr.io/cloud-builders/gcloud'
+  script: |
+    #!/usr/bin/env bash
+
+    if [ -n `git status --porcelain --untracked-files=no migrations`]; then
+      DEPLOY_PROJECT_ID=$(cat /workspace/project_id.txt)
+
+      echo ${DEPLOY_PROJECT_ID}
+
+      gcloud run jobs execute ${_APP_NAME}-db-migration-${_DEPLOY_TARGET} \
+        --region=${_REGION} \
+        --project=${DEPLOY_PROJECT_ID}
+    fi
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
+    env: 'OP_CONNECT_HOST'
+  - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
+    env: 'OP_CONNECT_TOKEN'
+
+options:
+  automapSubstitutions: true
+  substitutionOption: 'ALLOW_LOOSE'
+substitutions:
+  _APP_NAME:
+  _DEPLOY_FULL_TARGETS: dev test sandbox prod
+  _DEPLOY_TARGETS: dev test prod
+  _DEPLOY_TARGET: dev
+  _DEPLOY_TARGET_FROM:
+  _DEPLOY_PIPELINE:
+  _DEPLOY_RUNNING_PROJECT_ID: c4hnrd-tools
+  _REGION: northamerica-northeast1
+
+logsBucket: 'gs://github-actions-cloudbuild/history'
+
+timeout: 3600s

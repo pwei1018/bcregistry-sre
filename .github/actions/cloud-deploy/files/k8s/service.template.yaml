@@ -20,6 +20,8 @@ metadata:
     role: api
     team: sre
     cloud.googleapis.com/location: northamerica-northeast1
+  annotations:
+    run.googleapis.com/launch-stage: BETA
 spec:
   template:
     metadata:
@@ -29,12 +31,12 @@ spec:
         run.googleapis.com/client-name: cloud-console
         run.googleapis.com/cloudsql-instances: valuePlaceHolder # from-param: ${cloudsql-instances}
         autoscaling.knative.dev/maxScale: valuePlaceHolder # from-param: ${max-scale}
-        commit: valuePlaceHolder # from-param: ${git-sha}
     spec:
       containerConcurrency: valuePlaceHolder # from-param: ${container-concurrency}
       timeoutSeconds: valuePlaceHolder # from-param: ${timeout-seconds}
       containers:
-      - image: image-placeholder
+      - name: valuePlaceHolder # from-param: ${container-name}
+        image: image-placeholder
         ports:
         - name: http1
           containerPort: valuePlaceHolder # from-param: ${container-port}
@@ -51,3 +53,23 @@ spec:
           failureThreshold: 1
           tcpSocket:
             port: 8080
+      #  volumeMounts:
+      #  - mountPath: /devops/oas
+      #    name: oas_proxy
+      #- name: prism
+      #  image: stoplight/prism:4
+      #  command:
+      #  - mock -h 0.0.0.0 /tmp/api.oas3.yml
+      #  resources:
+      #    limits:
+      #      cpu: 500m
+      #      memory: 256Mi
+      #  volumeMounts:
+      #  - mountPath: /tmp
+      #    readOnly: true
+      #    name: oas_proxy
+      #volumes:
+      #- name: oas_proxy
+      #  emptyDir:
+      #    medium: Memory
+      #    sizeLimit: 5Mi

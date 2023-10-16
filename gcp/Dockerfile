@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM gcr.io/google.com/cloudsdktool/google-cloud-cli:alpine
 
 RUN apk update
 

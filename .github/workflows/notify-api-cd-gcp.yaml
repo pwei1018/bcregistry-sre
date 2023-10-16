@@ -8,8 +8,8 @@ on:
       - "notify-api/**"
   workflow_dispatch:
     inputs:
-      environment:
-        description: "Environment"
+      target:
+        description: "Deploy To"
         required: true
         type: choice
         options:
@@ -20,14 +20,11 @@ on:
 
 jobs:
   notify-api-cd:
-    uses: pwei1018/bcregistry-sre/.github/workflows/api-cd.yaml@main
+    uses: pwei1018/bcregistry-sre/.github/workflows/cloud-run-service-cd.yaml@main
     with:
-      environment: ${{ inputs.environment }}
-      tagname: ${{ inputs.tagname }}
+      target: ${{ inputs.target }}
+      app_name: "notify-api"
       working_directory: "./notify-api"
     secrets:
-      APP_NAME: "notify-api"
       WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
       GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-      OP_CONNECT_URL: ${{ secrets.OP_CONNECT_URL }}
-      OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}

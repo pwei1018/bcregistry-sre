@@ -17,7 +17,7 @@ runs:
       if: ${{ inputs.package-name != '' }}
       shell: bash
       run: |
-        cp -r ${{ inputs.package-name }}/.output .
+        cp -r ${{ inputs.working-directory }}/${{ inputs.package-name }}/.output ${{ inputs.working-directory }}
 
     - name: Copy build/deployment files
       shell: bash

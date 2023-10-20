@@ -1,6 +1,6 @@
 steps:
   # install / Generate the static site
-  - name: node:$_DEPLOYMENT_NODE_VERSION
+  - name: node:$_DEPLOYMENT_NODE_VERSION (normal)
     if: ${{ env._DEPLOYMENT_PCKG_NAME == '' }}
     script: |
       #!/usr/bin/env bash
@@ -8,7 +8,7 @@ steps:
       pnpm install
       pnpm build
 
-  - name: node:$_DEPLOYMENT_NODE_VERSION
+  - name: node:$_DEPLOYMENT_NODE_VERSION (specific pckg)
     if: ${{ env._DEPLOYMENT_PCKG_NAME != '' }}
     script: |
       #!/usr/bin/env bash

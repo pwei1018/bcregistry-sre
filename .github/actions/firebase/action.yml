@@ -5,21 +5,11 @@ inputs:
   working-directory:
     required: false
     default: "."
-  package-name:
-    required: false
-    default: ''
 
 runs:
   using: "composite"
   steps:
     # Copy files
-    - name: Copy build files to working directory level
-      if: ${{ inputs.package-name != '' }}
-      shell: bash
-      run: |
-        ls -a
-        ls ${{ inputs.working-directory }} -a
-
     - name: Copy build/deployment files
       shell: bash
       run: |

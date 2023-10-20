@@ -4,7 +4,7 @@ steps:
     args: ['install']
 
   - name: 'gcr.io/cloud-builders/pnpm'
-    args: ['-F', '$_DEPLOYMENT_PCKG_NAME', 'run', 'build']
+    args: ['-F', '${_DEPLOYMENT_PCKG_NAME}', 'run', 'build']
 
   #
   # Deploy to firebase channel, using the PR #

@@ -1,9 +1,9 @@
 steps:
   # install / Generate the static site
-  - name: 'gcr.io/cloud-builders/pnpm'
+  - name: 'gcr.io/cloud-builders/pnpm:8.9.0'
     args: ['install']
 
-  - name: 'gcr.io/cloud-builders/pnpm'
+  - name: 'gcr.io/cloud-builders/pnpm:8.9.0'
     args: ['-F', '${_DEPLOYMENT_PCKG_NAME}', 'run', 'build']
 
   #

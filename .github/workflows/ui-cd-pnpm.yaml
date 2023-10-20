@@ -92,7 +92,6 @@ jobs:
         uses: bcgov/bcregistry-sre/.github/actions/firebase@main
         with:
           working-directory: ${{ inputs.working_directory }}
-          package-name: ${{ inputs.package_name }}
 
       # GCP authentication
       - name: 'Authenticate to Google Cloud'
@@ -107,7 +106,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
 
       # Build and push image to Google Container Registry
-      - name: Build
+      - name: Build (specific pckg)
         if: ${{ inputs.package_name != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |-
@@ -117,7 +116,7 @@ jobs:
             --substitutions _DEPLOYMENT_ENVIRONMENT=${{ env.ENVIRONMENT }},_DEPLOYMENT_NODE_VERSION=${{ env.NODE_VERSION }},_DEPLOYMENT_PROJECT=${{ env.GCP_PROJECT }},_DEPLOYMENT_HOST_NAME=${{ env.FIREBASE_HOST_NAME }},_DEPLOYMENT_PCKG_NAME=${{ inputs.package_name }} \
             --config cloudbuild-pnpm-cd.yaml
 
-      - name: Build
+      - name: Build (normal)
         if: ${{ inputs.package_name == '' }}
         working-directory: ${{ inputs.working_directory }}
         run: |-

@@ -92,7 +92,6 @@ jobs:
         uses: bcgov/bcregistry-sre/.github/actions/firebase@main
         with:
           working-directory: ${{ inputs.working_directory }}
-          package-name: ${{ inputs.package_name }}
 
       # GCP authentication
       - name: 'Authenticate to Google Cloud'

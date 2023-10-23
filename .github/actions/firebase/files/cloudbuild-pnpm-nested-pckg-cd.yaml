@@ -1,10 +1,11 @@
 steps:
   # install / Generate the static site
-  - name: 'gcr.io/cloud-builders/pnpm:8.9.0'
-    args: ['install']
-
-  - name: 'gcr.io/cloud-builders/pnpm:8.9.0'
-    args: ['-F', '${_DEPLOYMENT_PCKG_NAME}', 'run', 'build']
+  - name: node:$_DEPLOYMENT_NODE_VERSION
+    script: |
+      #!/usr/bin/env bash
+      npm install --global pnpm@8.9.0
+      pnpm -F $_DEPLOYMENT_PCKG_NAME install
+      pnpm -F $_DEPLOYMENT_PCKG_NAME build
 
   #
   # Deploy to firebase channel, using the PR #
@@ -18,6 +19,7 @@ substitutions:
     _DEPLOYMENT_ENVIRONMENT: '${_DEPLOYMENT_ENVIRONMENT}'
     _DEPLOYMENT_PROJECT: '${_DEPLOYMENT_PROJECT}'
     _DEPLOYMENT_HOST_NAME: '${_DEPLOYMENT_HOST_NAME}'
+    _DEPLOYMENT_NODE_VERSION: '${_DEPLOYMENT_NODE_VERSION}'
     _DEPLOYMENT_PCKG_NAME: '${_DEPLOYMENT_PCKG_NAME}'
 
 

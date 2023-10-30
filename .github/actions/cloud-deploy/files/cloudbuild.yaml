@@ -3,10 +3,10 @@ steps:
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
   script: |
     #!/usr/bin/env bash
-    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA --verbosity=none` ]]
+    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA --verbosity=none` ]]
     then
-      docker build -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA .
-      docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA
+      docker build -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA .
+      docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
     else
       echo 'image tag exists'
     fi
@@ -73,7 +73,7 @@ steps:
 
     # tag image
     gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
           ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
 
     cd ./devops/gcp/
@@ -81,11 +81,11 @@ steps:
     if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${_DEPLOY_TARGET} ]; then
       RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
 
-      gcloud deploy releases create v-$SHORT_SHA-${RELEASE_TIMESTAMP} \
+      gcloud deploy releases create v-$_SHORT_SHA-${RELEASE_TIMESTAMP} \
         --delivery-pipeline=${_DEPLOY_PIPELINE} \
         --region=${_REGION} \
         --to-target=${_DEPLOY_TARGET} \
-        --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$SHORT_SHA
+        --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
     else
       # prompt the existing release
       gcloud artifacts docker tags add \
@@ -108,7 +108,7 @@ steps:
   script: |
     #!/usr/bin/env bash
 
-    if [ -n `git status --porcelain --untracked-files=no migrations`]; then
+    if [ ${_DB_UPGRADE} = 'yes' ]; then
       DEPLOY_PROJECT_ID=$(cat /workspace/project_id.txt)
 
       echo ${DEPLOY_PROJECT_ID}
@@ -130,6 +130,8 @@ options:
   substitutionOption: 'ALLOW_LOOSE'
 substitutions:
   _APP_NAME:
+  _SHORT_SHA:
+  _DB_UPGRADE: 'no'
   _DEPLOY_FULL_TARGETS: dev test sandbox prod
   _DEPLOY_TARGETS: dev test prod
   _DEPLOY_TARGET: dev

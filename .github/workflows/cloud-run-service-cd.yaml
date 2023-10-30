@@ -104,6 +104,22 @@ jobs:
       - name: Deployment
         working-directory: ${{ inputs.working_directory }}
         run: |-
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          DB_UPGRADE="no"
+
+          if [ -n $(git status --porcelain --untracked-files=no migrations) ]; then
+            DB_UPGRADE="yes"
+          fi
+
+          echo $DB_UPGRADE
+
           gcloud builds submit \
-            --substitutions SHORT_SHA=$(git rev-parse --short HEAD),_APP_NAME="${{ inputs.app_name }}",_DEPLOY_TARGETS="${{ needs.setup.outputs.TARGETS }}",_DEPLOY_TARGET="${{ needs.setup.outputs.TARGET }}",_DEPLOY_TARGETS_FROM="${{ needs.setup.outputs.TARGET_FROM }}",_DEPLOY_PIPELINE="${{ needs.setup.outputs.PIPELINE }}" \
+            --substitutions _SHORT_SHA=$GIT_COMMIT,\
+                            _DB_UPGRADE=$DB_UPGRADE,\
+                            _APP_NAME="${{ inputs.app_name }}",\
+                            _DEPLOY_TARGETS="${{ needs.setup.outputs.TARGETS }}",\
+                            _DEPLOY_TARGET="${{ needs.setup.outputs.TARGET }}",\
+                            _DEPLOY_TARGETS_FROM="${{ needs.setup.outputs.TARGET_FROM }}",\
+                            _DEPLOY_PIPELINE="${{ needs.setup.outputs.PIPELINE }}" \
             --config devops/gcp/cloudbuild.yaml

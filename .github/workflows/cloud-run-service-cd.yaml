@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup targets
-        uses: pwei1018/bcregistry-sre/.github/actions/setup-deployment-target@main
+        uses: bcgov/bcregistry-sre/.github/actions/setup-deployment-target@main
         with:
           environment: ${{ inputs.target }}
           app_name: ${{ inputs.app_name }}
@@ -84,7 +84,7 @@ jobs:
 
       # Copy cloud build, cloud deploy and skaffold yaml files to the build
       - name: Copy deployment files
-        uses: pwei1018/bcregistry-sre/.github/actions/cloud-deploy@main
+        uses: bcgov/bcregistry-sre/.github/actions/cloud-deploy@main
         with:
           working-directory: ${{ inputs.working_directory }}
 

@@ -79,8 +79,9 @@ def upgrade():
         notification_status_table,
         [
             {'code': 'PENDING', 'desc': 'Initial state of the notification', 'default': True},
-            {'code': 'DELIVERED', 'desc': 'Status for the notification sent successful', 'default': False},
-            {'code': 'FAILURE', 'desc': 'Status for the notification sent failuree', 'default': False}
+            {'code': 'DELIVERED', 'desc': 'Status for the notification delivered successful', 'default': False},
+            {'code': 'FAILURE', 'desc': 'Status for the notification sent failure', 'default': False},
+            {'code': 'SENT', 'desc': 'Status for the notification sent successful', 'default': False}
         ]
     )
     # ### end Alembic commands ###

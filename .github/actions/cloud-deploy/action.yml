@@ -1,0 +1,16 @@
+name: 'Copy Cloud Deploy files'
+description: ''
+
+inputs:
+  working-directory:
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    # Copy files
+    - name: Copy Deployments files
+      shell: bash
+      run: |
+        cp -r ${{ github.action_path }}/files/* ${{ inputs.working-directory }}/devops/gcp

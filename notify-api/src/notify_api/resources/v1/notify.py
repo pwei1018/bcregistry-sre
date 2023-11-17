@@ -26,69 +26,80 @@ from notify_api.services.notify_service import NotifyService
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-
 logger = logging.getLogger(__name__)
 
-bp = Blueprint('Notify', __name__, url_prefix='/notify')
+bp = Blueprint("Notify", __name__, url_prefix="/notify")
 
 
-@bp.route('', methods=['POST'])
-@cross_origin(origin='*')
+@bp.route("", methods=["POST"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.PUBLIC_USER.value, Role.STAFF.value])
 @validate()
 def send_notification(body: NotificationRequest):
     """Create and send EMAIL notification endpoint."""
     try:
+        token = jwt.get_token_auth_header()
         body.notify_type = Notification.NotificationType.EMAIL
-        notification_history = NotifyService().notify(body)
-    except (BadGatewayException, NotifyException, Exception) as err: # NOQA # pylint: disable=broad-except
-        return jsonify({'error': babel(err.error)}), err.status_code
+        notification_history = NotifyService().notify(body, token)
+    except (
+        BadGatewayException,
+        NotifyException,
+        Exception,
+    ) as err:  # NOQA # pylint: disable=broad-except, broad-exception-caught
+        return jsonify({"error": babel(err.error)}), err.status_code
 
     return jsonify(notification_history.json), HTTPStatus.OK
 
 
-@bp.route('/sms', methods=['POST'])
-@cross_origin(origin='*')
+@bp.route("/sms", methods=["POST"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.SMS.value, Role.STAFF.value])
 @validate()
 def send_sms_notification(body: NotificationRequest):
     """Create and send SMS notification endpoint."""
     try:
+        token = jwt.get_token_auth_header()
         body.notify_type = Notification.NotificationType.TEXT
-        notification = NotifyService().notify(body)
-    except (BadGatewayException, NotifyException, Exception) as err: # NOQA # pylint: disable=broad-except
-        return jsonify({'error': babel(err.error)}), err.status_code
+        notification = NotifyService().notify(body, token)
+    except (
+        BadGatewayException,
+        NotifyException,
+        Exception,
+    ) as err:  # NOQA # pylint: disable=broad-except
+        return jsonify({"error": babel(err.error)}), err.status_code
 
     return jsonify(notification.json), HTTPStatus.OK
 
 
-@bp.route('/<string:notification_id>', methods=['GET', 'OPTIONS'])
-@cross_origin(origin='*')
+@bp.route("/<string:notification_id>", methods=["GET", "OPTIONS"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value, Role.STAFF.value])
 def find_notification(notification_id: str):
     """Get notification endpoint by id."""
     if not notification_id or not notification_id.isdigit():
-        return {'error': babel('Requires a valid notification id.')}, HTTPStatus.BAD_REQUEST
+        return {"error": babel("Requires a valid notification id.")}, HTTPStatus.BAD_REQUEST
 
     notification = Notification.find_notification_by_id(notification_id)
     if notification is None:
-        return {'error': babel('Notification not found.')}, HTTPStatus.NOT_FOUND
+        return {"error": babel("Notification not found.")}, HTTPStatus.NOT_FOUND
 
     return jsonify(notification.json), HTTPStatus.OK
 
 
-@bp.route('/status/<string:notification_status>', methods=['GET', 'OPTIONS'])
-@cross_origin(origin='*')
+@bp.route("/status/<string:notification_status>", methods=["GET", "OPTIONS"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value])
 def find_notifications(notification_status: str):
     """Get pending or failure notifications."""
-    if notification_status.upper() not in [Notification.NotificationStatus.PENDING.name,
-                                           Notification.NotificationStatus.FAILURE.name]:
-        return {'error': babel('Requires a valid notification status (PENDING, FAILURE).')}, HTTPStatus.BAD_REQUEST
+    if notification_status.upper() not in [
+        Notification.NotificationStatus.PENDING.name,
+        Notification.NotificationStatus.FAILURE.name,
+    ]:
+        return {"error": babel("Requires a valid notification status (PENDING, FAILURE).")}, HTTPStatus.BAD_REQUEST
 
     notifications = Notification.find_notifications_by_status(notification_status.upper())
 

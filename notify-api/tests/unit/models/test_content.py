@@ -29,6 +29,7 @@ def test_content_validation():
 
         assert exc_info.value.errors()
 
+
 def test_create_content(session):
     """Assert the test can create notification contents."""
     notification = NotificationFactory.create_model(session, notification_info=NotificationFactory.Models.PENDING_1)
@@ -37,8 +38,8 @@ def test_create_content(session):
 
     result = Content.create_content(request_content, notification_id=notification.id)
 
-    assert result.json['subject'] == ContentFactory.RequestData.CONTENT_REQUEST_1['subject']
-    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_1['subject']
+    assert result.json["subject"] == ContentFactory.RequestData.CONTENT_REQUEST_1["subject"]
+    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_1["subject"]
 
 
 def test_create_content_with_attachment(session):
@@ -49,9 +50,9 @@ def test_create_content_with_attachment(session):
 
     result = Content.create_content(request_content, notification_id=notification.id)
 
-    assert result.json['subject'] == ContentFactory.RequestData.CONTENT_REQUEST_2['subject']
-    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_2['subject']
-    assert result.attachments[0].file_name == AttachmentFactory.RequestData.FILE_REQUEST_1['fileName']
+    assert result.json["subject"] == ContentFactory.RequestData.CONTENT_REQUEST_2["subject"]
+    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_2["subject"]
+    assert result.attachments[0].file_name == AttachmentFactory.RequestData.FILE_REQUEST_1["fileName"]
 
 
 def test_create_content_with_attachment_url(session):
@@ -62,10 +63,10 @@ def test_create_content_with_attachment_url(session):
 
     result = Content.create_content(request_content, notification_id=notification.id)
 
-    assert result.json['subject'] == ContentFactory.RequestData.CONTENT_REQUEST_3['subject']
-    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_3['subject']
-    assert result.attachments[0].file_name == AttachmentFactory.RequestData.FILE_REQUEST_1['fileName']
-    assert result.attachments[1].file_name == AttachmentFactory.RequestData.FILE_REQUEST_2['fileName']
+    assert result.json["subject"] == ContentFactory.RequestData.CONTENT_REQUEST_3["subject"]
+    assert result.subject == ContentFactory.RequestData.CONTENT_REQUEST_3["subject"]
+    assert result.attachments[0].file_name == AttachmentFactory.RequestData.FILE_REQUEST_1["fileName"]
+    assert result.attachments[1].file_name == AttachmentFactory.RequestData.FILE_REQUEST_2["fileName"]
 
 
 def test_update_content(session):
@@ -74,7 +75,7 @@ def test_update_content(session):
 
     content = ContentFactory.create_model(session, notification.id, content_info=ContentFactory.Models.CONTENT_1)
 
-    content.body = ''
+    content.body = ""
     result = Content.update_content(content)
 
-    assert result.body == ''
+    assert result.body == ""

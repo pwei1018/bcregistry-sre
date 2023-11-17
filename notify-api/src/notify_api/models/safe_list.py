@@ -30,7 +30,7 @@ class SafeListRequest(BaseModel):  # pylint: disable=too-few-public-methods
 class SafeList(db.Model):
     """Immutable Safe List record."""
 
-    __tablename__ = 'safe_list'
+    __tablename__ = "safe_list"
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(2000), nullable=False)
@@ -38,10 +38,7 @@ class SafeList(db.Model):
     @property
     def json(self) -> dict:
         """Return a dict of this object, with keys in JSON format."""
-        safe_list_json = {
-            'id': self.id,
-            'email': self.email
-        }
+        safe_list_json = {"id": self.id, "email": self.email}
 
         return safe_list_json
 
@@ -54,7 +51,7 @@ class SafeList(db.Model):
             db.session.add(db_email)
             db.session.commit()
             db.session.refresh(db_email)
-        except Exception: # NOQA # pylint: disable=broad-except
+        except Exception:  # NOQA # pylint: disable=broad-except
             db.session.rollback()
 
         return db_email

@@ -20,7 +20,8 @@ from freezegun import freeze_time
 
 def test_datetime_utcnow():
     """Assert that datetime.utcnow returns a non-naive datetime object."""
-    import notify_api.utils.datetime as _datetime
+    import notify_api.utils.datetime as _datetime  # pylint: disable=import-outside-toplevel
+
     now = datetime(2020, 9, 17, 0, 0, 0, 0)
 
     with freeze_time(now):
@@ -30,11 +31,12 @@ def test_datetime_utcnow():
 
 def test_datetime_isoformat():
     """Assert that the isoformat has the tzinfo set to +00:00."""
-    import notify_api.utils.datetime as _datetime
+    import notify_api.utils.datetime as _datetime  # pylint: disable=import-outside-toplevel
+
     now = datetime(2020, 9, 17, 0, 0, 0, 0)
 
     with freeze_time(now):
         d = _datetime.datetime.utcnow()
         iso = d.isoformat()
-        tz = iso[iso.find('+'):]
-        assert tz == '+00:00'
+        tz = iso[iso.find("+") :]
+        assert tz == "+00:00"

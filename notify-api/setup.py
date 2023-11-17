@@ -22,11 +22,16 @@ from os.path import basename, splitext
 from setuptools import find_packages, setup
 
 
-_version_re = re.compile(r'__version__\s+=\s+(.*)')  # pylint: disable=invalid-name
+_version_re = re.compile(r"__version__\s+=\s+(.*)")  # pylint: disable=invalid-name
 
-with open('src/notify_api/version.py', 'rb') as f:
-    version = str(ast.literal_eval(_version_re.search(  # pylint: disable=invalid-name
-        f.read().decode('utf-8')).group(1)))
+with open("src/notify_api/version.py", "rb") as f:
+    version = str(
+        ast.literal_eval(
+            _version_re.search(  # pylint: disable=invalid-name
+                f.read().decode("utf-8")
+            ).group(1)
+        )
+    )
 
 
 def read_requirements(filename):
@@ -37,43 +42,47 @@ def read_requirements(filename):
     """
     return [
         line.strip()
-        for line in read(filename).split('\n')
-        if not line.startswith(('"', '#', '-', 'git+'))
+        for line in read(filename).split("\n")
+        if not line.startswith(('"', "#", "-", "git+"))
     ]
 
 
 def read(*paths, **kwargs):
     """
     Read the contents of a text file safely.
+
     >>> read("project_name", "VERSION")
     '0.1.0'
     >>> read("README.md")
     ...
     """
-
-    content = ''
+    content = ""
     with io.open(
         os.path.join(os.path.dirname(__file__), *paths),
-        encoding=kwargs.get('encoding', 'utf8'),
+        encoding=kwargs.get("encoding", "utf8"),
     ) as open_file:
         content = open_file.read().strip()
     return content
 
 
-REQUIREMENTS = read_requirements('requirements.txt')
+REQUIREMENTS = read_requirements("requirements.txt")
 
 setup(
-    name='notify_api',
+    name="notify_api",
     version=version,
-    author_email='patrick.wei@gov.bc.ca',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
-    py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
+    author_email="patrick.wei@gov.bc.ca",
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     include_package_data=True,
-    license=read('LICENSE'),
-    long_description=read('README.md'),
+    license=read("LICENSE"),
+    long_description=read("README.md"),
     zip_safe=False,
     install_requires=REQUIREMENTS,
-    setup_requires=['pytest-runner', ],
-    tests_require=['pytest', ],
+    setup_requires=[
+        "pytest-runner",
+    ],
+    tests_require=[
+        "pytest",
+    ],
 )

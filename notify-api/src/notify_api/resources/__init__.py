@@ -14,16 +14,22 @@
 """Exposes all of the resource endpoints mounted in Flask-Blueprint style."""
 from .constants import EndpointVersionPath
 from .v1 import meta_bp, notify_bp, ops_bp
-from .v2 import callback_bp_v2, email_validation_bp_v2, meta_bp_v2, notify_bp_v2, ops_bp_v2, safe_list_bp_v2
+from .v2 import (
+    callback_bp_v2,
+    email_validation_bp_v2,
+    meta_bp_v2,
+    notify_bp_v2,
+    ops_bp_v2,
+    safe_list_bp_v2,
+)
 from .version_endpoint import VersionEndpoint
 
-
 v1_endpoint = VersionEndpoint(  # pylint: disable=invalid-name
-    name='API_V1',
-    path=EndpointVersionPath.API_V1,
-    bps=[meta_bp, notify_bp, ops_bp])
+    name="API_V1", path=EndpointVersionPath.API_V1, bps=[meta_bp, notify_bp, ops_bp]
+)
 
 v2_endpoint = VersionEndpoint(  # pylint: disable=invalid-name
-    name='API_V2',
+    name="API_V2",
     path=EndpointVersionPath.API_V2,
-    bps=[meta_bp_v2, notify_bp_v2, ops_bp_v2, email_validation_bp_v2, safe_list_bp_v2, callback_bp_v2])
+    bps=[meta_bp_v2, notify_bp_v2, ops_bp_v2, email_validation_bp_v2, safe_list_bp_v2, callback_bp_v2],
+)

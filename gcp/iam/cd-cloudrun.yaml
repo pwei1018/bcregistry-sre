@@ -26,3 +26,5 @@ includedPermissions:
 - run.routes.get
 - run.routes.list
 - run.routes.invoke
+- cloudsql.instances.connect
+- cloudsql.instances.get

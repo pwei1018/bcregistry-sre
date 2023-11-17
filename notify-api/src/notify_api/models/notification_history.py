@@ -14,14 +14,14 @@
 """Notification data model."""
 from datetime import datetime
 
-from .notification import Notification
 from .db import db  # noqa: I001
+from .notification import Notification
 
 
 class NotificationHistory(db.Model):
     """Immutable Notification History record. Represents Notification History."""
 
-    __tablename__ = 'notification_history'
+    __tablename__ = "notification_history"
 
     id = db.Column(db.Integer, primary_key=True)
     recipients = db.Column(db.String(2000), nullable=False)
@@ -39,17 +39,17 @@ class NotificationHistory(db.Model):
     def json(self) -> dict:
         """Return a dict of this object, with keys in JSON format."""
         history_json = {
-            'id': self.id,
-            'recipients': self.recipients,
-            'requestDate': self.request_date.isoformat(),
-            'requestBy': self.request_by,
-            'sentDate': self.request_date.isoformat(),
-            'subject': self.subject,
-            'notifyType': self.type_code,
-            'notifyStatus': self.status_code,
-            'notifyProvider': self.provider_code,
-            'gc_notify_response_id': self.gc_notify_response_id,
-            'gc_notify_status': self.gc_notify_status,
+            "id": self.id,
+            "recipients": self.recipients,
+            "requestDate": self.request_date.isoformat(),
+            "requestBy": self.request_by,
+            "sentDate": self.request_date.isoformat(),
+            "subject": self.subject,
+            "notifyType": self.type_code,
+            "notifyStatus": self.status_code,
+            "notifyProvider": self.provider_code,
+            "gc_notify_response_id": self.gc_notify_response_id,
+            "gc_notify_status": self.gc_notify_status,
         }
 
         return history_json
@@ -57,15 +57,17 @@ class NotificationHistory(db.Model):
     @classmethod
     def create_history(cls, notification: Notification, recipient: str = None, response_id: str = None):
         """Create notification."""
-        db_history = NotificationHistory(recipients=recipient if recipient else notification.recipients,
-                                         request_date=notification.request_date,
-                                         request_by=notification.request_by,
-                                         sent_date=notification.sent_date,
-                                         subject=notification.content[0].subject,
-                                         type_code=notification.type_code.upper(),
-                                         status_code=notification.status_code.upper(),
-                                         provider_code=notification.provider_code.upper(),
-                                         gc_notify_response_id=response_id)
+        db_history = NotificationHistory(
+            recipients=recipient if recipient else notification.recipients,
+            request_date=notification.request_date,
+            request_by=notification.request_by,
+            sent_date=notification.sent_date,
+            subject=notification.content[0].subject,
+            type_code=notification.type_code.upper(),
+            status_code=notification.status_code.upper(),
+            provider_code=notification.provider_code.upper(),
+            gc_notify_response_id=response_id,
+        )
         db.session.add(db_history)
         db.session.commit()
         db.session.refresh(db_history)

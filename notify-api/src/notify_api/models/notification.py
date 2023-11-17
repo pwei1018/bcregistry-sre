@@ -35,23 +35,23 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
     notify_type: Optional[str] = None
     content: ContentRequest = None
 
-    @validator('recipients', always=True)
+    @validator("recipients", always=True)
     @classmethod
     def validate_recipients(cls, v_field):
         """Validate recipients."""
         if not v_field:
-            raise ValueError('The recipients must not empty')
+            raise ValueError("The recipients must not empty")
 
-        for recipient in v_field.split(','):
+        for recipient in v_field.split(","):
             try:
                 parsed_phone = phonenumbers.parse(recipient)
                 if not phonenumbers.is_valid_number(parsed_phone):
-                    raise ValueError(f'Invalid recipient: {recipient}.')
+                    raise ValueError(f"Invalid recipient: {recipient}.")
             except phonenumbers.NumberParseException:
                 try:
                     validate_email(recipient.strip())
                 except EmailNotValidError as error_msg:
-                    raise ValueError(f'Invalid recipient: {recipient}.') from error_msg
+                    raise ValueError(f"Invalid recipient: {recipient}.") from error_msg
 
         return v_field
 
@@ -90,6 +90,7 @@ class Notification(db.Model):
         SENT = auto()
         DELIVERED = auto()
         FAILURE = auto()
+        FORWARDED = auto()
 
     class NotificationProvider(BaseEnum):
         """Enum for the Notification Provider."""
@@ -97,7 +98,7 @@ class Notification(db.Model):
         SMTP = auto()
         GC_NOTIFY = auto()
 
-    __tablename__ = 'notification'
+    __tablename__ = "notification"
 
     id = db.Column(db.Integer, primary_key=True)
     recipients = db.Column(db.String(2000), nullable=False)
@@ -109,23 +110,23 @@ class Notification(db.Model):
     provider_code = db.Column(db.Enum(NotificationProvider), nullable=True)
 
     # relationships
-    content = db.relationship('Content')
+    content = db.relationship("Content")
 
     @property
     def json(self) -> dict:
         """Return a dict of this object, with keys in JSON format."""
         notification_json = {
-            'id': self.id,
-            'recipients': self.recipients,
-            'requestDate': self.request_date.isoformat(),
-            'requestBy': self.request_by,
-            'sentDate': self.request_date.isoformat(),
-            'notifyType': self.type_code.name or '',
-            'notifyStatus': self.status_code.name or '',
-            'notifyProvider': self.provider_code.name if self.provider_code else '',
+            "id": self.id,
+            "recipients": self.recipients,
+            "requestDate": self.request_date.isoformat(),
+            "requestBy": self.request_by,
+            "sentDate": self.request_date.isoformat(),
+            "notifyType": self.type_code.name or "",
+            "notifyStatus": self.status_code.name or "",
+            "notifyProvider": self.provider_code.name if self.provider_code else "",
         }
 
-        notification_json['content'] = self.content[0].json
+        notification_json["content"] = self.content[0].json
 
         return notification_json
 
@@ -149,25 +150,28 @@ class Notification(db.Model):
     @classmethod
     def find_resend_notifications(cls):
         """Return all Notifications that need to resend."""
-        resend_statuses = (Notification.NotificationStatus.PENDING.value, Notification.NotificationStatus.FAILURE.value)
+        resend_statuses = (
+            Notification.NotificationStatus.PENDING.value,
+            Notification.NotificationStatus.FAILURE.value,
+        )
 
-        notifications = cls.query.\
-            filter(Notification.status_code.in_(resend_statuses)).all()
+        notifications = cls.query.filter(Notification.status_code.in_(resend_statuses)).all()
         return notifications
 
     @classmethod
     def create_notification(cls, notification: NotificationRequest):
         """Create notification."""
-        db_notification = Notification(recipients=notification.recipients,
-                                       request_by=notification.request_by,
-                                       type_code=notification.notify_type)
+        db_notification = Notification(
+            recipients=notification.recipients,
+            request_by=notification.request_by,
+            type_code=notification.notify_type,
+        )
         db.session.add(db_notification)
         db.session.commit()
         db.session.refresh(db_notification)
 
         # save email content
-        Content.create_content(content=notification.content,
-                               notification_id=db_notification.id)
+        Content.create_content(content=notification.content, notification_id=db_notification.id)
 
         return db_notification
 

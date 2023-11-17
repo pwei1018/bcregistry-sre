@@ -32,7 +32,8 @@ Run `make setup`
 Run `make run`
 
 ### Running Linting
-Run `make lint`
+Run `poetry run pylint src`
+Run `poetry run flake8 src`
 
 ### Running Unit Tests
 - For all tests run `make test or pytest -v -s`

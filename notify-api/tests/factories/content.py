@@ -24,60 +24,54 @@ from tests.factories.attachment import AttachmentFactory
 faker = Faker()
 
 
-class ContentFactory():   # pylint: disable=too-few-public-methods
+class ContentFactory:  # pylint: disable=too-few-public-methods
     """Content factory."""
 
     class Models(dict, Enum):
         """Content model data."""
 
-        CONTENT_1 = {'subject': faker.text(),
-                     'body': faker.text()}
+        CONTENT_1 = {"subject": faker.text(), "body": faker.text()}
 
     class RequestData(dict, Enum):
         """Content post request payload data."""
 
-        CONTENT_REQUEST_1 = {'subject': faker.text(),
-                             'body': faker.text()}
+        CONTENT_REQUEST_1 = {"subject": faker.text(), "body": faker.text()}
 
-        CONTENT_REQUEST_2 = {'subject': faker.text(),
-                             'body': faker.text(),
-                             'attachments': [AttachmentFactory.RequestData.FILE_REQUEST_1]}
+        CONTENT_REQUEST_2 = {
+            "subject": faker.text(),
+            "body": faker.text(),
+            "attachments": [AttachmentFactory.RequestData.FILE_REQUEST_1],
+        }
 
-        CONTENT_REQUEST_3 = {'subject': faker.text(),
-                             'body': faker.text(),
-                             'attachments': [AttachmentFactory.RequestData.FILE_REQUEST_1,
-                                             AttachmentFactory.RequestData.FILE_REQUEST_2]}
+        CONTENT_REQUEST_3 = {
+            "subject": faker.text(),
+            "body": faker.text(),
+            "attachments": [AttachmentFactory.RequestData.FILE_REQUEST_1, AttachmentFactory.RequestData.FILE_REQUEST_2],
+        }
 
     class RequestProviderData(dict, Enum):
         """Content post request payload data for test provider."""
 
-        CONTENT_REQUEST_PROVIDER_1 = {'subject': faker.text(),
-                                      'body': faker.text()}
+        CONTENT_REQUEST_PROVIDER_1 = {"subject": faker.text(), "body": faker.text()}
 
-        CONTENT_REQUEST_PROVIDER_2 = {'subject': faker.text(),
-                                      'body': f'<html><body>{faker.text()}</body></html>'}
+        CONTENT_REQUEST_PROVIDER_2 = {"subject": faker.text(), "body": f"<html><body>{faker.text()}</body></html>"}
 
     class RequestBadData(dict, Enum):
         """Content post payload with inconsistent data."""
 
         # subject empty
-        CONTENT_REQUEST_BAD_1 = {'subject': '',
-                                 'body': faker.text()}
+        CONTENT_REQUEST_BAD_1 = {"subject": "", "body": faker.text()}
 
         # without subject
-        CONTENT_REQUEST_BAD_2 = {'body': faker.text()}
+        CONTENT_REQUEST_BAD_2 = {"body": faker.text()}
 
         # without body
-        CONTENT_REQUEST_BAD_3 = {'subject': faker.text()}
+        CONTENT_REQUEST_BAD_3 = {"subject": faker.text()}
 
-    @ staticmethod
-    def create_model(session,
-                     notification_id: int = 1,
-                     content_info: dict = Models.CONTENT_1):
+    @staticmethod
+    def create_model(session, notification_id: int = 1, content_info: dict = Models.CONTENT_1):
         """Produce a content model."""
-        content = Content(subject=content_info['subject'],
-                          body=content_info['body'],
-                          notification_id=notification_id)
+        content = Content(subject=content_info["subject"], body=content_info["body"], notification_id=notification_id)
         session.add(content)
         session.commit()
         content = session.merge(content)

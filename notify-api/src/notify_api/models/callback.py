@@ -38,7 +38,7 @@ class CallbackRequest(BaseModel):  # pylint: disable=too-few-public-methods
 class Callback(db.Model):
     """Immutable Callback record."""
 
-    __tablename__ = 'gc_notify_callback'
+    __tablename__ = "gc_notify_callback"
 
     id = db.Column(db.Integer, primary_key=True)
     notify_id = db.Column(db.String)
@@ -57,16 +57,15 @@ class Callback(db.Model):
     def json(self) -> dict:
         """Return a dict of this object, with keys in JSON format."""
         callback_json = {
-            'notify_id': self.id,
-            'to': self.to,
-            'status': self.status,
-            'status_description': self.status_description,
-            'provider_response': self.provider_response,
-            'created_at': self.created_at,
-            'completed_at': self.completed_at,
-            'sent_at': self.sent_at,
-            'notification_type': self.notification_type
-
+            "notify_id": self.id,
+            "to": self.to,
+            "status": self.status,
+            "status_description": self.status_description,
+            "provider_response": self.provider_response,
+            "created_at": self.created_at,
+            "completed_at": self.completed_at,
+            "sent_at": self.sent_at,
+            "notification_type": self.notification_type,
         }
 
         return callback_json
@@ -74,21 +73,23 @@ class Callback(db.Model):
     @classmethod
     def save(cls, callback: CallbackRequest):
         """Add email to list."""
-        db_callback = Callback(notify_id=callback.id,
-                               reference=callback.reference,
-                               to=callback.to,
-                               status=callback.status,
-                               status_description=callback.status_description,
-                               provider_response=callback.provider_response,
-                               created_at=callback.created_at,
-                               updated_at=callback.updated_at,
-                               completed_at=callback.completed_at,
-                               sent_at=callback.sent_at,
-                               notification_type=callback.notification_type)
+        db_callback = Callback(
+            notify_id=callback.id,
+            reference=callback.reference,
+            to=callback.to,
+            status=callback.status,
+            status_description=callback.status_description,
+            provider_response=callback.provider_response,
+            created_at=callback.created_at,
+            updated_at=callback.updated_at,
+            completed_at=callback.completed_at,
+            sent_at=callback.sent_at,
+            notification_type=callback.notification_type,
+        )
 
         try:
             db.session.add(db_callback)
             db.session.commit()
             db.session.refresh(db_callback)
-        except Exception: # NOQA # pylint: disable=broad-except
+        except Exception:  # NOQA # pylint: disable=broad-except
             db.session.rollback()

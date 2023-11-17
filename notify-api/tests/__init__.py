@@ -21,7 +21,7 @@ from typing import Dict, List
 EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=datetime.timezone.utc)
 FROZEN_DATETIME = datetime.datetime(2001, 8, 5, 7, 7, 58, 272362).replace(tzinfo=datetime.timezone.utc)
 FROZEN_2018_DATETIME = datetime.datetime(2018, 12, 25, 0, 0, 50, 0).replace(tzinfo=datetime.timezone.utc)
-TIMEZONE_OFFSET=time.timezone/60/60 if time.timezone else 0
+TIMEZONE_OFFSET = time.timezone / 60 / 60 if time.timezone else 0
 
 
 def add_years(d, years):
@@ -72,7 +72,7 @@ def strip_keys_from_dict(orig_dict: Dict, keys: List) -> Dict:
                 try:
                     if item not in keys:
                         modified_list.append(item)
-                except:  # noqa: E722
+                except:  # noqa: E722  # pylint: disable=bare-except
                     modified_list.append(item)
         return modified_list
 

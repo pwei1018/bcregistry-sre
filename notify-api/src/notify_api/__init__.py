@@ -27,11 +27,10 @@ from notify_api.translations import babel
 from notify_api.utils.auth import jwt
 from notify_api.utils.logging import setup_logging
 
+setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.conf"))
 
-setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))
 
-
-def create_app(run_mode=os.getenv('FLASK_ENV', 'production'), **kwargs):
+def create_app(run_mode=os.getenv("FLASK_ENV", "production"), **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
     app.config.from_object(config[run_mode])
@@ -49,8 +48,10 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'production'), **kwargs):
 
 def setup_jwt_manager(app, jwt_manager):
     """Use flask app to configure the JWTManager to work for a particular Realm."""
+
     def get_roles(a_dict):
-        return a_dict['realm_access']['roles']  # pragma: no cover
-    app.config['JWT_ROLE_CALLBACK'] = get_roles
+        return a_dict["realm_access"]["roles"]  # pragma: no cover
+
+    app.config["JWT_ROLE_CALLBACK"] = get_roles
 
     jwt_manager.init_app(app)

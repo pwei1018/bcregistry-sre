@@ -30,17 +30,19 @@ def test_notification_validation():
 
         assert exc_info.value.errors()
 
+
 def test_find_notification_by_id(session):
     """Assert the test can retrieve notification by id."""
     notification = NotificationFactory.create_model(session)
 
     result = Notification.find_notification_by_id(notification.id)
 
-    assert result.recipients == NotificationFactory.Models.PENDING_1['recipients']
+    assert result.recipients == NotificationFactory.Models.PENDING_1["recipients"]
 
     result = Notification.find_notification_by_id(None)
 
     assert result is None
+
 
 def test_find_notification_by_status(session):
     """Assert the test can retrieve notifications by status."""
@@ -48,16 +50,18 @@ def test_find_notification_by_status(session):
 
     result = Notification.find_notifications_by_status(notification.status_code)
 
-    assert result[0].recipients == NotificationFactory.Models.PENDING_1['recipients']
+    assert result[0].recipients == NotificationFactory.Models.PENDING_1["recipients"]
 
     result = Notification.find_notifications_by_status(None)
 
     assert result is None
 
+
 def test_create_notification(session):  # pylint: disable=unused-argument
     """Assert the test can create notification."""
     result = Notification.create_notification(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
-    assert result.recipients == NotificationFactory.RequestData.REQUEST_1['recipients']
+    assert result.recipients == NotificationFactory.RequestData.REQUEST_1["recipients"]
+
 
 def test_update_notification(session):
     """Assert the test can update notification."""
@@ -67,5 +71,5 @@ def test_update_notification(session):
     notification.status_code = Notification.NotificationStatus.FAILURE
     result = Notification.update_notification(notification)
     assert result == notification
-    assert result.recipients == NotificationFactory.Models.PENDING_1['recipients']
+    assert result.recipients == NotificationFactory.Models.PENDING_1["recipients"]
     assert result.status_code == Notification.NotificationStatus.FAILURE

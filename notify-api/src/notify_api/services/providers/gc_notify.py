@@ -20,8 +20,11 @@ from flask import current_app
 from notifications_python_client import NotificationsAPIClient
 
 from notify_api.errors import BadGatewayException
-from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
-
+from notify_api.models import (
+    Notification,
+    NotificationSendResponse,
+    NotificationSendResponses,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +34,10 @@ class GCNotify:
 
     def __init__(self, notification: Notification):
         """Construct object."""
-        self.api_key = current_app.config.get('GC_NOTIFY_API_KEY')
-        self.gc_notify_url = current_app.config.get('GC_NOTIFY_API_URL')
-        self.gc_notify_template_id = current_app.config.get('GC_NOTIFY_TEMPLATE_ID')
-        self.gc_notify_sms_template_id = current_app.config.get('GC_NOTIFY_SMS_TEMPLATE_ID')
+        self.api_key = current_app.config.get("GC_NOTIFY_API_KEY")
+        self.gc_notify_url = current_app.config.get("GC_NOTIFY_API_URL")
+        self.gc_notify_template_id = current_app.config.get("GC_NOTIFY_TEMPLATE_ID")
+        self.gc_notify_sms_template_id = current_app.config.get("GC_NOTIFY_SMS_TEMPLATE_ID")
         self.notification = notification
 
     def send(self):
@@ -43,41 +46,37 @@ class GCNotify:
             client = NotificationsAPIClient(api_key=self.api_key, base_url=self.gc_notify_url)
 
             email_content = {
-                'email_subject': self.notification.content[0].subject,
-                'email_body': self.notification.content[0].body,
+                "email_subject": self.notification.content[0].subject,
+                "email_body": self.notification.content[0].body,
             }
 
             if self.notification.content[0].attachments:
                 for idx, attachment in enumerate(self.notification.content[0].attachments):
                     attachment_encoded = base64.b64encode(attachment.file_bytes)
-                    email_content[f'attachment{idx}'] = {
-                        'file': attachment_encoded.decode(),
-                        'filename': attachment.file_name,
-                        'sending_method': 'attach'
+                    email_content[f"attachment{idx}"] = {
+                        "file": attachment_encoded.decode(),
+                        "filename": attachment.file_name,
+                        "sending_method": "attach",
                     }
 
             response_list: List[NotificationSendResponse] = []
 
             # send one email at a time
-            for recipient in self.notification.recipients.split(','):
-
+            for recipient in self.notification.recipients.split(","):
                 response = client.send_email_notification(
-                    email_address=recipient,
-                    template_id=self.gc_notify_template_id,
-                    personalisation=email_content
+                    email_address=recipient, template_id=self.gc_notify_template_id, personalisation=email_content
                 )
 
-                sent_response = NotificationSendResponse(response_id=response['id'],
-                                                         recipient=recipient)
+                sent_response = NotificationSendResponse(response_id=response["id"], recipient=recipient)
                 response_list.append(sent_response)
 
-            return NotificationSendResponses(**{'recipients': response_list})
+            return NotificationSendResponses(**{"recipients": response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
             # bypass team-only API key bad request error
-            if 'this recipient using a team-only API key' not in f'{err}':
-                logger.error('Email GC Notify Error: %s', err)
-                raise BadGatewayException(error=f'Email GC Notify Error {err}') from err
+            if "this recipient using a team-only API key" not in f"{err}":
+                logger.error("Email GC Notify Error: %s", err)
+                raise BadGatewayException(error=f"Email GC Notify Error {err}") from err
         return None
 
     def send_sms(self):
@@ -87,20 +86,18 @@ class GCNotify:
 
             response_list: List[NotificationSendResponse] = []
 
-            for phone in self.notification.recipients.split(','):
+            for phone in self.notification.recipients.split(","):
                 response = client.send_sms_notification(
                     phone_number=phone,
                     template_id=self.gc_notify_sms_template_id,
-                    personalisation={
-                        'sms_body': self.notification.content[0].body
-                    })
+                    personalisation={"sms_body": self.notification.content[0].body},
+                )
 
-                sent_response = NotificationSendResponse(response_id=response['id'],
-                                                         recipient=phone)
+                sent_response = NotificationSendResponse(response_id=response["id"], recipient=phone)
                 response_list.append(sent_response)
 
-            return NotificationSendResponses(**{'recipients': response_list})
+            return NotificationSendResponses(**{"recipients": response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
-            logger.error('TEXT GC Notify Error: %s', err)
-            raise BadGatewayException(error=f'TEXT GC Notify Error {err}') from err
+            logger.error("TEXT GC Notify Error: %s", err)
+            raise BadGatewayException(error=f"TEXT GC Notify Error {err}") from err

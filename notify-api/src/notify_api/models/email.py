@@ -25,26 +25,26 @@ class EmailValidator(BaseModel):
 
     email_address: str
 
-    @validator('email_address')
+    @validator("email_address")
     @classmethod
     def validate_email_address(cls, value):
         """Validate email address."""
         try:
             validate_email(value.strip())
 
-            millionverifier_url = current_app.config.get('MILLIONVERIFIER_API_URL')
-            millionverifier_api_key = current_app.config.get('MILLIONVERIFIER_API_KEY')
+            millionverifier_url = current_app.config.get("MILLIONVERIFIER_API_URL")
+            millionverifier_api_key = current_app.config.get("MILLIONVERIFIER_API_KEY")
 
             if millionverifier_url and millionverifier_api_key:
-                validation_url = f'{millionverifier_url}/?api={millionverifier_api_key}&email={value}&timeout=10'
+                validation_url = f"{millionverifier_url}/?api={millionverifier_api_key}&email={value}&timeout=10"
 
                 response = requests.get(validation_url, timeout=10)
 
                 res_json = response.json()
                 if res_json:
-                    if res_json['result'] != MillionverifierResult.OK.value:
+                    if res_json["result"] != MillionverifierResult.OK.value:
                         raise EmailNotValidError(f'{res_json["subresult"]} {res_json["error"]}')
         except EmailNotValidError as error_msg:
-            raise ValueError(f'Invalid: {value} {error_msg}') from error_msg
+            raise ValueError(f"Invalid: {value} {error_msg}") from error_msg
 
         return True

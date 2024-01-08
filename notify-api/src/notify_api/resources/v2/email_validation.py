@@ -21,17 +21,16 @@ from flask_pydantic import validate
 
 from notify_api.models import EmailValidator
 
-
 # from notify_api.utils.auth import jwt
 
 
 logger = logging.getLogger(__name__)
 
-bp = Blueprint('EMAIL_VALIDATION', __name__, url_prefix='/email_validation')
+bp = Blueprint("EMAIL_VALIDATION", __name__, url_prefix="/email_validation")
 
 
-@bp.route('/', methods=['GET', 'OPTIONS'])
-@cross_origin(origin='*')
+@bp.route("/", methods=["GET", "OPTIONS"])
+@cross_origin(origin="*")
 # @jwt.requires_auth
 @validate()
 def email_validation(query: EmailValidator):  # pylint: disable=unused-argument

@@ -25,8 +25,11 @@ from typing import List
 from flask import current_app
 
 from notify_api.errors import BadGatewayException
-from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
-
+from notify_api.models import (
+    Notification,
+    NotificationSendResponse,
+    NotificationSendResponses,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,38 +39,38 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
 
     def __init__(self, notification: Notification):
         """Construct object."""
-        self.mail_server = current_app.config.get('MAIL_SERVER')
-        self.mail_port = current_app.config.get('MAIL_PORT')
-        self.mail_from_id = current_app.config.get('MAIL_FROM_ID')
+        self.mail_server = current_app.config.get("MAIL_SERVER")
+        self.mail_port = current_app.config.get("MAIL_PORT")
+        self.mail_from_id = current_app.config.get("MAIL_FROM_ID")
         self.notification = notification
 
     def send(self):
         """Send message."""
         try:
-            encoding = 'utf-8'
+            encoding = "utf-8"
             message = MIMEMultipart()
-            message['Subject'] = self.notification.content[0].subject
-            message['From'] = self.mail_from_id
-            message['To'] = self.notification.recipients
-            message.attach(MIMEText(self.notification.content[0].body, 'html', encoding))
+            message["Subject"] = self.notification.content[0].subject
+            message["From"] = self.mail_from_id
+            message["To"] = self.notification.recipients
+            message.attach(MIMEText(self.notification.content[0].body, "html", encoding))
 
             if self.notification.content[0].attachments:
                 for attachment in self.notification.content[0].attachments:
-                    part = MIMEBase('application', 'octet-stream')
+                    part = MIMEBase("application", "octet-stream")
                     part.set_payload(attachment.file_bytes)
                     encode_base64(part)
 
-                    spaces = re.compile(r'[\s]+', re.UNICODE)
-                    filename = unicodedata.normalize('NFKD', attachment.file_name)
-                    filename = filename.encode('ascii', 'ignore').decode('ascii')
-                    filename = spaces.sub(' ', filename).strip()
+                    spaces = re.compile(r"[\s]+", re.UNICODE)
+                    filename = unicodedata.normalize("NFKD", attachment.file_name)
+                    filename = filename.encode("ascii", "ignore").decode("ascii")
+                    filename = spaces.sub(" ", filename).strip()
 
                     try:
-                        filename and filename.encode('ascii')
+                        filename and filename.encode("ascii")
                     except UnicodeEncodeError:
-                        filename = ('UTF8', '', filename)
+                        filename = ("UTF8", "", filename)
 
-                    part.add_header('Content-Disposition', 'attachment; filename=' + filename)
+                    part.add_header("Content-Disposition", "attachment; filename=" + filename)
 
                     message.attach(part)
 
@@ -75,18 +78,17 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
 
             server = smtplib.SMTP()
             server.connect(host=self.mail_server, port=self.mail_port)
-            for email in message['To'].split(','):
-                server.sendmail(message['From'], [email], message.as_string())
+            for email in message["To"].split(","):
+                server.sendmail(message["From"], [email], message.as_string())
 
-                sent_response = NotificationSendResponse(response_id=None,
-                                                         recipient=email)
+                sent_response = NotificationSendResponse(response_id=None, recipient=email)
                 response_list.append(sent_response)
 
             server.quit()
 
-            return NotificationSendResponses(**{'recipients': response_list})
+            return NotificationSendResponses(**{"recipients": response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
-            logger.error('Email SMTP Error: %s', err)
-            raise BadGatewayException(error=f'Email SMTP Error {err}') from err
+            logger.error("Email SMTP Error: %s", err)
+            raise BadGatewayException(error=f"Email SMTP Error {err}") from err
         return True

@@ -14,7 +14,7 @@
 """This module holds all of the basic data about a business."""
 
 from enum import Enum, EnumMeta
-from typing import Optional, List, Any
+from typing import Any, List, Optional
 
 
 class BaseMeta(EnumMeta):

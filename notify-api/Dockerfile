@@ -1,4 +1,4 @@
-FROM python:3.11.2-bullseye AS development_build
+FROM python:3.11.6-bullseye AS development_build
 
 USER root
 

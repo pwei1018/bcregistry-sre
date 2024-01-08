@@ -26,7 +26,7 @@ jobs:
   vault-service-cd-by-push:
     runs-on: ubuntu-20.04
 
-    if: github.event_name == 'push' && github.repository == 'pwei1018/bcregistry-sre'
+    if: github.event_name == 'push' && github.repository == 'bcgov/bcregistry-sre'
     environment:
       name: "dev"
 
@@ -40,7 +40,7 @@ jobs:
   vault-service-cd-by-dispatch:
     runs-on: ubuntu-20.04
 
-    if: github.event_name == 'workflow_dispatch' && github.repository == 'pwei1018/bcregistry-sre'
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'bcgov/bcregistry-sre'
     environment:
       name: "${{ github.event.inputs.environment }}"
 

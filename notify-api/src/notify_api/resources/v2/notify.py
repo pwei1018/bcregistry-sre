@@ -26,14 +26,13 @@ from notify_api.services.notify_service import NotifyService
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-
 logger = logging.getLogger(__name__)
 
-bp = Blueprint('Notify_V2', __name__, url_prefix='/notify')
+bp = Blueprint("Notify_V2", __name__, url_prefix="/notify")
 
 
-@bp.route('/sms', methods=['POST'])
-@cross_origin(origin='*')
+@bp.route("/sms", methods=["POST"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.SMS.value, Role.STAFF.value])
 @validate()
@@ -42,14 +41,14 @@ def send_sms_notification(body: NotificationRequest):
     try:
         body.notify_type = Notification.NotificationType.TEXT
         notification = NotifyService().notify(body)
-    except (BadGatewayException, NotifyException, Exception) as err: # NOQA # pylint: disable=broad-except
-        return jsonify({'error': babel(err.error)}), err.status_code
+    except (BadGatewayException, NotifyException, Exception) as err:  # NOQA # pylint: disable=broad-except
+        return jsonify({"error": babel(err.error)}), err.status_code
 
     return jsonify(notification.json), HTTPStatus.OK
 
 
-@bp.route('/resend', methods=['POST', 'OPTIONS'])
-@cross_origin(origin='*')
+@bp.route("/resend", methods=["POST", "OPTIONS"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value])
 def resend_notifications():

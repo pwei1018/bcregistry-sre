@@ -33,23 +33,20 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     file_url: str = None
     attach_order: str = None
 
-    @validator('file_name', always=True)
+    @validator("file_name", always=True)
     @classmethod
     def not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:
-            raise ValueError('The file name must not empty.')
+            raise ValueError("The file name must not empty.")
         return v_field
 
-    @validator('attach_order')
+    @validator("attach_order")
     @classmethod
-    def must_contain_one(cls,
-                         v_field,
-                         values,
-                         **kwargs):     # pylint: disable=unused-argument
+    def must_contain_one(cls, v_field, values, **kwargs):  # pylint: disable=unused-argument
         """Valiate field is not empty."""
-        if not values.get('file_bytes') and not values.get('file_url'):
-            raise ValueError('The file content must attach.')
+        if not values.get("file_bytes") and not values.get("file_url"):
+            raise ValueError("The file content must attach.")
 
         return v_field
 
@@ -62,7 +59,7 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 class Attachment(db.Model):
     """Immutable attachment record. Represents attachment."""
 
-    __tablename__ = 'attachment'
+    __tablename__ = "attachment"
 
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.String(200), nullable=False)
@@ -70,16 +67,12 @@ class Attachment(db.Model):
     attach_order = db.Column(db.Integer, nullable=True)
 
     # parent keys
-    content_id = db.Column(db.ForeignKey('content.id'), nullable=False)
+    content_id = db.Column(db.ForeignKey("content.id"), nullable=False)
 
     @property
     def json(self) -> dict:
         """Return a dict of this object, with keys in JSON format."""
-        attachment_json = {
-            'id': self.id,
-            'fileName': self.file_name,
-            'attachOrder': self.attach_order
-        }
+        attachment_json = {"id": self.id, "fileName": self.file_name, "attachOrder": self.attach_order}
 
         return attachment_json
 
@@ -94,16 +87,19 @@ class Attachment(db.Model):
             else:
                 file_bytes = base64.b64decode(attachment.file_bytes)
 
-            db_attachment = Attachment(content_id=content_id,
-                                       file_name=attachment.file_name,
-                                       file_bytes=file_bytes,
-                                       attach_order=attachment.attach_order)
+            db_attachment = Attachment(
+                content_id=content_id,
+                file_name=attachment.file_name,
+                file_bytes=file_bytes,
+                attach_order=attachment.attach_order,
+            )
             db.session.add(db_attachment)
             db.session.commit()
             db.session.refresh(db_attachment)
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
-            raise NotifyException(error=f'Create attachment record Error {err}',
-                                  status_code=HTTPStatus.INTERNAL_SERVER_ERROR) from err
+            raise NotifyException(
+                error=f"Create attachment record Error {err}", status_code=HTTPStatus.INTERNAL_SERVER_ERROR
+            ) from err
         return db_attachment
 
     def delete_attachment(self):

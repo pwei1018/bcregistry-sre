@@ -17,9 +17,13 @@ from .callback import Callback, CallbackRequest
 from .content import Content, ContentRequest
 from .db import db  # noqa: I001
 from .email import EmailValidator
-from .notification import Notification, NotificationRequest, NotificationSendResponse, NotificationSendResponses
+from .notification import (
+    Notification,
+    NotificationRequest,
+    NotificationSendResponse,
+    NotificationSendResponses,
+)
 from .notification_history import NotificationHistory
 from .safe_list import SafeList, SafeListRequest
 
-
-__all__ = ('db', 'attachment', 'callback', 'content', 'email', 'notification', 'notification_history', 'safe_list')
+__all__ = ("db", "attachment", "callback", "content", "email", "notification", "notification_history", "safe_list")

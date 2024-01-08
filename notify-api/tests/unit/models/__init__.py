@@ -19,9 +19,6 @@ import uuid
 from freezegun import freeze_time
 from sqlalchemy_continuum import versioning_manager
 
-from notify_api.models import (
-    db
-)
+from notify_api.models import db
 from notify_api.utils.datetime import datetime, timezone
 from tests import EPOCH_DATETIME, FROZEN_DATETIME
-

@@ -23,14 +23,13 @@ from notify_api.models import Callback, CallbackRequest, NotificationHistory
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-
 logger = logging.getLogger(__name__)
 
-bp = Blueprint('CALLBACK', __name__, url_prefix='/callback')
+bp = Blueprint("CALLBACK", __name__, url_prefix="/callback")
 
 
-@bp.route('/', methods=['POST', 'OPTIONS'])
-@cross_origin(origin='*')
+@bp.route("/", methods=["POST", "OPTIONS"])
+@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.GC_NOTIFY_CALLBACK.value])
 @validate()
@@ -45,7 +44,7 @@ def callback(body: CallbackRequest):  # pylint: disable=unused-argument
 
         history.update()
 
-    except (Exception) as err: # NOQA # pylint: disable=broad-except
+    except Exception as err:  # NOQA # pylint: disable=broad-except
         logger.error(err)
 
     return {}, HTTPStatus.OK

@@ -43,3 +43,4 @@ spec:
               memory: 512Mi # from-param: ${resources-memory}
             maxRetries: 3 # from-param: ${task-max-retries}
             timeoutSeconds: 600 # from-param: ${task-timeout}
+            serviceAccountName: valuePlaceHolder # from-param: ${service-account}

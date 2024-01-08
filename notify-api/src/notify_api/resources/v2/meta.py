@@ -22,14 +22,11 @@ from flask import jsonify
 
 from notify_api.utils.run_version import get_run_version
 
+bp = Blueprint("Meta_v2", __name__, url_prefix="/meta")
 
-bp = Blueprint('Meta_v2', __name__, url_prefix='/meta')
 
-
-@bp.route('/info')
+@bp.route("/info")
 def info():
     """Return a JSON object with meta information about the Service."""
     version = get_run_version()
-    return jsonify(
-        API=f'notify_api/{version}',
-        FrameWork=f'{framework_version}')
+    return jsonify(API=f"notify_api/{version}", FrameWork=f"{framework_version}")

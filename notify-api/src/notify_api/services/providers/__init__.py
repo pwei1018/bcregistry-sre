@@ -16,7 +16,6 @@ from notify_api.models import Notification
 
 from . import email_smtp, gc_notify
 
-
 _all_providers = {
     Notification.NotificationProvider.SMTP: email_smtp.EmailSMTP,
     Notification.NotificationProvider.GC_NOTIFY: gc_notify.GCNotify,

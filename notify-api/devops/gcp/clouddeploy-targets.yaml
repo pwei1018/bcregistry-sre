@@ -22,6 +22,7 @@ deployParameters:
   service-name: "notify-api-dev"
   container-name: "notify-api-dev"
   cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-db-dev"
+  service-account: "sa-api@c4hnrd-dev.iam.gserviceaccount.com"
 run:
  location: projects/c4hnrd-dev/locations/northamerica-northeast1
 executionConfigs:
@@ -40,6 +41,7 @@ deployParameters:
   container-name: "notify-api-test"
   app-env: "test"
   cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
+  service-account: "sa-api@c4hnrd-test.iam.gserviceaccount.com"
 run:
  location: projects/c4hnrd-test/locations/northamerica-northeast1
 executionConfigs:
@@ -59,6 +61,7 @@ deployParameters:
   container-name: "notify-api-sandbox"
   app-env: "sandbox"
   cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
+  service-account: "sa-api@c4hnrd-tools.iam.gserviceaccount.com"
 run:
  location: projects/c4hnrd-tools/locations/northamerica-northeast1
 executionConfigs:
@@ -78,6 +81,7 @@ deployParameters:
   container-name: "notify-api-sandbox"
   app-env: "production"
   cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-db-prod"
+  service-account: "sa-api@c4hnrd-prod.iam.gserviceaccount.com"
   max-scale: "10"
   container-concurrency: "20"
 run:

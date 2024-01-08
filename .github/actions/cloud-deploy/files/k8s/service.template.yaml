@@ -32,6 +32,7 @@ spec:
     spec:
       containerConcurrency: 7 # from-param: ${container-concurrency}
       timeoutSeconds: 600 # from-param: ${timeout-seconds}
+      serviceAccountName: valuePlaceHolder # from-param: ${service-account}
       containers:
       - name: valuePlaceHolder # from-param: ${container-name}
         image: image-placeholder

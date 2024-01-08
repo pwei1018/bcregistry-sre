@@ -20,17 +20,24 @@ A simple decorator to add the options method to a Request Class.
 import urllib.request
 
 
-def cors_preflight(methods: str = 'GET'):
+def cors_preflight(methods: str = "GET"):
     """Render an option method on the class."""
+
     def wrapper(f):  # pylint: disable=invalid-name
         def options(self, *args, **kwargs):  # pylint: disable=unused-argument
-            return {'Allow': 'GET'}, 200, \
-                   {'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': methods,
-                    'Access-Control-Allow-Headers': 'Authorization, Content-Type'}
+            return (
+                {"Allow": "GET"},
+                200,
+                {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": methods,
+                    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+                },
+            )
 
-        setattr(f, 'options', options)
+        setattr(f, "options", options)
         return f
+
     return wrapper
 
 
@@ -45,9 +52,6 @@ def download_file(url: str) -> bytes:
 
 def to_camel(string: str) -> str:
     """Convert string to camel format."""
-    if '_' not in string or string.startswith('_'):
+    if "_" not in string or string.startswith("_"):
         return string
-    return ''.join([
-        x.capitalize() if i > 0 else x
-        for i, x in enumerate(string.split('_'))
-    ])
+    return "".join([x.capitalize() if i > 0 else x for i, x in enumerate(string.split("_"))])

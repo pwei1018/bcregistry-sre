@@ -25,27 +25,27 @@ from notify_api.models import db
 
 def test_ops_healthz_success(session, client):  # pylint: disable=unused-argument
     """Assert that the service is healthy if it can successfully access the database."""
-    rv = client.get('/api/v2/ops/healthz')
+    rv = client.get("/api/v2/ops/healthz")
 
     assert rv.status_code == 200
-    assert rv.json == {'message': 'api is healthy'}
+    assert rv.json == {"message": "api is healthy"}
 
 
-def test_ops_healthz_exception(session, client): # pylint: disable=unused-argument
+def test_ops_healthz_exception(session, client):  # pylint: disable=unused-argument
     """Assert that the service is healthy if it can successfully access the database."""
-    with patch.object(db.session, 'execute', side_effect=exc.SQLAlchemyError):
-        rv = client.get('/api/v2/ops/healthz')
+    with patch.object(db.session, "execute", side_effect=exc.SQLAlchemyError):
+        rv = client.get("/api/v2/ops/healthz")
         assert rv.status_code == 500
-        assert rv.json == {'message': 'api is down'}
-    with patch.object(db.session, 'execute', side_effect=Exception):
-        rv = client.get('/api/v2/ops/healthz')
+        assert rv.json == {"message": "api is down"}
+    with patch.object(db.session, "execute", side_effect=Exception):
+        rv = client.get("/api/v2/ops/healthz")
         assert rv.status_code == 500
-        assert rv.json == {'message': 'api is down'}
+        assert rv.json == {"message": "api is down"}
 
 
 def test_ops_readyz(client):
     """Asserts that the service is ready to serve."""
-    rv = client.get('/api/v2/ops/readyz')
+    rv = client.get("/api/v2/ops/readyz")
 
     assert rv.status_code == 200
-    assert rv.json == {'message': 'api is ready'}
+    assert rv.json == {"message": "api is ready"}

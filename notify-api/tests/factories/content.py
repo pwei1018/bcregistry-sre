@@ -20,7 +20,6 @@ from faker import Faker
 from notify_api.models import Content
 from tests.factories.attachment import AttachmentFactory
 
-
 faker = Faker()
 
 

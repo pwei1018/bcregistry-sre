@@ -14,7 +14,6 @@
 """Data for the JWT tokens."""
 from typing import List
 
-
 PUBLIC_USER = "public_user"
 STAFF_ROLE = "staff"
 

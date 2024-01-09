@@ -22,7 +22,6 @@ from notify_api.models import Notification, NotificationSendResponse
 from tests.factories.attachment import AttachmentFactory
 from tests.factories.content import ContentFactory
 
-
 faker = Faker()
 
 

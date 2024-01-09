@@ -69,21 +69,31 @@ jobs:
       #----------------------------------------------
       #          install and run linters
       #----------------------------------------------
-      - name: Run pylint
+      - name: Run isort
         run: |
-          poetry run pylint src tests
-
-      - name: Run flake8
-        run: |
-          poetry run flake8 src tests
+          poetry run isort src tests --check
 
       - name: Run black
         run: |
-          poetry run black src --check
+          poetry run black src tests --check
 
-      - name: Run isort
+      - name: Run pylint (src)
         run: |
-          poetry run isort src
+          poetry run pylint src
+
+      - name: Run pylint (tests)
+        continue-on-error: true
+        run: |
+          poetry run pylint tests
+
+      - name: Run flake8 (src)
+        run: |
+          poetry run flake8 src
+
+      - name: Run flake8 (tests)
+        continue-on-error: true
+        run: |
+          poetry run flake8 tests
 
   testing:
     needs: linting

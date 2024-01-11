@@ -177,7 +177,6 @@ class NotifyService:
     def forward_to_ocp(cls, email: NotificationRequest, token: str):
         """Forward notification to OCP notification API to using SMTP email service."""
         try:
-            print(email.dict())
             requests.post(
                 current_app.config.get("NOTIFY_API"),
                 json=email.dict(),

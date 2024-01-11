@@ -67,10 +67,12 @@ class Config:  # pylint: disable=too-few-public-methods
     MAIL_FROM_ID = os.getenv("MAIL_FROM_ID", "")
     MAIL_DEBUG = os.getenv("MAIL_DEBUG", "False")
 
-    # MILLIONVERIFIER
+    # NOTIFY API - OCP Version
     NOTIFY_API_URL = os.getenv("NOTIFY_API_URL", "")
     NOTIFY_API_VERSION = os.getenv("NOTIFY_API_VERSION", "")
+    NOTIFY_API_VERSION_2 = os.getenv("NOTIFY_API_VERSION_2", "")
     NOTIFY_API = f"{NOTIFY_API_URL + NOTIFY_API_VERSION}/notify/"
+    NOTIFY_API_V2 = f"{NOTIFY_API_URL + NOTIFY_API_VERSION_2}/notify/"
 
     # MILLIONVERIFIER
     MILLIONVERIFIER_API_URL = os.getenv("MILLIONVERIFIER_API_URL", "")

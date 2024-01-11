@@ -91,7 +91,7 @@ class NotifyService:
                 if notification.type_code == Notification.NotificationType.TEXT:
                     responses = _all_providers[provider](notification).send_sms()
                 else:
-                    if current_app.config.get("DEPLOYMENT_ENV") == "GCP":
+                    if current_app.config.get("DEPLOYMENT_PLATFORM") == "GCP":
                         # GCP environment can't send the email by SMTP
                         if provider == Notification.NotificationProvider.SMTP:
                             # Forward the email to OCP notification API

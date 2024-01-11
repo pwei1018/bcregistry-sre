@@ -35,12 +35,12 @@ def test_invaild_roles(session, app, client, jwt):  # pylint: disable=unused-arg
 
     headers = create_header(jwt, [Role.INVALID.value], **{"Accept-Version": "v1"})
     res = client.post("/api/v1/notify/", headers=headers)
-    assert res.status_code == HTTPStatus.NOT_FOUND
+    assert res.status_code == HTTPStatus.UNAUTHORIZED
 
     # verify public_user can post notification
     headers = create_header(jwt, [Role.PUBLIC_USER.value], **{"Accept-Version": "v1"})
     res = client.post("/api/v1/notify/", headers=headers)
-    assert res.status_code == HTTPStatus.NOT_FOUND
+    assert res.status_code == HTTPStatus.UNSUPPORTED_MEDIA_TYPE
 
 
 def test_find_by_invaild_input(session, app, client, jwt):  # pylint: disable=unused-argument
@@ -50,13 +50,13 @@ def test_find_by_invaild_input(session, app, client, jwt):  # pylint: disable=un
     assert res.status_code == HTTPStatus.BAD_REQUEST
 
     res = client.get("/api/v1/notify/status/", headers=headers)
-    assert res.status_code == HTTPStatus.NOT_FOUND
+    assert res.status_code == HTTPStatus.BAD_REQUEST
 
     res = client.get("/api/v1/notify/status", headers=headers)
     assert res.status_code == HTTPStatus.BAD_REQUEST
 
     res = client.get("/api/v1/notify/", headers=headers)
-    assert res.status_code == HTTPStatus.NOT_FOUND
+    assert res.status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
     res = client.get("/api/v1/notify", headers=headers)
     assert res.status_code == HTTPStatus.METHOD_NOT_ALLOWED
@@ -133,7 +133,7 @@ def test_send_email_with_bad_data(session, app, jwt, client):  # pylint: disable
     headers = create_header(jwt, [Role.SYSTEM.value], **{"Accept-Version": "v1"})
     for notification_data in list(NotificationFactory.RequestBadData):
         res = client.post("/api/v1/notify/", json=notification_data, headers=headers)
-        assert res.status_code == HTTPStatus.NOT_FOUND
+        assert res.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_send_email_exception(session, app, jwt, client):  # pylint: disable=unused-argument
@@ -141,4 +141,4 @@ def test_send_email_exception(session, app, jwt, client):  # pylint: disable=unu
     with patch.object(NotifyService, "notify", side_effect=NotifyException(error="mocked error", status_code=500)):
         headers = create_header(jwt, [Role.SYSTEM.value], **{"Accept-Version": "v1"})
         res = client.post("/api/v1/notify/", json=NotificationFactory.RequestData.REQUEST_1, headers=headers)
-        assert res.status_code == HTTPStatus.NOT_FOUND
+        assert res.status_code == HTTPStatus.INTERNAL_SERVER_ERROR

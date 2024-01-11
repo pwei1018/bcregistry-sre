@@ -30,7 +30,7 @@ from notify_api.utils.logging import setup_logging
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.conf"))
 
 
-def create_app(run_mode=os.getenv("FLASK_ENV", "production"), **kwargs):
+def create_app(run_mode=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
     app.config.from_object(config[run_mode])

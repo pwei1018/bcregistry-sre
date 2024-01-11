@@ -80,7 +80,7 @@ def test_get_provider_gc_notify_disable(app, session, monkeypatch):  # pylint: d
 
 def test_notify_by_email(app, session, monkeypatch):  # pylint: disable=unused-argument
     """Assert the test can create notification."""
-    app.config["DEPLOYMENT_ENV"] = "OCP"
+    app.config["DEPLOYMENT_PLATFORM"] = "OCP"
     responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE])
     with patch.object(EmailSMTP, "send", return_value=responses), patch.object(
         GCNotify, "send", return_value=responses
@@ -90,7 +90,7 @@ def test_notify_by_email(app, session, monkeypatch):  # pylint: disable=unused-a
         result = service.notify(notification)
         assert result is not None
         assert result.recipients == NotificationFactory.RequestData.REQUEST_1["recipients"]
-    app.config["DEPLOYMENT_ENV"] = "GCP"
+    app.config["DEPLOYMENT_PLATFORM"] = "GCP"
 
 
 def test_notify_by_sms(session, monkeypatch):  # pylint: disable=unused-argument

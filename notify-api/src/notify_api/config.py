@@ -33,7 +33,7 @@ class Config:  # pylint: disable=too-few-public-methods
 
     POD_NAMESPACE = os.getenv("POD_NAMESPACE", "")
 
-    DEPLOYMENT_ENV = os.getenv("DEPLOYMENT_ENV", "GCP")
+    DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "GCP")
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = "migrations/alembic.ini"
@@ -95,6 +95,12 @@ class Config:  # pylint: disable=too-few-public-methods
 
 class ProductionConfig(Config):  # pylint: disable=too-few-public-methods
     """Config object for production environment."""
+
+    DEBUG = False
+
+
+class SandboxConfig(Config):  # pylint: disable=too-few-public-methods
+    """Config object for sandbox environment."""
 
     DEBUG = False
 
@@ -192,7 +198,8 @@ NrQw+2OdQACBJiEHsdZzAkBcsTk7frTH4yGx0VfHxXDPjfTj4wmD6gZIlcIr9lZg
 
 config = {
     "development": DevelopmentConfig,
-    "testing": TestingConfig,
+    "test": TestingConfig,
+    "sandbox": SandboxConfig,
     "production": ProductionConfig,
     "unitTesting": UnitTestingConfig,
 }

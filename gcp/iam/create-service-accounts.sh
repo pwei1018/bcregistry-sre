@@ -23,12 +23,6 @@ do
                 SA_DESCRIPTION="Service Account for running $se services"
                 SA_ROLE="projects/${PROJECT_ID}/roles/$ROLE_NAME"
 
-                if [[ -z `gcloud iam roles describe $ROLE_NAME --project=${PROJECT_ID} --verbosity=none` ]]; then
-                    gcloud iam roles create $ROLE_NAME --quiet --project=${PROJECT_ID} --file=role-$se.yaml
-                else
-                    gcloud iam roles update $ROLE_NAME --quiet --project=${PROJECT_ID} --file=role-$se.yaml
-                fi
-
                 if [[ -z `gcloud iam service-accounts describe $SA_FULL_NAME --project=${PROJECT_ID} --verbosity=none` ]]; then
                     ## API service account
                     gcloud iam service-accounts create $SA_NAME \

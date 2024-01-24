@@ -22,7 +22,12 @@ includedPermissions:
 - run.routes.list
 - run.jobs.get
 - run.jobs.list
+- cloudscheduler.jobs.list
+- cloudscheduler.locations.list
+- pubsub.topics.get
 - pubsub.topics.list
+- pubsub.subscriptions.list
+- pubsub.snapshots.list
 - monitoring.dashboards.get
 - monitoring.timeSeries.list
 - logging.exclusions.get

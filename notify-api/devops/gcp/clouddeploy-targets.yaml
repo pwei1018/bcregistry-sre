@@ -60,7 +60,7 @@ deployParameters:
   service-name: "notify-api-sandbox"
   container-name: "notify-api-sandbox"
   app-env: "sandbox"
-  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
+  cloudsql-instances: "c4hnrd-sandbox:northamerica-northeast1:notify-db-sandbox"
   service-account: "sa-api@c4hnrd-tools.iam.gserviceaccount.com"
 run:
  location: projects/c4hnrd-tools/locations/northamerica-northeast1
@@ -78,7 +78,7 @@ requireApproval: true
 deployParameters:
   deploy-project-id: "c4hnrd-prod"
   service-name: "notify-api-prod"
-  container-name: "notify-api-sandbox"
+  container-name: "notify-api-prod"
   app-env: "production"
   cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-db-prod"
   service-account: "sa-api@c4hnrd-prod.iam.gserviceaccount.com"

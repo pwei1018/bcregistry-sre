@@ -177,7 +177,7 @@ class NotifyService:
     def forward_to_ocp(cls, email: NotificationRequest, token: str):
         """Forward notification to OCP notification API to using SMTP email service."""
         try:
-            requests.post(
+            response = requests.post(
                 current_app.config.get("NOTIFY_API"),
                 json=email.dict(),
                 headers={
@@ -186,6 +186,13 @@ class NotifyService:
                 },
                 timeout=600,
             )
+
+            # Handling the response
+            if response.status_code != 200:
+                # Request failed
+                logger.error("Forward notification Error: %s", response.text)
+            else:
+                logger.info("Forward notification Response: %s", response.text)
 
         except requests.exceptions.RequestException as err:  # NOQA # pylint: disable=broad-except
             logger.error("Forward notification Error: %s", err)

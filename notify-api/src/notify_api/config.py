@@ -57,7 +57,6 @@ class Config:  # pylint: disable=too-few-public-methods
     GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv("GC_NOTIFY_SMS_TEMPLATE_ID", "")
 
     # Email SMTP
-    MAIL_ENABLE = os.getenv("MAIL_ENABLE", "Trues")
     MAIL_SERVER = os.getenv("MAIL_SERVER", "")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "")

@@ -38,11 +38,15 @@ def callback(body: CallbackRequest):  # pylint: disable=unused-argument
     try:
         Callback.save(body)
 
+        # find the notification history record and update the status
         history: NotificationHistory = NotificationHistory.find_by_response_id(body.id)
 
-        history.gc_notify_status = body.status
+        # GC Notify service callback service does not distinguish between environments
+        # Production history won't have records from Dev and Test.
+        if history:
+            history.gc_notify_status = body.status
 
-        history.update()
+            history.update()
 
     except Exception as err:  # NOQA # pylint: disable=broad-except
         logger.error(err)

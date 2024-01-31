@@ -13,20 +13,16 @@
 # limitations under the License.
 """This provides send email through GC Notify Service."""
 import base64
-import logging
 from typing import List
 
+import structlog
 from flask import current_app
 from notifications_python_client import NotificationsAPIClient
 
 from notify_api.errors import BadGatewayException
-from notify_api.models import (
-    Notification,
-    NotificationSendResponse,
-    NotificationSendResponses,
-)
+from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 
 class GCNotify:
@@ -38,6 +34,7 @@ class GCNotify:
         self.gc_notify_url = current_app.config.get("GC_NOTIFY_API_URL")
         self.gc_notify_template_id = current_app.config.get("GC_NOTIFY_TEMPLATE_ID")
         self.gc_notify_sms_template_id = current_app.config.get("GC_NOTIFY_SMS_TEMPLATE_ID")
+        self.gc_notify_email_reply_to_id = current_app.config.get("GC_NOTIFY_EMAIL_REPLY_TO_ID")
         self.notification = notification
 
     def send(self):
@@ -64,7 +61,10 @@ class GCNotify:
             # send one email at a time
             for recipient in self.notification.recipients.split(","):
                 response = client.send_email_notification(
-                    email_address=recipient, template_id=self.gc_notify_template_id, personalisation=email_content
+                    email_address=recipient,
+                    template_id=self.gc_notify_template_id,
+                    personalisation=email_content,
+                    email_reply_to_id=self.gc_notify_email_reply_to_id,
                 )
 
                 sent_response = NotificationSendResponse(response_id=response["id"], recipient=recipient)

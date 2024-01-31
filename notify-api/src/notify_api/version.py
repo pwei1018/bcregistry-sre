@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Version of this service in PEP440.
 
 [N!]N(.N)*[{a|b|rc}N][.postN][.devN]
@@ -21,5 +20,6 @@ Pre-release segment: {a|b|rc}N
 Post-release segment: .postN
 Development release segment: .devN
 """
+import importlib.metadata
 
-__version__ = "1.0.0"  # pylint: disable=invalid-name
+__version__ = importlib.metadata.version("notify-api")

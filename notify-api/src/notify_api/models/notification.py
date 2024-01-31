@@ -18,7 +18,7 @@ from typing import List, Optional
 
 import phonenumbers
 from email_validator import EmailNotValidError, validate_email
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
 from notify_api.utils.base import BaseEnum
 from notify_api.utils.util import to_camel
@@ -30,9 +30,9 @@ from .db import db  # noqa: I001
 class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Notification model for resquest."""
 
-    recipients: str = None
-    request_by: str = None
-    notify_type: Optional[str] = None
+    recipients: str = Field(alias="recipients")
+    request_by: Optional[str] = Field(alias="requestBy")
+    notify_type: Optional[str] = Field(alias="notifyType")
     content: ContentRequest = None
 
     @validator("recipients", always=True)

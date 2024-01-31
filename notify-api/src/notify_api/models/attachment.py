@@ -16,8 +16,9 @@ from __future__ import annotations
 
 import base64
 from http import HTTPStatus
+from typing import Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 
 from notify_api.errors import NotifyException
 from notify_api.utils.util import download_file, to_camel
@@ -28,10 +29,10 @@ from .db import db  # noqa: I001
 class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """This is the Request model for the Notification attachment."""
 
-    file_name: str = None
-    file_bytes: str = None
-    file_url: str = None
-    attach_order: str = None
+    file_name: str = Field(alias="fileName")
+    file_bytes: str = Field(alias="fileBytes")
+    file_url: Optional[str] = Field(alias="fileUrl")
+    attach_order: str = Field(alias="attachOrder")
 
     @validator("file_name", always=True)
     @classmethod

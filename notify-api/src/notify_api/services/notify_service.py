@@ -13,12 +13,11 @@
 # limitations under the License.
 
 """This provides the service for email notify calls."""
-import logging
-import warnings
 from datetime import datetime
 
 import requests
-from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+import structlog
+from bs4 import BeautifulSoup
 from flask import current_app
 
 from notify_api.errors import BadGatewayException, NotifyException
@@ -31,9 +30,7 @@ from notify_api.models import (
 )
 from notify_api.services.providers import _all_providers  # noqa: E402
 
-logger = logging.getLogger(__name__)
-
-warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module="bs4")
+logger = structlog.getLogger(__name__)
 
 
 class NotifyService:
@@ -179,7 +176,7 @@ class NotifyService:
         try:
             response = requests.post(
                 current_app.config.get("NOTIFY_API"),
-                json=email.dict(),
+                json=email.dict(by_alias=True),
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {token}",

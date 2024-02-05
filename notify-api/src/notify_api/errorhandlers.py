@@ -11,26 +11,26 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Core error handlers and custom exceptions.
 
 Following best practices from:
 http://flask.pocoo.org/docs/1.0/errorhandling/
 http://flask.pocoo.org/docs/1.0/patterns/apierrors/
 """
-
-import logging
 import sys
 
+import structlog
 from flask import jsonify
+from flask_pydantic.exceptions import ValidationError
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RoutingException
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 
 def init_app(app):
     """Initialize the error handlers for the Flask app instance."""
+    app.register_error_handler(ValidationError, handle_validation_error)
     app.register_error_handler(HTTPException, handle_http_error)
     app.register_error_handler(Exception, handle_uncaught_error)
 
@@ -46,7 +46,6 @@ def handle_http_error(error):
     if isinstance(error, RoutingException):
         return error
 
-    print(error.description)
     logger.error("Http exception", exc_info=error.description)
     response = jsonify({"errors": error.description})
     response.status_code = error.code
@@ -62,4 +61,12 @@ def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
     logger.error("Uncaught exception", exc_info=sys.exc_info())
     response = jsonify({"errors": f"Internal server error {sys.exc_info()}"})
     response.status_code = 500
+    return response
+
+
+def handle_validation_error(error):
+    """Handle flask-pydantic valication error."""
+    logger.error(f"Validation Error {error.body_params}")
+    response = jsonify({"errors": f"Validation Error {error.body_params}"})
+    response.status_code = 400
     return response

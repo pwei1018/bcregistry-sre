@@ -35,6 +35,8 @@ class Config:  # pylint: disable=too-few-public-methods
 
     DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "GCP")
 
+    FLASK_PYDANTIC_VALIDATION_ERROR_RAISE = True
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = "migrations/alembic.ini"
 
@@ -55,6 +57,7 @@ class Config:  # pylint: disable=too-few-public-methods
     GC_NOTIFY_API_KEY = os.getenv("GC_NOTIFY_API_KEY", "")
     GC_NOTIFY_TEMPLATE_ID = os.getenv("GC_NOTIFY_TEMPLATE_ID", "")
     GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv("GC_NOTIFY_SMS_TEMPLATE_ID", "")
+    GC_NOTIFY_EMAIL_REPLY_TO_ID = os.getenv("GC_NOTIFY_EMAIL_REPLY_TO_ID", "")
 
     # Email SMTP
     MAIL_SERVER = os.getenv("MAIL_SERVER", "")

@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """API endpoints for managing a notify resource."""
-import logging
 from http import HTTPStatus
 
+import structlog
 from flask import Blueprint, jsonify
 from flask_babel import _ as babel  # noqa: N813
-from flask_cors import cross_origin
 from flask_pydantic import validate
 
 from notify_api.errors import BadGatewayException, NotifyException
@@ -26,13 +25,12 @@ from notify_api.services.notify_service import NotifyService
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 bp = Blueprint("Notify", __name__, url_prefix="/notify")
 
 
 @bp.route("", methods=["POST"])
-@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.PUBLIC_USER.value, Role.STAFF.value])
 @validate()
@@ -53,7 +51,6 @@ def send_notification(body: NotificationRequest):
 
 
 @bp.route("/sms", methods=["POST"])
-@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.SMS.value, Role.STAFF.value])
 @validate()
@@ -74,7 +71,6 @@ def send_sms_notification(body: NotificationRequest):
 
 
 @bp.route("/<string:notification_id>", methods=["GET", "OPTIONS"])
-@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value, Role.STAFF.value])
 def find_notification(notification_id: str):
@@ -90,7 +86,6 @@ def find_notification(notification_id: str):
 
 
 @bp.route("/status/<string:notification_status>", methods=["GET", "OPTIONS"])
-@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value])
 def find_notifications(notification_status: str):

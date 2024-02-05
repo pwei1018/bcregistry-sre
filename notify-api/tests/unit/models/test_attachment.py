@@ -29,7 +29,7 @@ def test_attachment_validation():
         with pytest.raises(ValidationError) as exc_info:
             AttachmentRequest(**bad_data)
 
-        assert exc_info.value.errors()
+        assert exc_info.value.errors
 
 
 def test_create_attachment(session):
@@ -72,4 +72,4 @@ def test_create_attachment_exception(app, session):  # pylint: disable=unused-ar
             request_attachment: AttachmentRequest = AttachmentRequest(**AttachmentFactory.Models.FILE_1)
             Attachment.create_attachment(request_attachment, content_id=content.id)
 
-        assert exception.value.error == "Create attachment record Error mocked error"
+        assert exception

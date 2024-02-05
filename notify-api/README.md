@@ -23,26 +23,33 @@ GitHub Pages (https://guides.github.com/features/pages/) are a neat way to docum
 ## Files in this repository
 
 ## Environment Variables
-Please '.env.sample' file
+Copy '.env.sample' to '.env' and replace the values
 
 ### Development Setup
-Run `make setup`
+Run `poetry install`
+Run `poetry shell`
+
+### Bump version
+Run `poetry version (patch, minor, major, prepatch, preminor, premajor, prerelease)`
 
 ### Running the Notify-API
-Run `make run`
+Run `poetry run flask run`
 
 ### Running Linting
-Run `poetry run pylint src`
-Run `poetry run flake8 src`
+Run `poetry run isort . --check`
+Run `poetry run black . --check`
+Run `poetry run pylint .`
+Run `poetry run flake8 .`
 
 ### Running Unit Tests
-- For all tests run `make test or pytest -v -s`
-- For an individual file run `pytest -v -s ./tests/unit/api/filename.py`
-- For an individual test case run `pytest -v -s ./tests/unit/api/filename.py::test-case-name`
+- For all tests run `poetry run pytest -v -s`
+- For an individual file run `poetry run pytest -v -s ./tests/unit/api/filename.py`
+- For an individual test case run `poetry run pytest -v -s ./tests/unit/api/filename.py::test-case-name`
 
-## Deployment (OpenShift)
+## Deployment
 
-See (openshift/Readme.md)
+See https://github.com/bcgov/bcregistry-sre/blob/main/.github/workflows/notify-api-cd-gcp.yaml
+See https://github.com/bcgov/bcregistry-sre/blob/main/.github/workflows/notify-api-cd-ocp.yaml
 
 ## Getting Help or Reporting an Issue
 

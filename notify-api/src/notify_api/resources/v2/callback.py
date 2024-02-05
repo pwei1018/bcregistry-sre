@@ -12,24 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """API endpoints for receive callback message from GC Notify."""
-import logging
 from http import HTTPStatus
 
+import structlog
 from flask import Blueprint
-from flask_cors import cross_origin
 from flask_pydantic import validate
 
 from notify_api.models import Callback, CallbackRequest, NotificationHistory
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 bp = Blueprint("CALLBACK", __name__, url_prefix="/callback")
 
 
 @bp.route("/", methods=["POST", "OPTIONS"])
-@cross_origin(origin="*")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.GC_NOTIFY_CALLBACK.value])
 @validate()

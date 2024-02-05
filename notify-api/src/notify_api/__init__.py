@@ -18,8 +18,10 @@ This module is the API for the BC Registries Notify application.
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from flask_migrate import Migrate
 
+from notify_api import errorhandlers, models
 from notify_api.config import config
 from notify_api.models import db
 from notify_api.resources import v1_endpoint, v2_endpoint
@@ -27,15 +29,17 @@ from notify_api.translations import babel
 from notify_api.utils.auth import jwt
 from notify_api.utils.logging import setup_logging
 
-setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.conf"))
+setup_logging()  # important to do this first
 
 
 def create_app(run_mode=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config[run_mode])
     app.url_map.strict_slashes = False
 
+    errorhandlers.init_app(app)
     db.init_app(app)
     Migrate(app, db)
     babel.init_app(app)
@@ -43,6 +47,8 @@ def create_app(run_mode=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
     v2_endpoint.init_app(app)
 
     setup_jwt_manager(app, jwt)
+
+    register_shellcontext(app)
 
     return app
 
@@ -56,3 +62,13 @@ def setup_jwt_manager(app, jwt_manager):
     app.config["JWT_ROLE_CALLBACK"] = get_roles
 
     jwt_manager.init_app(app)
+
+
+def register_shellcontext(app):
+    """Register shell context objects."""
+
+    def shell_context():
+        """Shell context objects."""
+        return {"app": app, "jwt": jwt, "db": db, "models": models}  # pragma: no cover
+
+    app.shell_context_processor(shell_context)

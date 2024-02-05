@@ -29,7 +29,11 @@ class AttachmentFactory:  # pylint: disable=too-few-public-methods
     class Models(dict, Enum):
         """Attachment model data."""
 
-        FILE_1 = {"fileName": "aaa.text", "fileBytes": "SGVsbG8gV29ybGQgYnkgdHh0ICEhIQ==", "attachOrder": 1}
+        FILE_1 = {
+            "fileName": "aaa.text",
+            "fileBytes": "SGVsbG8gV29ybGQgYnkgdHh0ICEhIQ==",
+            "attachOrder": 1,
+        }
 
         FILE_2 = {
             "fileName": "aaa.pdf",

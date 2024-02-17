@@ -54,7 +54,7 @@ kind: Target
 metadata:
  name: sandbox
 description: Sandbox Environment
-requireApproval: true
+requireApproval: false
 deployParameters:
   deploy-project-id: "c4hnrd-tools"
   service-name: "notify-api-sandbox"
@@ -74,7 +74,7 @@ kind: Target
 metadata:
  name: prod
 description: Production Environment
-requireApproval: true
+requireApproval: false
 deployParameters:
   deploy-project-id: "c4hnrd-prod"
   service-name: "notify-api-prod"

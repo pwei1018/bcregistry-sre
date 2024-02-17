@@ -17,15 +17,15 @@ Following best practices from:
 http://flask.pocoo.org/docs/1.0/errorhandling/
 http://flask.pocoo.org/docs/1.0/patterns/apierrors/
 """
+import logging
 import sys
 
-import structlog
 from flask import jsonify
 from flask_pydantic.exceptions import ValidationError
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RoutingException
 
-logger = structlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def init_app(app):
@@ -66,7 +66,7 @@ def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
 
 def handle_validation_error(error):
     """Handle flask-pydantic valication error."""
-    logger.error(f"Validation Error {error.body_params}")
+    logger.error("Validation Error %s", error.body_params)
     response = jsonify({"errors": f"Validation Error {error.body_params}"})
     response.status_code = 400
     return response

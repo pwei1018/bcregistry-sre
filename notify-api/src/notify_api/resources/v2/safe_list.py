@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """API endpoints for validate email address."""
+import logging
 from http import HTTPStatus
 
-import structlog
 from flask import Blueprint
 from flask_pydantic import validate
 
@@ -22,7 +22,7 @@ from notify_api.models import SafeList, SafeListRequest
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-logger = structlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 bp = Blueprint("SAFE_LIST", __name__, url_prefix="/safe_list")
 

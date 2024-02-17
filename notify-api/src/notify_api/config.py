@@ -28,12 +28,11 @@ class Config:  # pylint: disable=too-few-public-methods
     DEBUG = False
     TESTING = False
     DEVELOPMENT = False
-
-    PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-
-    POD_NAMESPACE = os.getenv("POD_NAMESPACE", "")
+    TRACING_ENABLE = os.getenv("TRACING_ENABLE", None)
+    TRACING_DB_ENABLE = os.getenv("TRACING_DB_ENABLE", None)
 
     DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "GCP")
+    DEPLOYMENT_PROJECT = os.getenv("DEPLOYMENT_PROJECT", "c4hnrd-dev")
 
     FLASK_PYDANTIC_VALIDATION_ERROR_RAISE = True
 
@@ -127,6 +126,8 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     DEVELOPMENT = False
     TESTING = True
     DEBUG = True
+    TRACING_ENABLE = None
+    TRACING_DB_ENABLE = None
 
     # POSTGRESQL
     DB_USER = os.getenv("DATABASE_TEST_USERNAME", "")

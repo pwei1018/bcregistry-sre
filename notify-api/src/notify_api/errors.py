@@ -21,7 +21,8 @@ class NotifyException(Exception):  # noqa: N818
     def __init__(self, error, status_code, *args, **kwargs):
         """Return a valid NotifyException."""
         super().__init__(*args, **kwargs)
-        self.error = error
+        self.message = f"{repr(error)}, {status_code}"
+        self.error = f"{repr(error)}, {status_code}"
         self.status_code = status_code
 
 
@@ -29,7 +30,8 @@ class BadGatewayException(Exception):  # noqa
     """Exception to be raised if third party service is unavailable."""
 
     def __init__(self, error, *args, **kwargs):
-        """Return a valid BusinessException."""
-        super(BadGatewayException, self).__init__(*args, **kwargs)  # pylint:disable=super-with-arguments
-        self.error = error
+        """Return a valid BadGatewayException."""
+        super().__init__(*args, **kwargs)
+        self.message = f"{repr(error)}"
+        self.error = f"{repr(error)}"
         self.status_code = HTTPStatus.BAD_GATEWAY

@@ -20,29 +20,47 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 
 from notify_api import errorhandlers, models
 from notify_api.config import config
+from notify_api.metadata import APP_NAME
 from notify_api.models import db
 from notify_api.resources import v1_endpoint, v2_endpoint
 from notify_api.translations import babel
 from notify_api.utils.auth import jwt
-from notify_api.utils.logging import setup_logging
+from notify_api.utils.logging import env_name_context, setup_logging
+from notify_api.utils.tracing import init_trace
 
-setup_logging()  # important to do this first
+setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))  # important to do this first
 
 
-def create_app(run_mode=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
+def create_app(service_environment=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
     CORS(app)
-    app.config.from_object(config[run_mode])
+    app.config.from_object(config[service_environment])
     app.url_map.strict_slashes = False
 
     errorhandlers.init_app(app)
     db.init_app(app)
     Migrate(app, db)
+
+    if app.config.get("TRACING_ENABLE", None):
+        init_trace(APP_NAME, service_environment)
+        env_name_context.set(service_environment)
+        with app.app_context():
+            app.wsgi_app = OpenTelemetryMiddleware(app.wsgi_app)
+            if app.config.get("TRACING_DB_ENABLE", None):
+                SQLAlchemyInstrumentor().instrument(engine=db.engine)
+        FlaskInstrumentor().instrument_app(app)
+
     babel.init_app(app)
+
     v1_endpoint.init_app(app)
     v2_endpoint.init_app(app)
 

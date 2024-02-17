@@ -11,103 +11,99 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Centralized setup of logging for the service."""
+"""Centralized setup of logging for the service.
+    Usage:
+        from logging import logger
+
+        logger.info("logging message")
+        # You can pass extra data
+        logger.info(
+            "another logging message",
+            additional={"key1": 1, "key2": {"company": "sample"}, "key3": [1, 2, 3]}
+        )
+        logger.info("another logging message", additional="Yo!!")
+    https://github.com/mfkessai/opentelemetry-python-sample-app/blob/main/flask-on-cloud-functions/custom_loggers.py
+"""
+import contextvars
+import json
+import logging
 import logging.config
-import os
-from inspect import getframeinfo, stack
+from datetime import date, datetime
+from typing import Union
 
-import structlog
+import yaml
 
-
-class FileNameRenderer(object):
-    """File name Renderer."""
-
-    def __init__(self, stack_depth):
-        self._stack_depth = stack_depth
-
-    def __call__(self, logger, name, event_dict):
-        caller = getframeinfo(stack()[self._stack_depth][0])
-
-        event_dict["file_name"] = f"{caller.filename}:{caller.lineno}"
-        return event_dict
+env_name_context = contextvars.ContextVar[Union[str, None]]("env_name", default=None)
 
 
-def setup_logging():
-    """Set logging."""
-    pre_chain = [
-        # Add the log level and a timestamp to the event_dict if the log entry
-        # is not from structlog.
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-    ]
-
-    # logging_client = google.cloud.logging.Client()
-    # logging_client.setup_logging()
-
+def setup_logging(conf):
+    """Create the services logger."""
     logging.config.dictConfig(
-        {
-            "version": 1,
-            "disable_existing_loggers": True,
-            "formatters": {
-                "plain": {
-                    "()": structlog.stdlib.ProcessorFormatter,
-                    "processor": structlog.dev.ConsoleRenderer(colors=False),
-                    "foreign_pre_chain": pre_chain,
-                    "keep_exc_info": True,
-                    "keep_stack_info": True,
-                },
-                "json_formatter": {
-                    "()": structlog.stdlib.ProcessorFormatter,
-                    "processor": structlog.processors.JSONRenderer(),
-                },
-                "colored": {
-                    "()": structlog.stdlib.ProcessorFormatter,
-                    "processor": structlog.dev.ConsoleRenderer(colors=True),
-                },
-                "key_value": {
-                    "()": structlog.stdlib.ProcessorFormatter,
-                    "processor": structlog.processors.KeyValueRenderer(
-                        key_order=["timestamp", "level", "event", "logger"]
-                    ),
-                },
-            },
-            "handlers": {
-                "consoleHandler": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "plain",
-                },
-                "cloudHandler": {
-                    "class": "logging.StreamHandler",
-                    "formatter": "json_formatter",
-                },
-            },
-            "loggers": {
-                "notify_api": {
-                    "handlers": ["cloudHandler"],
-                    "level": os.environ.get("LOG_LEVEL", "INFO"),
-                    "propagate": False,
-                },
-                "werkzeug": {
-                    "handlers": ["consoleHandler"],
-                    "level": os.environ.get("LOG_LEVEL", "WARNING"),
-                    "propagate": False,
-                },
-            },
-        }
+        yaml.load(
+            open(conf).read(),
+            Loader=yaml.SafeLoader,
+        )
     )
 
-    structlog.configure(
-        processors=[
-            structlog.stdlib.add_logger_name,
-            structlog.stdlib.add_log_level,
-            structlog.stdlib.PositionalArgumentsFormatter(),
-            structlog.processors.format_exc_info,
-            structlog.processors.StackInfoRenderer(),
-            FileNameRenderer(stack_depth=5),
-            structlog.processors.ExceptionPrettyPrinter(),
-            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-        ],
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        cache_logger_on_first_use=True,
-    )
+
+class EnvNameFilter(logging.Filter):
+    """Environment variable filer."""
+
+    def filter(self, record):
+        record.environment = env_name_context.get()
+        return True
+
+
+class APILogger:
+    """Wrapper for logger to easy emit structured logs."""
+
+    def __init__(self):
+        self.logger = logging.getLogger("apiLogger")
+        self.logger.addFilter(EnvNameFilter())
+
+    def debug(self, msg: str, additional=None):
+        """Debug message."""
+        self.logger.debug(msg=msg, extra=self.__build_extra(additional=additional))
+
+    def info(self, msg: str, additional=None):
+        """Info message."""
+        self.logger.info(msg=msg, extra=self.__build_extra(additional=additional))
+
+    def warning(self, msg: str, additional=None):
+        """Warning message."""
+        self.logger.warning(msg=msg, extra=self.__build_extra(additional=additional))
+
+    def error(self, msg: str, additional=None):
+        """Error message."""
+        self.logger.error(msg=msg, extra=self.__build_extra(additional=additional))
+
+    def critical(self, msg: str, additional=None):
+        """Critical message."""
+        self.logger.critical(msg=msg, extra=self.__build_extra(additional=additional))
+
+    def __build_extra(self, additional) -> dict:
+        """Extra information show up in the log."""
+
+        def __serializer_for_fallback(obj):
+            """Handling unserializable data."""
+            if isinstance(obj, (datetime, date)):
+                return obj.isoformat()
+
+            if hasattr(obj, "__dict__"):
+                return obj.__dict__
+
+            raise TypeError("Type %s not serializable" % type(obj))
+
+        try:
+            extra = {"additional": json.dumps(additional, default=__serializer_for_fallback)}
+        except TypeError as error:
+            if env_name_context.get() != "production":
+                raise error
+
+            self.logger.error(f"JSON Unserializable Object: {additional}")
+            extra = {"additional": additional}
+
+        return extra
+
+
+logger = APILogger()

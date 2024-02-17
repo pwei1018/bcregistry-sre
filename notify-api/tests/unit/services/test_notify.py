@@ -55,7 +55,7 @@ def test_get_provider_gc_notify_disable(app, session, monkeypatch):  # pylint: d
         service = NotifyService()
         service.get_provider(notification)
 
-    assert exception.value.error == "GC Notify is not enabled."
+    assert exception.value.message == "'GC Notify is not enabled.'"
     assert exception.value.status_code == HTTPStatus.BAD_GATEWAY
 
     notification = NotificationFactory.create_model(
@@ -78,8 +78,9 @@ def test_notify_by_email(app, session, monkeypatch):  # pylint: disable=unused-a
     """Assert the test can create notification."""
     app.config["DEPLOYMENT_PLATFORM"] = "OCP"
     responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE])
-    with patch.object(EmailSMTP, "send", return_value=responses), patch.object(
-        GCNotify, "send", return_value=responses
+    with (
+        patch.object(EmailSMTP, "send", return_value=responses),
+        patch.object(GCNotify, "send", return_value=responses),
     ):
         service = NotifyService()
         notification = NotificationRequest(**NotificationFactory.RequestProviderData.REQUEST_PROVIDER_2["data"])
@@ -114,22 +115,24 @@ def test_notify_badgatewayexception(app, session):  # pylint: disable=unused-arg
 
 def test_notify_notifyexception(app, session):  # pylint: disable=unused-argument
     """Assert the test can create notification with Notify exception."""
-    with patch.object(
-        EmailSMTP, "send", side_effect=NotifyException(error="mocked error", status_code=404)
-    ), patch.object(GCNotify, "send", side_effect=NotifyException(error="mocked error", status_code=404)), patch.object(
-        GCNotify, "send_sms", side_effect=NotifyException(error="mocked error", status_code=404)
+    with (
+        patch.object(EmailSMTP, "send", side_effect=NotifyException(error="mocked error", status_code=404)),
+        patch.object(GCNotify, "send", side_effect=NotifyException(error="mocked error", status_code=404)),
+        patch.object(GCNotify, "send_sms", side_effect=NotifyException(error="mocked error", status_code=404)),
     ):
         with pytest.raises(NotifyException) as exception:
             NotifyService().notify(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
 
-        assert exception.value.error == "mocked error"
+        assert exception.value.error == "'mocked error', 404"
 
 
 def test_notify_exception(app, session):  # pylint: disable=unused-argument
     """Assert the test can create notification with Notify exception."""
-    with patch.object(EmailSMTP, "send", side_effect=Exception("mocked error")), patch.object(
-        GCNotify, "send", side_effect=Exception("mocked error")
-    ), patch.object(GCNotify, "send_sms", side_effect=Exception("mocked error")):
+    with (
+        patch.object(EmailSMTP, "send", side_effect=Exception("mocked error")),
+        patch.object(GCNotify, "send", side_effect=Exception("mocked error")),
+        patch.object(GCNotify, "send_sms", side_effect=Exception("mocked error")),
+    ):
         with pytest.raises(Exception) as exception:
             NotifyService().notify(NotificationRequest(**NotificationFactory.RequestData.REQUEST_1))
 

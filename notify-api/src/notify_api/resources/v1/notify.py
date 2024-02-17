@@ -14,7 +14,6 @@
 """API endpoints for managing a notify resource."""
 from http import HTTPStatus
 
-import structlog
 from flask import Blueprint, jsonify
 from flask_babel import _ as babel  # noqa: N813
 from flask_pydantic import validate
@@ -24,8 +23,7 @@ from notify_api.models import Notification, NotificationRequest
 from notify_api.services.notify_service import NotifyService
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
-
-logger = structlog.getLogger(__name__)
+from notify_api.utils.tracing import tracing
 
 bp = Blueprint("Notify", __name__, url_prefix="/notify")
 
@@ -34,6 +32,7 @@ bp = Blueprint("Notify", __name__, url_prefix="/notify")
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.PUBLIC_USER.value, Role.STAFF.value])
 @validate()
+@tracing
 def send_notification(body: NotificationRequest):
     """Create and send EMAIL notification endpoint."""
     try:

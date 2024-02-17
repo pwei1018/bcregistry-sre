@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This provides send email through SMTP."""
+import logging
 import re
 import smtplib
 import unicodedata
@@ -21,13 +22,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import List
 
-import structlog
 from flask import current_app
 
 from notify_api.errors import BadGatewayException
 from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
 
-logger = structlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class EmailSMTP:  # pylint: disable=too-few-public-methods
@@ -85,6 +85,6 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
             return NotificationSendResponses(**{"recipients": response_list})
 
         except Exception as err:  # pylint: disable=broad-except # noqa F841;
-            logger.error("Email SMTP Error: %s", err)
+            logger.error("Email SMTP Error", exc_info=True)
             raise BadGatewayException(error=f"Email SMTP Error {err}") from err
         return True

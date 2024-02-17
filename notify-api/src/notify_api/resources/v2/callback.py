@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """API endpoints for receive callback message from GC Notify."""
+import logging
 from http import HTTPStatus
 
-import structlog
 from flask import Blueprint
 from flask_pydantic import validate
 
@@ -22,7 +22,7 @@ from notify_api.models import Callback, CallbackRequest, NotificationHistory
 from notify_api.utils.auth import jwt
 from notify_api.utils.enums import Role
 
-logger = structlog.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 bp = Blueprint("CALLBACK", __name__, url_prefix="/callback")
 
@@ -47,6 +47,6 @@ def callback(body: CallbackRequest):  # pylint: disable=unused-argument
             history.update()
 
     except Exception as err:  # NOQA # pylint: disable=broad-except
-        logger.error(err)
+        logger.error("Callback error", exc_info=True)
 
     return {}, HTTPStatus.OK

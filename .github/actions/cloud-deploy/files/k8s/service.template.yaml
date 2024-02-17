@@ -40,8 +40,12 @@ spec:
         - name: http1
           containerPort: 8080 # from-param: ${container-port}
         env:
-        - name: APP_ENV
+        - name: DEPLOYMENT_PLATFORM
+          value: gcp
+        - name: DEPLOYMENT_ENV
           value: dev # from-param: ${app-env}
+        - name: DEPLOYMENT_PROJECT
+          value: xxxxxx-dev # from-param: ${deploy-project-id}
         resources:
           limits:
             cpu: 1000m # from-param: ${resources-cpu}

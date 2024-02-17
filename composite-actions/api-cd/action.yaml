@@ -80,7 +80,7 @@ runs:
         ssh-private-key: ${{ inputs.GITOPS_REPOSITORY_DEPLOY_KEY }}
 
     - name: Check out manifest repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         ssh-key: ${{ inputs.GITOPS_REPOSITORY_DEPLOY_KEY }}
         repository: ${{ inputs.GITOPS_REPOSITORY }}

@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set env by input
         run: |
           echo "TAG_NAME=${{ github.event.inputs.environement }}" >> $GITHUB_ENV
@@ -58,4 +58,3 @@ jobs:
         run: |
           oc scale --replicas=0 dc/account-mailer-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
           oc scale --replicas=1 dc/account-mailer-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
-

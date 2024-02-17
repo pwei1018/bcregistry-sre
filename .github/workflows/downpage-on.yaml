@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set env by input
         run: |
           echo "TAG_NAME=${{ github.event.inputs.environement }}" >> $GITHUB_ENV
@@ -22,7 +22,7 @@ jobs:
           echo "TAG_NAME=prod" >> $GITHUB_ENV
       - name: Login Openshift and Turn on downpage
         run: |
-          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}          
+          oc login --server=${{secrets.OPENSHIFT4_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT4_SA_TOKEN}}
           oc patch route bc-registry-search-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
           oc patch route bc-registry-namerequest-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
           oc patch route bc-registry-business-prod -p '{"spec": {"to": {"name": "downpage-prod"}, "port": {"targetPort": "downpage-prod-tcp"}}}' -n ${{secrets.OPENSHIFT4_NAMESPACE_FRONTEND}}-prod
@@ -30,7 +30,7 @@ jobs:
 
       - name: Rocket.Chat Notification
         uses: RocketChat/Rocket.Chat.GitHub.Action.Notification@master
-        
+
         with:
           type: ${{ job.status }}
           job_name: "*Downpage is ON on ${{env.TAG_NAME}}*"

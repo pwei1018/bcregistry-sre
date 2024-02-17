@@ -44,7 +44,7 @@ jobs:
     steps:
       # Checkout code
       - name: Checkout out the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup targets
         uses: bcgov/bcregistry-sre/.github/actions/setup-deployment-target@main
@@ -80,7 +80,7 @@ jobs:
     steps:
       # Checkout code
       - name: Checkout out the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Copy cloud build, cloud deploy and skaffold yaml files to the build
       - name: Copy deployment files

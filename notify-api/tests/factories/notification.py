@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """notification factory."""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 
 from faker import Faker
@@ -50,7 +50,7 @@ class NotificationFactory:  # pylint: disable=too-few-public-methods
         LESS_1_HOUR = {
             "id": 1,
             "recipients": faker.safe_email(),
-            "requestDate": datetime.utcnow() - timedelta(hours=1),
+            "requestDate": datetime.now(timezone.utc) - timedelta(hours=1),
             "requestBy": faker.user_name(),
             "statusCode": Notification.NotificationStatus.FAILURE,
         }
@@ -58,7 +58,7 @@ class NotificationFactory:  # pylint: disable=too-few-public-methods
         OVER_1_HOUR = {
             "id": 1,
             "recipients": faker.safe_email(),
-            "requestDate": datetime.utcnow() - timedelta(hours=10),
+            "requestDate": datetime.now(timezone.utc) - timedelta(hours=10),
             "requestBy": faker.user_name(),
             "statusCode": Notification.NotificationStatus.FAILURE,
         }

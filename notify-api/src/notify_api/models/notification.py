@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Notification data model."""
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import auto
 from typing import List, Optional
 
@@ -21,6 +21,7 @@ from email_validator import EmailNotValidError, validate_email
 from pydantic import BaseModel, Field, validator
 
 from notify_api.utils.base import BaseEnum
+from notify_api.utils.tracing import tracing
 from notify_api.utils.util import to_camel
 
 from .content import Content, ContentRequest
@@ -37,6 +38,7 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @validator("recipients", always=True)
     @classmethod
+    @tracing
     def validate_recipients(cls, v_field):
         """Validate recipients."""
         if not v_field:
@@ -102,9 +104,9 @@ class Notification(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     recipients = db.Column(db.String(2000), nullable=False)
-    request_date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=True)
+    request_date = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=True)
     request_by = db.Column(db.String(100), nullable=True)
-    sent_date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=True)
+    sent_date = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=True)
     type_code = db.Column(db.Enum(NotificationType), default=NotificationType.EMAIL)
     status_code = db.Column(db.Enum(NotificationStatus), default=NotificationStatus.PENDING)
     provider_code = db.Column(db.Enum(NotificationProvider), nullable=True)

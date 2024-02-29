@@ -26,3 +26,13 @@ v2_endpoint = VersionEndpoint(  # pylint: disable=invalid-name
     path=EndpointVersionPath.API_V2,
     bps=[meta_bp_v2, notify_bp_v2, ops_bp_v2, email_validation_bp_v2, safe_list_bp_v2, callback_bp_v2],
 )
+
+TRACING_EXCLUED_URLS = [
+    "/api/v1/meta",
+    "/api/v1/ops",
+    "/api/v2/meta",
+    "/api/v2/ops",
+    "/api/v2/callback",
+    "/api/v2/email_validation",
+    "/api/v2/safe_list",
+]

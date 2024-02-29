@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Notification data model."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .db import db  # noqa: I001
 from .notification import Notification
@@ -25,9 +25,9 @@ class NotificationHistory(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     recipients = db.Column(db.String(2000), nullable=False)
-    request_date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=True)
+    request_date = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=True)
     request_by = db.Column(db.String(100), nullable=True)
-    sent_date = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=True)
+    sent_date = db.Column(db.DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=True)
     subject = db.Column(db.String(2000), nullable=False)
     type_code = db.Column(db.String(15), nullable=False)
     status_code = db.Column(db.String(15), nullable=False)

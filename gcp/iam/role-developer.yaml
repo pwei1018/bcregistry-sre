@@ -26,6 +26,7 @@ includedPermissions:
 - cloudscheduler.locations.list
 - pubsub.topics.get
 - pubsub.topics.list
+- pubsub.topics.publish
 - pubsub.subscriptions.list
 - pubsub.snapshots.list
 - monitoring.dashboards.get

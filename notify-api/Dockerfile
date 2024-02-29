@@ -87,4 +87,6 @@ COPY --chown=web:web . /code
 
 # ENV PYTHONPATH=/opt/app-root/src
 
-CMD gunicorn --bind 0.0.0.0:${PORT} --config /code/gunicorn_config.py wsgi:app
+# CMD gunicorn --bind 0.0.0.0:${PORT} --config /code/gunicorn_config.py wsgi:app
+
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 wsgi:app

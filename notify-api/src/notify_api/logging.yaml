@@ -1,32 +1,42 @@
+# Schema detail doc
+# https://docs.python.org/3/library/logging.config.html#dictionary-schema-details
 version: 1
 disable_existing_loggers: True
 
 formatters:
   mainFormatter:
-    format: '{"timestamp": "%(asctime)s", "severity": "%(levelname)s", "message": "%(message)s", "additional": %(additional)s, "environment": "%(environment)s", "logger": "%(name)s", "logging.googleapis.com/trace": "projects/{YOUR_PROJECT}/traces/%(otelTraceID)s", "logging.googleapis.com/spanId": "%(otelSpanID)s"}'
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(filename)s:%(lineno)d'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+  appFormatter:
+    format: '{"timestamp": "%(asctime)s", "severity": "%(levelname)s", "message": "%(message)s", "environment": "%(environment)s", "logger": "%(name)s", "file": "%(filename)s:%(lineno)d", "logging.googleapis.com/trace": "projects/%(project)s/traces/%(otelTraceID)s", "logging.googleapis.com/spanId": "%(otelSpanID)s"}'
     datefmt: '%Y-%m-%d %H:%M:%S'
 
 handlers:
   main:
     class: logging.StreamHandler
-    level: INFO
+    level: WARNING
     formatter: mainFormatter
     stream: ext://sys.stdout
-
-root:
-  level: INFO
-  handlers: []
+  app:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: appFormatter
+    stream: ext://sys.stdout
 
 loggers:
   notify_api:
-    level: INFO
+    level: WARNING
     handlers: [main]
     propagate: no
   werkzeug:
     level: WARNING
     handlers: [main]
     propagate: no
-  apiLogger:
+  appLogger:
     level: INFO
-    handlers: [main]
+    handlers: [app]
     propagate: no
+
+root:
+  level: INFO
+  handlers: []

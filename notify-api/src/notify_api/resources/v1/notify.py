@@ -17,6 +17,7 @@ from http import HTTPStatus
 from flask import Blueprint, jsonify
 from flask_babel import _ as babel  # noqa: N813
 from flask_pydantic import validate
+from opentelemetry import trace
 
 from notify_api.errors import BadGatewayException, NotifyException
 from notify_api.models import Notification, NotificationRequest
@@ -36,6 +37,10 @@ bp = Blueprint("Notify", __name__, url_prefix="/notify")
 def send_notification(body: NotificationRequest):
     """Create and send EMAIL notification endpoint."""
     try:
+        current_span = trace.get_current_span()
+        current_span.set_attribute("recipients", body.recipients)
+        current_span.set_attribute("subject", body.content.subject)
+
         token = jwt.get_token_auth_header()
         body.notify_type = Notification.NotificationType.EMAIL
         notification_history = NotifyService().notify(body, token)
@@ -72,6 +77,7 @@ def send_sms_notification(body: NotificationRequest):
 @bp.route("/<string:notification_id>", methods=["GET", "OPTIONS"])
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value, Role.STAFF.value])
+@tracing
 def find_notification(notification_id: str):
     """Get notification endpoint by id."""
     if not notification_id or not notification_id.isdigit():
@@ -87,6 +93,7 @@ def find_notification(notification_id: str):
 @bp.route("/status/<string:notification_status>", methods=["GET", "OPTIONS"])
 @jwt.requires_auth
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.JOB.value])
+@tracing
 def find_notifications(notification_status: str):
     """Get pending or failure notifications."""
     if notification_status.upper() not in [

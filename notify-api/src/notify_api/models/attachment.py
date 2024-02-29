@@ -21,6 +21,7 @@ from typing import Optional
 from pydantic import BaseModel, Field, validator
 
 from notify_api.errors import NotifyException
+from notify_api.utils.tracing import tracing
 from notify_api.utils.util import download_file, to_camel
 
 from .db import db  # noqa: I001
@@ -36,6 +37,7 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @validator("file_name", always=True)
     @classmethod
+    @tracing
     def not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:
@@ -44,6 +46,7 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @validator("attach_order")
     @classmethod
+    @tracing
     def must_contain_one(cls, v_field, values, **kwargs):  # pylint: disable=unused-argument
         """Valiate field is not empty."""
         if not values.get("file_bytes") and not values.get("file_url"):

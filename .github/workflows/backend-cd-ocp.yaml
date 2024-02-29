@@ -1,0 +1,138 @@
+name: Notify API CD OCP
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        required: true
+        type: string
+      app_name:
+        required: true
+        type: string
+      working_directory:
+        type: string
+        default: "."
+    secrets:
+      OP_CONNECT_URL:
+        required: true
+      OP_CONNECT_TOKEN:
+        required: true
+      OPENSHIFT_DOCKER_REGISTRY:
+        required: true
+      OPENSHIFT_LOGIN_REGISTRY:
+        required: true
+      OPENSHIFT_SA_NAME:
+        required: true
+      OPENSHIFT_SA_TOKEN:
+        required: true
+      OPENSHIFT_REPOSITORY:
+        required: true
+
+jobs:
+  setup:
+    # Only allow run the CD flow in protected branch
+    if: github.ref_protected == true
+
+    runs-on: ubuntu-20.04
+
+    defaults:
+      run:
+        shell: bash
+
+    # Allow add the tag in the repo.
+    # Add "id-token" with the intended permissions.
+    permissions:
+      contents: 'write'
+      id-token: 'none'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Install 1password cli tool
+      - name: Install 1password cli tool
+        uses: bcgov/bcregistry-sre/.github/actions/install-1pass@main
+
+      # Get environment variables from 1password
+      - name: Setup .env file
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          APP_ENV: ${{ inputs.target }}
+        run: |-
+          op inject -i ./devops/vaults.ocp.env -o .env -f
+
+      - name: Login Openshift
+        shell: bash
+        run: |-
+          oc login --server=${{secrets.OPENSHIFT_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT_SA_TOKEN}}
+
+      - name: Update deployment secret
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
+        env:
+          SECRET_NAME: ${{ inputs.app_name }}-${{ inputs.target }}-secret
+          NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ inputs.target }}
+        run: |-
+          LABELS=$(oc get secret ${SECRET_NAME} -o jsonpath='{.metadata.labels}' -n ${NAMESPACE})
+          ANNOTATIONS=$(oc get secret ${SECRET_NAME} -o jsonpath='{.metadata.annotations}' -n ${NAMESPACE})
+          SECRET_JSON=$(oc create secret generic ${SECRET_NAME} -n ${NAMESPACE} --from-env-file=.env --dry-run=client -o json)
+          echo $SECRET_JSON | oc replace -f -
+          oc patch secret ${SECRET_NAME} --type='json' -p='[{"op":"add","path":"/metadata/labels", "value":'$LABELS'}]' -n ${NAMESPACE}
+          oc patch secret ${SECRET_NAME} --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$ANNOTATIONS'}]' -n ${NAMESPACE}
+
+      - name: Build/push image
+        if: ${{ inputs.target == 'dev' }}
+        working-directory: ${{ inputs.working_directory }}
+        shell: bash
+        env:
+          REGISTRY_IMAGE: ${{ secrets.OPENSHIFT_DOCKER_REGISTRY }}/${{ secrets.OPENSHIFT_REPOSITORY }}-tools/${{ inputs.app_name }}
+          DOCKER_REGISTRY: ${{ secrets.OPENSHIFT_DOCKER_REGISTRY }}
+          SA_NAME: ${{ secrets.OPENSHIFT_SA_NAME }}
+          SA_TOKEN: ${{ secrets.OPENSHIFT_SA_TOKEN }}
+          APP_NAME: ${{ inputs.app_name }}
+        run: |-
+          docker build . -t $(APP_NAME) \
+            --platform linux/amd64 \
+            --build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
+            --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+          @echo "$(SA_TOKEN)" | docker login $(DOCKER_REGISTRY) -u $(SA_NAME) --password-stdin ;\
+          docker tag $(APP_NAME) $(REGISTRY_IMAGE):latest ;\
+          docker push $(REGISTRY_IMAGE):latest
+
+      - name: Tag image
+        shell: bash
+        env:
+          TOOLS_NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
+          NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ inputs.target }}
+          APP_NAME: ${{ inputs.app_name }}
+          TAG_NAME: ${{ inputs.target }}
+        run: |-
+          case  $(TAG_NAME)  in
+            dev)
+              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):latest $(APP_NAME):$(TAG_NAME)
+              ;;
+            test)
+              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):dev $(APP_NAME):$(TAG_NAME)
+              ;;
+            prod)
+              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):$(TAG_NAME) $(APP_NAME):$(TAG_NAME)-$(shell date +%F)
+              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):test $(APP_NAME):$(TAG_NAME)
+              ;;
+          esac
+
+      - name: Deployment
+        shell: bash
+        env:
+          FULL_APP_NAME: ${{ inputs.app_name }}-${{ inputs.target }}
+          NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ inputs.target }}
+        run: |-
+            oc -n "$(NAMESPACE)" rollout restart deployment $(FULL_APP_NAME)
+
+      - name: Watch new rollout
+        shell: bash
+        env:
+          FULL_APP_NAME: ${{ inputs.app_name }}-${{ inputs.target }}
+          NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ inputs.target }}
+        run: |-
+          oc -n "$(NAMESPACE)" rollout status -w deployment $(FULL_APP_NAME)

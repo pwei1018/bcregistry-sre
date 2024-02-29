@@ -41,9 +41,9 @@ spec:
           containerPort: 8080 # from-param: ${container-port}
         env:
         - name: DEPLOYMENT_PLATFORM
-          value: gcp
+          value: GCP
         - name: DEPLOYMENT_ENV
-          value: dev # from-param: ${app-env}
+          value: development # from-param: ${deploy-env}
         - name: DEPLOYMENT_PROJECT
           value: xxxxxx-dev # from-param: ${deploy-project-id}
         resources:

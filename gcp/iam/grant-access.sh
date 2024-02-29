@@ -3,7 +3,8 @@
 
 #declare -a users=("bcregistry-sre@gov.bc.ca")
 #declare -a users=("vysakh.menon@gov.bc.ca" "severin.beauvais@gov.bc.ca" "karim.jazzar@gov.bc.ca" "argus@daxiom.com")
-declare -a users=("hongjing.chen@gov.bc.ca" "shaoyun.tong@gov.bc.ca" "kevin.zhang@gov.bc.ca" "leo.dube@gov.bc.ca")
+#declare -a users=("hongjing.chen@gov.bc.ca" "shaoyun.tong@gov.bc.ca" "kevin.zhang@gov.bc.ca" "leo.dube@gov.bc.ca")
+declare -a users=("syed.riyazzudin@gov.bc.ca" "chris.gabel@gov.bc.ca")
 #declare -a users=("jia.xu@gov.bc.ca" "chiu.oddyseus@gov.bc.ca" "travis.semple@gov.bc.ca")
 #declare -a users=("jazzar.karim@gmail.com")
 #declare -a users=("doug@daxiom.com")

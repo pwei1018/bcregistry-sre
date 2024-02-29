@@ -14,13 +14,10 @@
 """Provides the WSGI entry point for running the application."""
 import os
 
-from flask_migrate import Migrate
-
-from notify_api import create_app, db
+from notify_api import create_app
 
 app = create_app()  # pylint: disable=invalid-name
-migrate = Migrate(app, db)
 
 if __name__ == "__main__":
-    server_port = os.environ.get("PORT", "8080")
+    server_port = os.environ.get("PORT", "5000")
     app.run(debug=False, threaded=False, port=server_port, host="0.0.0.0")

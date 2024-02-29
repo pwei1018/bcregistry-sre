@@ -49,7 +49,7 @@ def test_handle_uncaught_error(app, caplog):
     """
     with app.app_context():
         # logger = errorhandlers.logger
-        caplog.set_level(logging.ERROR, logger=errorhandlers.logger.name)
+        caplog.set_level(logging.ERROR, logger="AppLooger")
         resp = errorhandlers.handle_uncaught_error(Exception())
 
         assert resp.status_code == 500

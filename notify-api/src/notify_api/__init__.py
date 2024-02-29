@@ -21,25 +21,23 @@ from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 
 from notify_api import errorhandlers, models
 from notify_api.config import config
-from notify_api.metadata import APP_NAME
+from notify_api.metadata import APP_NAME, APP_RUNNING_ENVIRONMENT, APP_RUNNING_PROJECT
 from notify_api.models import db
-from notify_api.resources import v1_endpoint, v2_endpoint
+from notify_api.resources import TRACING_EXCLUED_URLS, v1_endpoint, v2_endpoint
 from notify_api.translations import babel
 from notify_api.utils.auth import jwt
-from notify_api.utils.logging import env_name_context, setup_logging
+from notify_api.utils.logging import setup_logging
 from notify_api.utils.tracing import init_trace
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))  # important to do this first
 
 
-def create_app(service_environment=os.getenv("DEPLOYMENT_ENV", "production"), **kwargs):
+def create_app(service_environment=APP_RUNNING_ENVIRONMENT, **kwargs):
     """Return a configured Flask App using the Factory method."""
     app = Flask(__name__)
     CORS(app)
@@ -51,13 +49,12 @@ def create_app(service_environment=os.getenv("DEPLOYMENT_ENV", "production"), **
     Migrate(app, db)
 
     if app.config.get("TRACING_ENABLE", None):
-        init_trace(APP_NAME, service_environment)
-        env_name_context.set(service_environment)
+        init_trace(service_name=APP_NAME, service_environment=service_environment, service_project=APP_RUNNING_PROJECT)
         with app.app_context():
             app.wsgi_app = OpenTelemetryMiddleware(app.wsgi_app)
-            if app.config.get("TRACING_DB_ENABLE", None):
-                SQLAlchemyInstrumentor().instrument(engine=db.engine)
-        FlaskInstrumentor().instrument_app(app)
+
+        FlaskInstrumentor().instrument_app(app, excluded_urls=",".join(TRACING_EXCLUED_URLS))
+        # RequestsInstrumentor().instrument()
 
     babel.init_app(app)
 

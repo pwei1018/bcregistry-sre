@@ -22,33 +22,30 @@ from opentelemetry.propagate import set_global_textmap
 from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-from opentelemetry.sdk.trace.sampling import TraceIdRatioBased
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace import Tracer
 
 
-def init_trace(service_name: str, service_environment: str):
+def init_trace(service_name: str, service_project: str, service_environment: str):
     """Init tracing."""
     LoggingInstrumentor().instrument(set_logging_format=True)
 
     set_global_textmap(CloudTraceFormatPropagator())
 
-    tracer_provider = TracerProvider(
-        sampler=TraceIdRatioBased(1),
-        resource=Resource.create(
-            {
-                "service.name": service_name,
-                "service.environment": service_environment,
-            }
-        ),
+    resource = Resource.create(
+        {
+            "service.name": service_name,
+            "service.project": service_project,
+            "service.environment": service_environment,
+        }
     )
 
-    # https://github.com/GoogleCloudPlatform/python-docs-samples/issues/7300#issuecomment-1164737444
-    exporter = CloudTraceSpanExporter(resource_regex="service.*")
-    tracer_provider.add_span_processor(
-        # https://cloud.google.com/trace/docs/setup/python-ot#:~:text=Cloud%20Run%20doesn%27t%20support%20background%20processes
-        SimpleSpanProcessor(exporter)
-    )
+    # sampler = TraceIdRatioBased(1 / 50)
+
+    tracer_provider = TracerProvider(resource=resource)
+    cloud_trace_exporter = CloudTraceSpanExporter(resource_regex="service.*")
+    tracer_provider.add_span_processor(BatchSpanProcessor(cloud_trace_exporter))
+
     trace.set_tracer_provider(tracer_provider)
 
 
@@ -89,7 +86,7 @@ def tracing(f):
 
 class TraceContextManager:
     """
-    When an application running on Cloud Run or Cloud Functions receives a request, X-Cloud-Trace-Contextit is set in
+    When an application running on Cloud Run or Cloud Functions receives a request, X-Cloud-Trace-Context is set in
     the HTTP request header, and the Trace ID and Span ID are entered here. Using this mechanism, when communicating
     between microservices, X-Cloud-Trace-Contextwe add the information we received to the header and issue a request to
     achieve distributed tracing.

@@ -137,8 +137,8 @@ jobs:
             --platform linux/amd64 \
             --build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
             --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "${SA_TOKEN}" | docker login ${DOCKER_REGISTRY} -u ${SA_NAME} --password-stdin ;\
-          docker tag ${APP_NAME} ${REGISTRY_IMAGE}:latest ;\
+          echo "${SA_TOKEN}" | docker login ${DOCKER_REGISTRY} -u ${SA_NAME} --password-stdin
+          docker tag ${APP_NAME} ${REGISTRY_IMAGE}:latest
           docker push ${REGISTRY_IMAGE}:latest
 
       - name: Tag image

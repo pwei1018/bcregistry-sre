@@ -1,4 +1,4 @@
 #! /bin/sh
 
 echo 'starting upgrade'
-flask db upgrade
+poetry run flask db upgrade

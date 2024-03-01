@@ -123,7 +123,7 @@ jobs:
           oc patch secret ${SECRET_NAME} --type='json' -p='[{"op":"add","path":"/metadata/annotations", "value":'$ANNOTATIONS'}]' -n ${NAMESPACE}
 
       - name: Build/push image
-        if: ${{ inputs.target == 'dev' }}
+        if: ${{ needs.setup.outputs.TARGET == 'dev' }}
         working-directory: ${{ inputs.working_directory }}
         shell: bash
         env:
@@ -133,13 +133,13 @@ jobs:
           SA_TOKEN: ${{ secrets.OPENSHIFT_SA_TOKEN }}
           APP_NAME: ${{ inputs.app_name }}
         run: |-
-          docker build . -t $(APP_NAME) \
+          docker build . -t ${APP_NAME} \
             --platform linux/amd64 \
             --build-arg VCS_REF=$(shell git rev-parse --short HEAD) \
             --build-arg BUILD_DATE=$(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-          @echo "$(SA_TOKEN)" | docker login $(DOCKER_REGISTRY) -u $(SA_NAME) --password-stdin ;\
-          docker tag $(APP_NAME) $(REGISTRY_IMAGE):latest ;\
-          docker push $(REGISTRY_IMAGE):latest
+          @echo "${SA_TOKEN}" | docker login ${DOCKER_REGISTRY} -u ${SA_NAME} --password-stdin ;\
+          docker tag ${APP_NAME} ${REGISTRY_IMAGE}:latest ;\
+          docker push ${REGISTRY_IMAGE}:latest
 
       - name: Tag image
         shell: bash
@@ -149,16 +149,16 @@ jobs:
           APP_NAME: ${{ inputs.app_name }}
           TAG_NAME: ${{ needs.setup.outputs.TARGET }}
         run: |-
-          case  $(TAG_NAME)  in
+          case  ${TAG_NAME}  in
             dev)
-              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):latest $(APP_NAME):$(TAG_NAME)
+              oc -n "${TOOLS_NAMESPACE}" tag ${APP_NAME}:latest ${APP_NAME}:${TAG_NAME}
               ;;
             test)
-              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):dev $(APP_NAME):$(TAG_NAME)
+              oc -n "${TOOLS_NAMESPACE}" tag ${APP_NAME}:dev ${APP_NAME}:${TAG_NAME}
               ;;
             prod)
-              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):$(TAG_NAME) $(APP_NAME):$(TAG_NAME)-$(shell date +%F)
-              oc -n "$(TOOLS_NAMESPACE)" tag $(APP_NAME):test $(APP_NAME):$(TAG_NAME)
+              oc -n "${TOOLS_NAMESPACE}" tag ${APP_NAME}:${TAG_NAME} ${APP_NAME}:${TAG_NAME}-$(shell date +%F)
+              oc -n "${TOOLS_NAMESPACE}" tag ${APP_NAME}:test ${APP_NAME}:${TAG_NAME}
               ;;
           esac
 
@@ -168,7 +168,7 @@ jobs:
           FULL_APP_NAME: ${{ inputs.app_name }}-${{ needs.setup.outputs.TARGET }}
           NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ needs.setup.outputs.TARGET }}
         run: |-
-            oc -n "$(NAMESPACE)" rollout restart deployment $(FULL_APP_NAME)
+            oc -n "${NAMESPACE}" rollout restart deployment ${FULL_APP_NAME}
 
       - name: Watch new rollout
         shell: bash
@@ -176,4 +176,4 @@ jobs:
           FULL_APP_NAME: ${{ inputs.app_name }}-${{ needs.setup.outputs.TARGET }}
           NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ needs.setup.outputs.TARGET }}
         run: |-
-          oc -n "$(NAMESPACE)" rollout status -w deployment $(FULL_APP_NAME)
+          oc -n "${NAMESPACE}" rollout status -w deployment ${FULL_APP_NAME}

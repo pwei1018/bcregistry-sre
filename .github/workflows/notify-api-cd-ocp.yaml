@@ -25,7 +25,7 @@ jobs:
       app_name: "notify-api"
       working_directory: "./notify-api"
     secrets:
-      OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+      OP_CONNECT_URL: ${{ secrets.OP_CONNECT_URL }}
       OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
       OPENSHIFT_DOCKER_REGISTRY: ${{ secrets.OPENSHIFT_DOCKER_REGISTRY }}
       OPENSHIFT_LOGIN_REGISTRY: ${{secrets.OPENSHIFT_LOGIN_REGISTRY}}

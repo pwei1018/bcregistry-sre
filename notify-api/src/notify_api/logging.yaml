@@ -8,7 +8,7 @@ formatters:
     format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(filename)s:%(lineno)d'
     datefmt: '%Y-%m-%d %H:%M:%S'
   appFormatter:
-    format: '{"timestamp": "%(asctime)s", "severity": "%(levelname)s", "message": "%(message)s", "environment": "%(environment)s", "logger": "%(name)s", "file": "%(filename)s:%(lineno)d", "logging.googleapis.com/trace": "projects/%(project)s/traces/%(otelTraceID)s", "logging.googleapis.com/spanId": "%(otelSpanID)s"}'
+    format: '{"timestamp": "%(asctime)s", "severity": "%(levelname)s", "message": "%(message)s", "logger": "%(name)s", "file": "%(filename)s:%(lineno)d", "logging.googleapis.com/trace": "projects/%(project)s/traces/%(otelTraceID)s", "logging.googleapis.com/spanId": "%(otelSpanID)s"}'
     datefmt: '%Y-%m-%d %H:%M:%S'
 
 handlers:

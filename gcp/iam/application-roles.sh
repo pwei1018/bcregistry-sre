@@ -3,7 +3,7 @@
 
 declare -a environments=("dev" "test" "tools" "prod" "integration" "sandbox")
 declare -a projects=("a083gt" "mvnjri" "gtksf3" "yfjq17" "c4hnrd" "k973yf" "yfthig" "eogruh")
-declare -a services=("api" "job" "queue")
+declare -a services=("api" "job" "queue" "cdcloudrun")
 
 for ev in "${environments[@]}"
 do
@@ -22,6 +22,12 @@ do
                 SA_FULL_NAME="$SA_NAME@${PROJECT_ID}.iam.gserviceaccount.com"
                 SA_DESCRIPTION="Service Account for running $se services"
                 SA_ROLE="projects/${PROJECT_ID}/roles/$ROLE_NAME"
+
+                if [[ -z `gcloud iam roles describe $ROLE_NAME --project=${PROJECT_ID} --verbosity=none` ]]; then
+                    gcloud iam roles create $ROLE_NAME --quiet --project=${PROJECT_ID} --file=role-$se.yaml
+                else
+                    gcloud iam roles update $ROLE_NAME --quiet --project=${PROJECT_ID} --file=role-$se.yaml
+                fi
 
                 if [[ -z `gcloud iam service-accounts describe $SA_FULL_NAME --project=${PROJECT_ID} --verbosity=none` ]]; then
                     ## API service account

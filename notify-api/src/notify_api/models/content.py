@@ -18,6 +18,7 @@ from typing import ForwardRef, List, Optional  # noqa: F401 # pylint: disable=un
 
 from pydantic import BaseModel, Field, validator
 
+from notify_api.utils.tracing import tracing
 from notify_api.utils.util import to_camel
 
 from .attachment import Attachment, AttachmentRequest  # noqa: F401 # pylint: disable=unused-import
@@ -35,6 +36,7 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @validator("subject", always=True)
     @classmethod
+    @tracing
     def subject_not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:
@@ -43,6 +45,7 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @validator("body", always=True)
     @classmethod
+    @tracing
     def body_not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:

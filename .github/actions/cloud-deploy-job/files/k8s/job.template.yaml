@@ -35,8 +35,12 @@ spec:
             command:
             - valuePlaceHolder # from-param: ${run-command}
             env:
-            - name: APP_ENV
-              value: dev # from-param: ${app-env}
+            - name: DEPLOYMENT_PLATFORM
+              value: GCP
+            - name: DEPLOYMENT_ENV
+              value: development # from-param: ${deploy-env}
+            - name: DEPLOYMENT_PROJECT
+              value: xxxxxx-dev # from-param: ${deploy-project-id}
             resources:
               limits:
                 cpu: 1000m # from-param: ${resources-cpu}

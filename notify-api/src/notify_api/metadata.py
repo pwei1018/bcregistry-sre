@@ -13,8 +13,11 @@
 # limitations under the License.
 """Get metadata information from pyproject.toml
 """
+import os
 from importlib.metadata import metadata
 
 meta = metadata(__package__ or __name__)
 APP_NAME = meta["Name"]
 APP_VERSION = meta["Version"]
+APP_RUNNING_PROJECT = os.getenv("DEPLOYMENT_PROJECT", "local")
+APP_RUNNING_ENVIRONMENT = os.getenv("DEPLOYMENT_ENV", "production")

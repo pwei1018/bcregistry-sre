@@ -17,7 +17,6 @@ Following best practices from:
 http://flask.pocoo.org/docs/1.0/errorhandling/
 http://flask.pocoo.org/docs/1.0/patterns/apierrors/
 """
-import logging
 import sys
 
 from flask import jsonify
@@ -25,7 +24,8 @@ from flask_pydantic.exceptions import ValidationError
 from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RoutingException
 
-logger = logging.getLogger(__name__)
+from notify_api.utils.logging import logger
+from notify_api.utils.tracing import tracing
 
 
 def init_app(app):
@@ -35,6 +35,7 @@ def init_app(app):
     app.register_error_handler(Exception, handle_uncaught_error)
 
 
+@tracing
 def handle_http_error(error):
     """Handle HTTPExceptions.
 
@@ -46,19 +47,20 @@ def handle_http_error(error):
     if isinstance(error, RoutingException):
         return error
 
-    logger.error("Http exception", exc_info=error.description)
+    logger.error(f"Http exception {error.description}")
     response = jsonify({"errors": error.description})
     response.status_code = error.code
     return response
 
 
+@tracing
 def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
     """Handle any uncaught exceptions.
 
     Since the handler suppresses the actual exception, log it explicitly to
     ensure it's logged and recorded in Sentry.
     """
-    logger.error("Uncaught exception", exc_info=sys.exc_info())
+    logger.error(f"Uncaught exception {sys.exc_info()}")
     response = jsonify({"errors": f"Internal server error {sys.exc_info()}"})
     response.status_code = 500
     return response
@@ -66,7 +68,7 @@ def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
 
 def handle_validation_error(error):
     """Handle flask-pydantic valication error."""
-    logger.error("Validation Error %s", error.body_params)
+    logger.error(f"Validation Error {error.body_params}")
     response = jsonify({"errors": f"Validation Error {error.body_params}"})
     response.status_code = 400
     return response

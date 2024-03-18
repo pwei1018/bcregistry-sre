@@ -24,16 +24,15 @@
         logger.info("another logging message", additional="Yo!!")
     https://github.com/mfkessai/opentelemetry-python-sample-app/blob/main/flask-on-cloud-functions/custom_loggers.py
 """
-import contextvars
 import json
 import logging
 import logging.config
 from datetime import date, datetime
-from typing import Union
+from inspect import getframeinfo, stack
 
 import yaml
 
-env_name_context = contextvars.ContextVar[Union[str, None]]("env_name", default=None)
+from notify_api.metadata import APP_RUNNING_PROJECT
 
 
 def setup_logging(conf):
@@ -46,37 +45,68 @@ def setup_logging(conf):
     )
 
 
-class EnvNameFilter(logging.Filter):
-    """Environment variable filer."""
+class CallerFilter(logging.Filter):
+    """This class adds some context to the log record instance"""
+
+    filename = ""
+    lineno = ""
 
     def filter(self, record):
-        record.environment = env_name_context.get()
+        record.filename = self.filename
+        record.lineno = self.lineno
         return True
 
 
-class APILogger:
+def caller_reader(f):
+    """This wrapper updates the context with the callor infos"""
+
+    def wrapper(self, *args):
+        caller = getframeinfo(stack()[1][0])
+        self.logger.filters[0].filename = caller.filename
+        self.logger.filters[0].lineno = caller.lineno
+        return f(self, *args)
+
+    return wrapper
+
+
+class LoggingFormatFilter(logging.Filter):
+    """Environment variable filer."""
+
+    def filter(self, record):
+        record.project = APP_RUNNING_PROJECT
+        return True
+
+
+class AppLogger:
     """Wrapper for logger to easy emit structured logs."""
 
-    def __init__(self):
-        self.logger = logging.getLogger("apiLogger")
-        self.logger.addFilter(EnvNameFilter())
+    def __init__(self, log_level=logging.INFO):
+        self.logger = logging.getLogger("appLogger")
+        self.logger.setLevel(log_level)
+        self.logger.addFilter(CallerFilter())
+        self.logger.addFilter(LoggingFormatFilter())
 
+    @caller_reader
     def debug(self, msg: str, additional=None):
         """Debug message."""
         self.logger.debug(msg=msg, extra=self.__build_extra(additional=additional))
 
+    @caller_reader
     def info(self, msg: str, additional=None):
         """Info message."""
         self.logger.info(msg=msg, extra=self.__build_extra(additional=additional))
 
+    @caller_reader
     def warning(self, msg: str, additional=None):
         """Warning message."""
         self.logger.warning(msg=msg, extra=self.__build_extra(additional=additional))
 
+    @caller_reader
     def error(self, msg: str, additional=None):
         """Error message."""
         self.logger.error(msg=msg, extra=self.__build_extra(additional=additional))
 
+    @caller_reader
     def critical(self, msg: str, additional=None):
         """Critical message."""
         self.logger.critical(msg=msg, extra=self.__build_extra(additional=additional))
@@ -97,13 +127,13 @@ class APILogger:
         try:
             extra = {"additional": json.dumps(additional, default=__serializer_for_fallback)}
         except TypeError as error:
-            if env_name_context.get() != "production":
-                raise error
+            # if env_name_context.get() != "production":
+            #    raise error
 
-            self.logger.error(f"JSON Unserializable Object: {additional}")
+            self.logger.error(f"JSON Unserializable Object: {additional} {error}")
             extra = {"additional": additional}
 
         return extra
 
 
-logger = APILogger()
+logger = AppLogger(log_level=logging.INFO)

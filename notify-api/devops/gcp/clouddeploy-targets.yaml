@@ -18,6 +18,7 @@ metadata:
  name: dev
 description: Dev Environment
 deployParameters:
+  deploy-env: "development"
   deploy-project-id: "c4hnrd-dev"
   service-name: "notify-api-dev"
   container-name: "notify-api-dev"
@@ -36,6 +37,7 @@ metadata:
  name: test
 description: Test Environment
 deployParameters:
+  deploy-env: "testing"
   deploy-project-id: "c4hnrd-test"
   service-name: "notify-api-test"
   container-name: "notify-api-test"
@@ -56,6 +58,7 @@ metadata:
 description: Sandbox Environment
 requireApproval: false
 deployParameters:
+  deploy-env: "sandbox"
   deploy-project-id: "c4hnrd-tools"
   service-name: "notify-api-sandbox"
   container-name: "notify-api-sandbox"
@@ -76,6 +79,7 @@ metadata:
 description: Production Environment
 requireApproval: false
 deployParameters:
+  deploy-env: "production"
   deploy-project-id: "c4hnrd-prod"
   service-name: "notify-api-prod"
   container-name: "notify-api-prod"

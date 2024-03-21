@@ -19,7 +19,7 @@ on:
 
 jobs:
   notify-api-cd:
-    uses: pwei1018/bcregistry-sre/.github/workflows/backend-cd-ocp.yaml@main
+    uses: bcgov/bcregistry-sre/.github/workflows/backend-cd-ocp.yaml@main
     with:
       target: ${{ inputs.target }}
       app_name: "notify-api"

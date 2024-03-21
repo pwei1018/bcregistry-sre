@@ -1,4 +1,4 @@
-name: Notify API CD OCP
+name: Backend App CD OCP
 
 on:
   workflow_call:

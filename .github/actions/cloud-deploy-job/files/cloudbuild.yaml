@@ -5,8 +5,16 @@ steps:
     #!/usr/bin/env bash
     if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA --verbosity=none` ]]
     then
-      docker build -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA .
+      docker build \
+        -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
+        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest\
+        .
+
       docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
+
+      gcloud artifacts docker tags add \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest
     else
       echo 'image tag exists'
     fi
@@ -16,6 +24,8 @@ steps:
   secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   script: |
     #!/usr/bin/env bash
+
+    echo $(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID) > /workspace/project_id.txt
 
     targets=(${_DEPLOY_TARGETS})
     if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
@@ -90,6 +100,53 @@ steps:
         --delivery-pipeline=${_DEPLOY_PIPELINE}\
         --region=${_REGION} \
         --to-target=${_DEPLOY_TARGET}
+    fi
+
+# handle multiple jobs
+- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
+  script: |
+    #!/usr/bin/env bash
+
+    res=$((ls run_*.sh  >> /dev/null 2>&1 && echo "EXIST") || echo "NOT_EXIST")
+
+    if [ "$res" = "EXIST" ]; then
+
+      JOB_NAMESPACE=$(cat /workspace/project_id.txt)
+
+      # fetch the mother job's yaml
+      gcloud run jobs describe ${_APP_NAME}-${_DEPLOY_TARGET} --format=yaml --project=${JOB_NAMESPACE} --region=${_REGION} > ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+
+      # remove unique metadata
+      yq -i 'del(.status)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.generation)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.creationTimestamp)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.namespace)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.resourceVersion)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.selfLink)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      yq -i 'del(.metadata.uid)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+
+      for file in run_*sh;
+      do
+          JOB_SCRIPT_NAME=$(echo "${file##*/}")
+          export JOB_NAME=$(echo ${_APP_NAME}-${_DEPLOY_TARGET}-${JOB_SCRIPT_NAME} | cut  -d'.' -f 1 | tr "_" "-")
+          export COMMAND="./${JOB_SCRIPT_NAME}"
+
+          # replace job and
+          yq e '.metadata.name = env(JOB_NAME) | .spec.template.spec.template.spec.containers[0].command = env(COMMAND)' \
+            ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml > ./devops/gcp/k8s/${JOB_NAME}.yaml
+
+          # create job if not exist
+          res=$(gcloud run jobs describe $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION} || echo "NOT_EXIST")
+
+          if [ "$res" = "NOT_EXIST" ]; then
+            echo "Creating your job..."
+            gcloud run jobs create $JOB_NAME
+          fi
+
+          # replace the yaml
+          gcloud run jobs replace ./devops/gcp/k8s/${JOB_NAME}.yaml --project=${JOB_NAMESPACE} --region=${_REGION}
+
+      done
     fi
 
 availableSecrets:

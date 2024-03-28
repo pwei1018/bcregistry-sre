@@ -25,12 +25,7 @@ jobs:
           working-directory: ${{ inputs.working_directory }}
 
       - name: Test this action against an incorrect file.
-        id: expect-failure
-        continue-on-error: true
         uses: stoplightio/spectral-action@latest
         with:
           file_glob: ./docs/oas/*.yaml
           spectral_ruleset: .spectral.yaml
-
-      - if: ${{ failure() }}
-        run: exit 0

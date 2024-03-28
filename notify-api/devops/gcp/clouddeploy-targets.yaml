@@ -37,7 +37,7 @@ metadata:
  name: test
 description: Test Environment
 deployParameters:
-  deploy-env: "testing"
+  deploy-env: "test"
   deploy-project-id: "c4hnrd-test"
   service-name: "notify-api-test"
   container-name: "notify-api-test"

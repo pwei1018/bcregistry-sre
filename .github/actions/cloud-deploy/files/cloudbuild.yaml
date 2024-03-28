@@ -5,8 +5,15 @@ steps:
     #!/usr/bin/env bash
     if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA --verbosity=none` ]]
     then
-      docker build -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA .
+      docker build \
+        -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
+        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest\
+        .
       docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
+
+      gcloud artifacts docker tags add \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
+          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest
     else
       echo 'image tag exists'
     fi

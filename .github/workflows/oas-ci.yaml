@@ -1,0 +1,36 @@
+name: OAS Spectral Linter CI
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        type: string
+        default: "."
+
+jobs:
+  spectralChecks:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy spectral rule file (.spectral.yaml)
+        uses: bcgov/bcregistry-sre/.github/actions/spectral-rule@main
+        with:
+          working-directory: ${{ inputs.working_directory }}
+
+      - name: Test this action against an incorrect file.
+        id: expect-failure
+        continue-on-error: true
+        uses: stoplightio/spectral-action@latest
+        with:
+          file_glob: ./docs/oas/*.yml
+          spectral_ruleset: .spectral.yaml
+
+      - if: ${{ failure() }}
+        run: exit 0

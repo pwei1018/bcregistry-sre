@@ -13,4 +13,4 @@ runs:
     - name: Copy spectral rule file
       shell: bash
       run: |
-        cp  ${{ github.action_path }}/files/* ${{ inputs.working-directory }}
+        cp  ${{ github.action_path }}/files/spectral.yaml ${{ inputs.working-directory }}/.spectral.yaml

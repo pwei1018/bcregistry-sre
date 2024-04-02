@@ -80,6 +80,12 @@ class NotificationFactory:  # pylint: disable=too-few-public-methods
             "content": ContentFactory.RequestData.CONTENT_REQUEST_1,
         }
 
+        REQUEST_3 = {
+            "recipients": "abc@gmail.com",
+            "requestDate": faker.date_time(),
+            "content": ContentFactory.RequestData.CONTENT_REQUEST_1,
+        }
+
     class RequestProviderData(dict, Enum):
         """Content post request payload data for test provider."""
 
@@ -252,7 +258,7 @@ class NotificationFactory:  # pylint: disable=too-few-public-methods
         notification = Notification(
             recipients=notification_info["recipients"],
             request_date=notification_info["requestDate"],
-            request_by=notification_info["requestBy"],
+            request_by=notification_info.get("requestBy", ""),
             status_code=notification_info.get("statusCode", None),
         )
         session.add(notification)

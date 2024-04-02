@@ -45,6 +45,6 @@ def callback(body: CallbackRequest):  # pylint: disable=unused-argument
             history.update()
 
     except Exception as err:  # NOQA # pylint: disable=broad-except
-        logger.error("Callback error", additional=True)
+        logger.error(f"Callback error {err}", additional=True)
 
     return {}, HTTPStatus.OK

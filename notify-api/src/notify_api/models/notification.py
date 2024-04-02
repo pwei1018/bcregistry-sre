@@ -14,11 +14,11 @@
 """Notification data model."""
 from datetime import datetime, timezone
 from enum import auto
-from typing import List, Optional
+from typing import List
 
 import phonenumbers
 from email_validator import EmailNotValidError, validate_email
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from notify_api.utils.base import BaseEnum
 from notify_api.utils.tracing import tracing
@@ -31,12 +31,14 @@ from .db import db  # noqa: I001
 class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Notification model for resquest."""
 
-    recipients: str = Field(alias="recipients")
-    request_by: Optional[str] = Field(alias="requestBy")
-    notify_type: Optional[str] = Field(alias="notifyType")
-    content: ContentRequest = None
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
-    @validator("recipients", always=True)
+    recipients: str = Field(alias="recipients")
+    request_by: str | None = Field(alias="requestBy")
+    notify_type: str | None = Field(default=None, alias="notifyType")
+    content: ContentRequest | None = None
+
+    @field_validator("recipients")
     @classmethod
     @tracing
     def validate_recipients(cls, v_field):
@@ -57,23 +59,18 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
         return v_field
 
-    class Config:  # pylint: disable=too-few-public-methods
-        """Config."""
-
-        alias_generator = to_camel
-
 
 class NotificationSendResponse(BaseModel):  # pylint: disable=too-few-public-methods
     """Model for GC notify send response."""
 
-    response_id: str = None
-    recipient: str = None
+    response_id: str | None = None
+    recipient: str | None = None
 
 
 class NotificationSendResponses(BaseModel):  # pylint: disable=too-few-public-methods
     """Notification model for resquest."""
 
-    recipients: List[NotificationSendResponse] = None
+    recipients: List[NotificationSendResponse] | None = None
 
 
 class Notification(db.Model):

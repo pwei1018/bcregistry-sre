@@ -67,7 +67,7 @@ def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
 
 
 def handle_validation_error(error):
-    """Handle flask-pydantic valication error."""
+    """Handle pydantic validation error."""
     logger.error(f"Validation Error {error.body_params}")
     response = jsonify({"errors": f"Validation Error {error.body_params}"})
     response.status_code = 400

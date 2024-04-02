@@ -24,7 +24,7 @@ from .db import db  # noqa: I001
 class SafeListRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Notification model for resquest."""
 
-    email: List[str] = None
+    email: List[str] | None = None
 
 
 class SafeList(db.Model):

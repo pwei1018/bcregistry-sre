@@ -15,7 +15,7 @@
 import requests
 from email_validator import EmailNotValidError, validate_email
 from flask import current_app
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 from notify_api.utils.enums import MillionverifierResult
 
@@ -25,7 +25,7 @@ class EmailValidator(BaseModel):
 
     email_address: str
 
-    @validator("email_address")
+    @field_validator("email_address")
     @classmethod
     def validate_email_address(cls, value):
         """Validate email address."""

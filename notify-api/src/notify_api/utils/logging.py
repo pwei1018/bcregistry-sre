@@ -39,7 +39,7 @@ def setup_logging(conf):
     """Create the services logger."""
     logging.config.dictConfig(
         yaml.load(
-            open(conf).read(),
+            open(conf).read(),  # pylint: disable=consider-using-with
             Loader=yaml.SafeLoader,
         )
     )

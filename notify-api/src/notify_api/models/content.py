@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import ForwardRef, List, Optional  # noqa: F401 # pylint: disable=unused-import
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from notify_api.utils.tracing import tracing
 from notify_api.utils.util import to_camel
@@ -30,11 +30,13 @@ ListAttachmentRequest = ForwardRef("List[AttachmentRequest]")
 class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Entity Request model for the Notification content."""
 
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
     subject: str = Field(alias="subject")
     body: str = Field(alias="body")
-    attachments: Optional[ListAttachmentRequest] = None
+    attachments: Optional[ListAttachmentRequest] | None = None
 
-    @validator("subject", always=True)
+    @field_validator("subject")
     @classmethod
     @tracing
     def subject_not_empty(cls, v_field):
@@ -43,7 +45,7 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
             raise ValueError("The email subject must not empty.")
         return v_field
 
-    @validator("body", always=True)
+    @field_validator("body")
     @classmethod
     @tracing
     def body_not_empty(cls, v_field):
@@ -51,11 +53,6 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
         if not v_field:
             raise ValueError("The email body must not empty.")
         return v_field
-
-    class Config:  # pylint: disable=too-few-public-methods
-        """Config."""
-
-        alias_generator = to_camel
 
 
 class Content(db.Model):

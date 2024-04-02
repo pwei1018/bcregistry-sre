@@ -32,14 +32,14 @@ class AttachmentFactory:  # pylint: disable=too-few-public-methods
         FILE_1 = {
             "fileName": "aaa.text",
             "fileBytes": "SGVsbG8gV29ybGQgYnkgdHh0ICEhIQ==",
-            "attachOrder": 1,
+            "attachOrder": "1",
         }
 
         FILE_2 = {
             "fileName": "aaa.pdf",
             "fileBytes": "",
             "fileUrl": "https://minio-dev.apps.silver.devops.gov.bc.ca/public/affidavit_v1.pdf",
-            "attachOrder": 2,
+            "attachOrder": "2",
         }
 
     class RequestData(dict, Enum):
@@ -49,14 +49,14 @@ class AttachmentFactory:  # pylint: disable=too-few-public-methods
             "fileName": "aaa.pdf",
             "fileBytes": "",
             "fileUrl": "https://minio-dev.apps.silver.devops.gov.bc.ca/public/affidavit_v1.pdf",
-            "attachOrder": 1,
+            "attachOrder": "1",
         }
 
         FILE_REQUEST_2 = {
             "fileName": "bbb.text",
             "fileBytes": "SGVsbG8gV29ybGQgYnkgdHh0ICEhIQ==",
             "fileUrl": "",
-            "attachOrder": 2,
+            "attachOrder": "2",
         }
 
     class RequestBadData(dict, Enum):
@@ -67,27 +67,27 @@ class AttachmentFactory:  # pylint: disable=too-few-public-methods
             "fileName": "",
             "fileBytes": "",
             "fileUrl": "https://minio-dev.apps.silver.devops.gov.bc.ca/public/affidavit_v1.pdf",
-            "attachOrder": 1,
+            "attachOrder": "1",
         }
 
         # without name
         FILE_REQUEST_BAD_2 = {
             "fileBytes": "",
             "fileUrl": "https://minio-dev.apps.silver.devops.gov.bc.ca/public/affidavit_v1.pdf",
-            "attachOrder": 1,
+            "attachOrder": "1",
         }
 
         # file content empty
         FILE_REQUEST_BAD_3 = {"fileName": "aaa.pdf", "fileBytes": "", "fileUrl": "", "attachOrder": 1}
 
         # without file content
-        FILE_REQUEST_BAD_4 = {"fileName": "aaa.pdf", "fileBytes": "", "attachOrder": 1}
+        FILE_REQUEST_BAD_4 = {"fileName": "aaa.pdf", "fileBytes": "", "attachOrder": "1"}
 
         # without file content
-        FILE_REQUEST_BAD_5 = {"fileName": "aaa.pdf", "fileUrl": "", "attachOrder": 1}
+        FILE_REQUEST_BAD_5 = {"fileName": "aaa.pdf", "fileUrl": "", "attachOrder": "1"}
 
         # without file content
-        FILE_REQUEST_BAD_6 = {"fileName": "aaa.pdf", "attachOrder": 1}
+        FILE_REQUEST_BAD_6 = {"fileName": "aaa.pdf", "attachOrder": "1"}
 
     @staticmethod
     def create_model(session, content_id: int = 1, attachment_info: dict = Models.FILE_1):

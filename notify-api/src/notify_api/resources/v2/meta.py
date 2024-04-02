@@ -16,11 +16,9 @@
 Currently this only provides API versioning information
 """
 
-from flask import Blueprint
-from flask import __version__ as framework_version
-from flask import jsonify
+from flask import Blueprint, jsonify
 
-from notify_api.metadata import APP_VERSION
+from notify_api.metadata import APP_VERSION, FLASK_VERSION
 
 bp = Blueprint("Meta_v2", __name__, url_prefix="/meta")
 
@@ -28,5 +26,4 @@ bp = Blueprint("Meta_v2", __name__, url_prefix="/meta")
 @bp.route("/info")
 def info():
     """Return a JSON object with meta information about the Service."""
-    version = APP_VERSION
-    return jsonify(API=f"notify_api/{version}", FrameWork=f"{framework_version}")
+    return jsonify(API=f"notify_api/{APP_VERSION}", FrameWork=f"{FLASK_VERSION}")

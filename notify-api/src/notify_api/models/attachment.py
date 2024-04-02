@@ -16,9 +16,8 @@ from __future__ import annotations
 
 import base64
 from http import HTTPStatus
-from typing import Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from notify_api.errors import NotifyException
 from notify_api.utils.tracing import tracing
@@ -30,12 +29,14 @@ from .db import db  # noqa: I001
 class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """This is the Request model for the Notification attachment."""
 
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
     file_name: str = Field(alias="fileName")
-    file_bytes: str = Field(alias="fileBytes")
-    file_url: Optional[str] = Field(alias="fileUrl")
+    file_bytes: str | None = Field(default=None, alias="fileBytes")
+    file_url: str | None = Field(default=None, alias="fileUrl")
     attach_order: str = Field(alias="attachOrder")
 
-    @validator("file_name", always=True)
+    @field_validator("file_name")
     @classmethod
     @tracing
     def not_empty(cls, v_field):
@@ -44,20 +45,13 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
             raise ValueError("The file name must not empty.")
         return v_field
 
-    @validator("attach_order")
-    @classmethod
+    @model_validator(mode="after")
     @tracing
-    def must_contain_one(cls, v_field, values, **kwargs):  # pylint: disable=unused-argument
+    def must_contain_one(self):
         """Valiate field is not empty."""
-        if not values.get("file_bytes") and not values.get("file_url"):
-            raise ValueError("The file content must attach.")
-
-        return v_field
-
-    class Config:  # pylint: disable=too-few-public-methods
-        """Config."""
-
-        alias_generator = to_camel
+        if not self.file_bytes and not self.file_url:
+            raise ValueError("The file content must attach")
+        return self
 
 
 class Attachment(db.Model):

@@ -22,17 +22,17 @@ from .db import db  # noqa: I001
 class CallbackRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Callback model for resquest."""
 
-    id: str = None
-    reference: str = None
-    to: str = None
-    status: str = None
-    status_description: str = None
-    provider_response: str = None
-    created_at: str = None
-    updated_at: str = None
-    completed_at: str = None
-    sent_at: str = None
-    notification_type: str = None
+    id: str | None = None
+    reference: str | None = None
+    to: str | None = None
+    status: str | None = None
+    status_description: str | None = None
+    provider_response: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
+    completed_at: str | None = None
+    sent_at: str | None = None
+    notification_type: str | None = None
 
 
 class Callback(db.Model):

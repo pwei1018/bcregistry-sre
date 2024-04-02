@@ -18,7 +18,6 @@ jobs:
       fail-fast: true
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.11" ]
 
     runs-on: ${{ matrix.os }}
 
@@ -32,40 +31,17 @@ jobs:
       #       check-out repo and set-up python
       #----------------------------------------------
       - uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        run: |
+          pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: ${{ inputs.working_directory }}/.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
+          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
+          cache: poetry
+          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install project
-        run: poetry install --no-interaction
+        run: poetry install
       #----------------------------------------------
       #          install and run linters
       #----------------------------------------------
@@ -94,7 +70,6 @@ jobs:
       fail-fast: true
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.11" ]
 
     env:
       DATABASE_TEST_USERNAME: "postgres"
@@ -122,39 +97,17 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up python ${{ matrix.python-version }}
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
       - name: Install Poetry
-        uses: snok/install-poetry@v1
+        run: |
+          pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      #----------------------------------------------
-      #       load cached venv if cache exists
-      #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: ${{ inputs.working_directory }}/.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
+          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
+          cache: poetry
+          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install library
-        run: poetry install --no-interaction
+        run: poetry install
       #----------------------------------------------
       #    add matrix specifics and run test suite
       #----------------------------------------------

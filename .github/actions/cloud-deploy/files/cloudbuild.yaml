@@ -24,9 +24,6 @@ steps:
   script: |
     #!/usr/bin/env bash
 
-    echo $(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID) > /workspace/project_id.txt
-    echo $(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DB_MIGRATION) > /workspace/db-migration.txt
-
     targets=(${_DEPLOY_TARGETS})
     if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
       # update the pipeline name
@@ -109,19 +106,6 @@ steps:
         --delivery-pipeline=${_DEPLOY_PIPELINE}\
         --region=${_REGION} \
         --to-target=${_DEPLOY_TARGET}
-    fi
-
-# trigger db migration job
-- name: 'gcr.io/cloud-builders/gcloud'
-  script: |
-    #!/usr/bin/env bash
-    DB_MIGRATION=$(cat /workspace/db-migration.txt)
-
-    if [ "$DB_MIGRATION" == "yes" ]; then
-      DEPLOY_PROJECT_ID=$(cat /workspace/project_id.txt)
-      gcloud run jobs execute ${_APP_NAME}-db-migration-${_DEPLOY_TARGET} \
-        --region=${_REGION} \
-        --project=${DEPLOY_PROJECT_ID}
     fi
 
 availableSecrets:

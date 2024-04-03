@@ -34,7 +34,7 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
     model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
 
     recipients: str = Field(alias="recipients")
-    request_by: str | None = Field(alias="requestBy")
+    request_by: str | None = Field(default="", alias="requestBy")
     notify_type: str | None = Field(default=None, alias="notifyType")
     content: ContentRequest | None = None
 

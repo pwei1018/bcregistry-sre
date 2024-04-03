@@ -116,7 +116,7 @@ jobs:
           poetry run pytest
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ${{ inputs.working_directory }}/coverage.xml
           flags: ${{ inputs.codecov_flag }}

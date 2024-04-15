@@ -1,0 +1,144 @@
+steps:
+
+# build image if not exists in artifact registry
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  script: |
+    #!/usr/bin/env bash
+
+    # Build/Push Image to Artifactory
+    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} --verbosity=none` ]]
+    then
+      docker build \
+        -f Dockerfile-build \
+        -t ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:latest\
+        .
+      docker push ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
+
+      gcloud artifacts docker tags add \
+          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:latest
+    else
+      echo "image tag exists"
+    fi
+
+    # copy content of the build version
+    docker create --name ${_APP_NAME} northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
+    docker cp ${_APP_NAME}:/app/. /workspace/app
+
+# Prepare build environments
+- name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre"
+  secretEnv: ["OP_CONNECT_HOST", "OP_CONNECT_TOKEN"]
+  dir: "app"
+  script: |
+    #!/usr/bin/env bash
+
+    # Set firebase config
+    APP_HOST_NAME=$(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/FIREBASE_HOST_NAME)
+    firebase=$(jq '.hosting.site='\"$APP_HOST_NAME\"'' firebase-${_DEPLOYMENT_ENVIRONMENT}.json)
+    echo -E "${firebase}" > firebase-${_DEPLOYMENT_ENVIRONMENT}.json
+
+    echo $(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/DEPLOY_PROJECT_ID) > /workspace/project_id.txt
+    echo $(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/BUILD_FOLDER) > /workspace/build_folder.txt
+
+    BUILD_FOLDER=$(cat /workspace/build_folder.txt)
+
+    if [ -z "${BUILD_FOLDER}" ]; then
+      BUILD_FOLDER=.
+    fi
+
+    # Prepare .env by vaults
+    export APP_ENV=${_DEPLOYMENT_ENVIRONMENT}
+    op inject -i ./devops/vaults.env -o ${BUILD_FOLDER}/.env -f
+
+    # Load firebase Admin SDK from secret manager
+    if grep -q "GOOGLE_APPLICATION_CREDENTIALS=" "${BUILD_FOLDER}/.env"; then
+      gcloud secrets versions access ${_DEPLOYMENT_ENVIRONMENT} --secret=FIREBASE_ADMINSDK \
+        --project=${_DEPLOYMENT_PROJECT} \
+        --format="get(payload.data)" | tr "_-" "/+" | base64 -d > ${BUILD_FOLDER}/project-firebase-adminsdk.json
+    fi
+
+    # Load e2e settings from secret manager
+    if grep -q "E2E_SETTINGS=" "${BUILD_FOLDER}/.env"; then
+      gcloud secrets versions access ${_DEPLOYMENT_ENVIRONMENT} --secret=${_APP_NAME}_E2E_SETTINGS \
+        --project=${_DEPLOYMENT_PROJECT} \
+        --format="get(payload.data)" | tr "_-" "/+" | base64 -d > ${BUILD_FOLDER}/e2e.json
+    fi
+
+# Build application
+- name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/firebase-repo/${_APP_NAME}:${_SHORT_SHA}"
+  dir: "app"
+  script: |
+    #!/usr/bin/env sh
+
+    BUILD_FOLDER=$(cat /workspace/build_folder.txt)
+    pnpm_project=$((ls pnpm_*.yaml  >> /dev/null 2>&1 && echo "EXIST") || echo "NOT_EXIST")
+
+    if [ "$pnpm_project" = "EXIST" ]; then
+      npm install --global pnpm
+      pnpm install --frozen-lockfile
+
+      # Nuxt's package
+      if [ -n "${BUILD_FOLDER}" ]; then
+        echo executing build:$BUILD_FOLDER
+        pnpm build:$BUILD_FOLDER
+
+        # move build content back to root app folder
+        mv $BUILD_FOLDER/dist /workspace/app
+      else
+        pnpm build
+      fi
+    else
+      npm install
+      npm build
+    fi
+
+    ls -la
+
+# Deploy application to firebase
+- name: gcr.io/${_DEPLOYMENT_PROJECT}/firebase
+  dir: "app"
+  script: |
+  #!/usr/bin/env sh
+
+  RUNNING_PROJECT=$(cat /workspace/project_id.txt)
+
+  firebase deploy --project=${RUNNING_PROJECT} --config=firebase-${_DEPLOYMENT_ENVIRONMENT}.json --only hosting
+
+# E2E testing
+- name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/firebase-repo/${_APP_NAME}:${_SHORT_SHA}"
+  dir: "app"
+  script: |
+    #!/usr/bin/env sh
+
+    # pnpm run test:e2e:ui
+
+# Tag image after deployment done
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  script: |
+    #!/usr/bin/env sh
+
+    # tag image
+    gcloud artifacts docker tags add \
+          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_DEPLOYMENT_ENVIRONMENT}
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
+    env: "OP_CONNECT_HOST"
+  - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
+    env: "OP_CONNECT_TOKEN"
+
+options:
+  automapSubstitutions: true
+  substitutionOption: "ALLOW_LOOSE"
+substitutions:
+  _APP_NAME: ${_APP_NAME}
+  _DEPLOYMENT_ENVIRONMENT: ${_DEPLOYMENT_ENVIRONMENT} #dev/test/sandbox/prod
+  _DEPLOYMENT_PROJECT: "c4hnrd-tools"
+  _REGION: "northamerica-northeast1"
+
+logsBucket: "gs://github-actions-cloudbuild/history"
+
+timeout: 3600s

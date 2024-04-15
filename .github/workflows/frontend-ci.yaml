@@ -1,0 +1,46 @@
+name: Frontend Application CI
+
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        required: true
+        type: string
+      working_directory:
+        type: string
+        default: "."
+      codecov_flag:
+          type: string
+
+jobs:
+  linting:
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ "ubuntu-latest" ]
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+
+
+  testing:
+    needs: linting
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ "ubuntu-latest" ]
+
+    runs-on: ${{ matrix.os }}
+    steps:

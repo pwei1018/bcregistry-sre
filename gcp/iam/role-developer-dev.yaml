@@ -94,6 +94,7 @@ includedPermissions:
 - run.services.update
 - run.tasks.get
 - run.tasks.list
+- serviceusage.services.use
 - serviceusage.services.list
 - storage.managedFolders.get
 - storage.objects.get

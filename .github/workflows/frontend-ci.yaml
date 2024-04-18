@@ -10,7 +10,7 @@ on:
         type: string
         default: "."
       codecov_flag:
-          type: string
+        type: string
 
 jobs:
   linting:
@@ -18,29 +18,105 @@ jobs:
       fail-fast: true
       matrix:
         os: [ "ubuntu-latest" ]
+        node-version: [21]
+        pnpm-version: [8]
 
     runs-on: ${{ matrix.os }}
 
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
-
     steps:
+      - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: ${{ matrix.pnpm-version }}
+          run_install: false
 
-  testing:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Linting
+        run: |
+          pnpm run lint
+
+  unit-testing:
     needs: linting
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
 
     strategy:
       fail-fast: true
       matrix:
         os: [ "ubuntu-latest" ]
+        node-version: [21]
+        pnpm-version: [8]
 
     runs-on: ${{ matrix.os }}
+
     steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: ${{ matrix.pnpm-version }}
+          run_install: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Testing
+        run: |
+          pnpm run test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ${{ inputs.working_directory }}/coverage.xml
+          flags: ${{ inputs.codecov_flag }}
+          name: codecov-${{ inputs.app_name }}
+          fail_ci_if_error: false
+
+  verify-build:
+    needs: linting
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ "ubuntu-latest" ]
+        node-version: [21]
+        pnpm-version: [8]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          version: ${{ matrix.pnpm-version }}
+          run_install: false
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Verify build
+        run: |
+          pnpm run build-check

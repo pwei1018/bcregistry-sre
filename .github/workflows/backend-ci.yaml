@@ -10,7 +10,7 @@ on:
         type: string
         default: "."
       codecov_flag:
-          type: string
+        type: string
 
 jobs:
   linting:
@@ -58,7 +58,7 @@ jobs:
         run: |
           poetry run flake8 .
 
-  testing:
+  unit-testing:
     needs: linting
 
     defaults:

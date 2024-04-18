@@ -6,18 +6,18 @@ steps:
     #!/usr/bin/env bash
 
     # Build/Push Image to Artifactory
-    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} --verbosity=none` ]]
+    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} --verbosity=none` ]]
     then
       docker build \
         -f Dockerfile-build \
-        -t ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
-        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:latest\
+        -t ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+        --cache-from ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:latest\
         .
-      docker push ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
+      docker push ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
 
       gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
-          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:latest
+          ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+          ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:latest
     else
       echo "image tag exists"
     fi
@@ -54,14 +54,14 @@ steps:
     # Load firebase Admin SDK from secret manager
     if grep -q "GOOGLE_APPLICATION_CREDENTIALS=" "${BUILD_FOLDER}/.env"; then
       gcloud secrets versions access ${_DEPLOYMENT_ENVIRONMENT} --secret=FIREBASE_ADMINSDK \
-        --project=${_DEPLOYMENT_PROJECT} \
+        --project=${_BUILD_PROJECT} \
         --format="get(payload.data)" | tr "_-" "/+" | base64 -d > ${BUILD_FOLDER}/project-firebase-adminsdk.json
     fi
 
     # Load e2e settings from secret manager
     if grep -q "E2E_SETTINGS=" "${BUILD_FOLDER}/.env"; then
       gcloud secrets versions access ${_DEPLOYMENT_ENVIRONMENT} --secret=${_APP_NAME}_E2E_SETTINGS \
-        --project=${_DEPLOYMENT_PROJECT} \
+        --project=${_BUILD_PROJECT} \
         --format="get(payload.data)" | tr "_-" "/+" | base64 -d > ${BUILD_FOLDER}/e2e.json
     fi
 
@@ -96,14 +96,14 @@ steps:
     ls -la
 
 # Deploy application to firebase
-- name: gcr.io/${_DEPLOYMENT_PROJECT}/firebase
+- name: gcr.io/${_BUILD_PROJECT}/firebase
   dir: "app"
   script: |
-  #!/usr/bin/env sh
+    #!/usr/bin/env sh
 
-  RUNNING_PROJECT=$(cat /workspace/project_id.txt)
+    RUNNING_PROJECT=$(cat /workspace/project_id.txt)
 
-  firebase deploy --project=${RUNNING_PROJECT} --config=firebase-${_DEPLOYMENT_ENVIRONMENT}.json --only hosting
+    firebase deploy --project=${RUNNING_PROJECT} --config=firebase-${_DEPLOYMENT_ENVIRONMENT}.json --only hosting
 
 # E2E testing
 - name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/firebase-repo/${_APP_NAME}:${_SHORT_SHA}"
@@ -120,8 +120,8 @@ steps:
 
     # tag image
     gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
-          ${_REGION}-docker.pkg.dev/${_DEPLOYMENT_PROJECT}/firebase-repo/${_APP_NAME}:${_DEPLOYMENT_ENVIRONMENT}
+          ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+          ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_DEPLOYMENT_ENVIRONMENT}
 
 availableSecrets:
   secretManager:
@@ -135,8 +135,8 @@ options:
   substitutionOption: "ALLOW_LOOSE"
 substitutions:
   _APP_NAME: ${_APP_NAME}
+  _BUILD_PROJECT: "c4hnrd-tools"
   _DEPLOYMENT_ENVIRONMENT: ${_DEPLOYMENT_ENVIRONMENT} #dev/test/sandbox/prod
-  _DEPLOYMENT_PROJECT: "c4hnrd-tools"
   _REGION: "northamerica-northeast1"
 
 logsBucket: "gs://github-actions-cloudbuild/history"

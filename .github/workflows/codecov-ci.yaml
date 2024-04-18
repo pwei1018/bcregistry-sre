@@ -1,29 +1,16 @@
 name: Codecov CI
 
 on:
-  workflow_call:
-    inputs:
-      app_name:
-        required: true
-        type: string
-      working_directory:
-        type: string
-        default: "."
-      codecov_flag:
-          type: string
+  workflow_run:
+    workflows: ["Frontend Application CI"]
+    types:
+      - completed
 
 jobs:
   codecov:
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ "ubuntu-latest" ]
-
-    runs-on: ${{ matrix.os }}
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ inputs.working_directory }}
-
+    name: CD
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@latest
+        with:
+          ref: ${{ github.ref }}

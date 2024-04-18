@@ -107,8 +107,8 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
 
           echo $SHORT_SHA
-          
+
           gcloud builds submit \
             --region=northamerica-northeast1 \
-            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}" \
+            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_FROM="${{ needs.setup.outputs.DEPLOY_TARGET_FROM }}" \
             --config cloudbuild.yaml

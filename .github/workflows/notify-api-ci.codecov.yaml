@@ -1,0 +1,44 @@
+name: Notify Codecov CI
+
+on:
+  workflow_run:
+    workflows: ["Notify API CI"]
+    types:
+      - completed
+
+jobs:
+  codecov:
+    name: unit-testing
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./notify-api
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ "ubuntu-latest" ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          name: backend-coverage-${{ github.sha }}
+          run_id: ${{ github.event.workflow_run.id }}
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: coverage.xml
+          flags: notifapi
+          name: codecov-notifyapi
+          url: https://codecov-dev.apps.gold.devops.gov.bc.ca
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          verbose: true

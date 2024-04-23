@@ -3,7 +3,7 @@
 
 declare -a environments=("dev" "test" "tools" "prod" "integration" "sandbox")
 #declare -a projects=("a083gt" "mvnjri" "gtksf3" "yfjq17" "c4hnrd" "k973yf" "yfthig" "eogruh" "bcrbk9")
-declare -a projects=("a083gt" "eogruh" "bcrbk9")
+declare -a projects=("bcrbk9")
 declare -a service="cdcloudrun"
 
 for ev in "${environments[@]}"

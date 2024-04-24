@@ -79,7 +79,7 @@ steps:
     echo -E "${firebase}" > firebase-${_DEPLOYMENT_ENVIRONMENT}.json
 
     echo $(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/DEPLOY_PROJECT_ID) > /workspace/project_id.txt
-    BUILD_FOLDER=$(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/BUILD_FOLDER1)
+    BUILD_FOLDER=$(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/BUILD_FOLDER)
 
     if [ -z "${BUILD_FOLDER}" ]; then
       BUILD_FOLDER="."

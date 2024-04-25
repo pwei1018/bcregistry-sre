@@ -8,7 +8,7 @@ on:
 
 jobs:
   codecov:
-    name: unit-testing
+    name: code coverage
     defaults:
       run:
         shell: bash
@@ -27,6 +27,8 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       - name: Download artifacts
         uses: dawidd6/action-download-artifact@v3
         with:

@@ -19,7 +19,6 @@ GitHub Pages (https://guides.github.com/features/pages/) are a neat way to docum
 
 ## Security
 
-
 ## Files in this repository
 
 ## Environment Variables

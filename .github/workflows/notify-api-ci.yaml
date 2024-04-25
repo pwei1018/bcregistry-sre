@@ -1,7 +1,7 @@
 name: Notify API CI
 
 on:
-  push:
+  pull_request:
     paths:
       - "notify-api/**"
   workflow_dispatch:
@@ -116,5 +116,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: backend-coverage-${{ github.sha }}
+          name: notifyapicoveragefile
           path: ./notify-api/coverage.xml

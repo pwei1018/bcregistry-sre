@@ -30,7 +30,7 @@ jobs:
       - name: Download artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
-          name: backend-coverage-${{ github.sha }}
+          name: notifyapicoveragefile
           run_id: ${{ github.event.workflow_run.id }}
       - name: Upload to Codecov
         uses: codecov/codecov-action@v4

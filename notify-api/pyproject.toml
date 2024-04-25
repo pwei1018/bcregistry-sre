@@ -23,7 +23,7 @@ attrs = "^23.2.0"
 flask-jwt-oidc = {git = "https://github.com/thorwolpert/flask-jwt-oidc.git"}
 datedelta = "^1.4"
 dpath = "^2.1.6"
-gunicorn = "^21.2.0"
+gunicorn = "^22.0.0"
 jsonschema = "^4.21.1"
 pycountry = "^23.12.11"
 pydantic = "^2.6.4"

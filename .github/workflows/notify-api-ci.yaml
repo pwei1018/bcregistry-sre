@@ -114,7 +114,11 @@ jobs:
         run: |
           poetry run pytest
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          name: notifyapicoveragefile
-          path: ./notify-api/coverage.xml
+          file: coverage.xml
+          flags: notifapi
+          name: codecov-notifyapi
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true

@@ -92,13 +92,29 @@ jobs:
         run: |
           pnpm run test
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - uses: actions/upload-artifact@v4
         with:
-          file: ${{ inputs.working_directory }}/coverage.xml
-          flags: ${{ inputs.codecov_flag }}
-          name: codecov-${{ inputs.app_name }}
-          fail_ci_if_error: false
+          name: coveragefile
+          path: ./notify-api/coverage.xml
+
+  code-coverage:
+    needs: unit-testing
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: coveragefile
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: coverage.xml
+        flags: ${{ inputs.codecov_flag }}
+        name: codecov-${{ inputs.app_name }}
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
 
   verify-build:
     needs: linting

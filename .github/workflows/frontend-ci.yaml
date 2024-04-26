@@ -95,7 +95,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: coveragefile
-          path: ./notify-api/coverage.xml
+          path: ${{ inputs.working_directory }}/coverage.xml
+          retention-days: 1
 
   code-coverage:
     needs: unit-testing

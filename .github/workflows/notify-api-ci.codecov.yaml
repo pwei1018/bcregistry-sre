@@ -28,7 +28,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ github.event.workflow_run.pull_requests.head.ref }}
       - name: Download artifacts
         uses: dawidd6/action-download-artifact@v3
         with:

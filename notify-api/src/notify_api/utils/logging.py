@@ -29,10 +29,14 @@ import logging
 import logging.config
 from datetime import date, datetime
 from inspect import getframeinfo, stack
+from logging import NullHandler
 
 import yaml
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 from notify_api.metadata import APP_RUNNING_PROJECT
+
+LoggingInstrumentor().instrument(set_logging_format=True)
 
 
 def setup_logging(conf):
@@ -85,6 +89,7 @@ class AppLogger:
         self.logger.setLevel(log_level)
         self.logger.addFilter(CallerFilter())
         self.logger.addFilter(LoggingFormatFilter())
+        self.logger.addHandler(NullHandler())
 
     @caller_reader
     def debug(self, msg: str, additional=None):

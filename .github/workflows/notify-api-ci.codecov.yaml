@@ -2,7 +2,7 @@ name: Notify Codecov CI
 
 on:
   workflow_run:
-    workflows: ["Notify API CI"]
+    workflows: ["Notify API CI1"]
     types:
       - completed
 

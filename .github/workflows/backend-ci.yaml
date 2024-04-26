@@ -16,20 +16,12 @@ jobs:
   linting:
     strategy:
       fail-fast: true
-      matrix:
-        os: [ "ubuntu-latest" ]
-
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
       - uses: actions/checkout@v4
       - name: Install Poetry
         run: |
@@ -42,9 +34,6 @@ jobs:
           cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
         run: poetry install
-      #----------------------------------------------
-      #          install and run linters
-      #----------------------------------------------
       - name: Run isort
         run: |
           poetry run isort . --check
@@ -60,24 +49,19 @@ jobs:
 
   unit-testing:
     needs: linting
-
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
     strategy:
       fail-fast: true
-      matrix:
-        os: [ "ubuntu-latest" ]
-
     env:
       DATABASE_TEST_USERNAME: "postgres"
       DATABASE_TEST_PASSWORD: "postgres"
       DATABASE_TEST_NAME: "postgres"
       DATABASE_TEST_HOST: "localhost"
       DATABASE_TEST_PORT: "5432"
-
     services:
       postgres:
         image: postgres:15
@@ -89,12 +73,7 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-    runs-on: ${{ matrix.os }}
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Install Poetry
@@ -108,13 +87,9 @@ jobs:
           cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
         run: poetry install
-      #----------------------------------------------
-      #    add matrix specifics and run test suite
-      #----------------------------------------------
       - name: Run tests
         run: |
           poetry run pytest
-
       - uses: actions/upload-artifact@v4
         with:
           name: coveragefile
@@ -123,14 +98,11 @@ jobs:
 
   code-coverage:
     needs: unit-testing
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/download-artifact@v4
       with:
         name: coveragefile
-
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
@@ -142,17 +114,12 @@ jobs:
 
   verify-build:
     needs: linting
-
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
-    runs-on: ubuntu-latest
     steps:
-      #----------------------------------------------
-      #       check-out repo and set-up python
-      #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v4
       - name: build to check strictness

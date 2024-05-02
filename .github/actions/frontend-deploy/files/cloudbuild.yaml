@@ -11,6 +11,7 @@ steps:
             docker build \
               -f Dockerfile-build \
               -t ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+              --build-arg NODE_VERSION=${_NODE_VERSION} \
               --cache-from ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:latest\
               .
             docker push ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
@@ -45,6 +46,7 @@ steps:
         docker build \
           -f Dockerfile-build \
           -t ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA} \
+          --build-arg NODE_VERSION=${_NODE_VERSION} \
           --cache-from ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:latest\
           .
         docker push ${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}:${_SHORT_SHA}
@@ -169,6 +171,7 @@ options:
   automapSubstitutions: true
   substitutionOption: "ALLOW_LOOSE"
 substitutions:
+  _NODE_VERSION: ${_NODE_VERSION}
   _APP_NAME: ${_APP_NAME}
   _BUILD_PROJECT: "c4hnrd-tools"
   _DEPLOYMENT_ENVIRONMENT: ${_DEPLOYMENT_ENVIRONMENT} #dev/test/sandbox/prod

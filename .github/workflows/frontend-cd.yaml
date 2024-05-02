@@ -6,6 +6,9 @@ on:
       target:
         required: true
         type: string
+      node_version:
+        type: string
+        default: "21"
       app_name:
         required: true
         type: string
@@ -23,7 +26,7 @@ jobs:
     # Only allow run the CD flow in protected branch
     if: github.ref_protected == true
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -61,7 +64,7 @@ jobs:
 
   deploy:
     needs: setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     environment:
       name: "${{ needs.setup.outputs.TARGET }}"
@@ -110,5 +113,5 @@ jobs:
 
           gcloud builds submit \
             --region=northamerica-northeast1 \
-            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_FROM="${{ needs.setup.outputs.DEPLOY_TARGET_FROM }}" \
+            --substitutions _SHORT_SHA=$SHORT_SHA,_NODE_VERSION="${{ inputs.node_version }}",_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_FROM="${{ needs.setup.outputs.DEPLOY_TARGET_FROM }}" \
             --config cloudbuild.yaml

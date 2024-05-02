@@ -3,6 +3,12 @@ name: Frontend Application CI
 on:
   workflow_call:
     inputs:
+      node_version:
+        type: string
+        default: "21"
+      pnpm_version:
+        type: string
+        default: "9"
       app_name:
         required: true
         type: string
@@ -13,85 +19,87 @@ on:
         type: string
 
 jobs:
-  linting:
-    strategy:
-      fail-fast: true
-      matrix:
-        os: [ "ubuntu-latest" ]
-        node-version: [20]
-        pnpm-version: [8]
-
-    runs-on: ${{ matrix.os }}
-
+  detemine-package-manager:
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
+    outputs:
+      PNPM: ${{ steps.check.outputs.PNPM }}
     steps:
       - uses: actions/checkout@v4
+      - id: check
+        name: Check PNPM package
+        run: |
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "PNPM=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "PNPM=no" >> "$GITHUB_OUTPUT"
+          fi
 
+  linting-pnpm:
+    needs: detemine-package-manager
+    if: ${{ needs.detemine-package-manager.outputs.PNPM == 'yes' }}
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["${{ inputs.node_version }}"]
+        pnpm-version: ["${{ inputs.pnpm_version }}"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
         name: Install pnpm
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Linting
         run: |
           pnpm run lint
 
-  unit-testing:
-    needs: linting
-
+  unit-testing-pnpm:
+    needs: linting-pnpm
     strategy:
       fail-fast: true
       matrix:
-        os: [ "ubuntu-latest" ]
-        node-version: [20]
-        pnpm-version: [8]
-
-    runs-on: ${{ matrix.os }}
-
+        node-version: ["${{ inputs.node_version }}"]
+        pnpm-version: ["${{ inputs.pnpm_version }}"]
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v3
         name: Install pnpm
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
-
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Testing
         run: |
           pnpm run test
-
       - uses: actions/upload-artifact@v4
         with:
           name: coveragefile
@@ -99,15 +107,12 @@ jobs:
           retention-days: 1
 
   code-coverage:
-    needs: unit-testing
-
+    needs: unit-testing-pnpm
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/download-artifact@v4
       with:
         name: coveragefile
-
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
@@ -118,41 +123,129 @@ jobs:
         fail_ci_if_error: false
 
   verify-build:
-    needs: linting
-
+    needs: linting-pnpm
     strategy:
       fail-fast: true
       matrix:
-        os: [ "ubuntu-latest" ]
-        node-version: [20]
-        pnpm-version: [8]
-
-    runs-on: ${{ matrix.os }}
-
+        node-version: ["${{ inputs.node_version }}"]
+        pnpm-version: ["${{ inputs.pnpm_version }}"]
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v3
         name: Install pnpm
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
-
       - name: Install dependencies
         run: pnpm install
-
       - name: Verify build
         run: |
           pnpm run build-check
+
+  linting-npm:
+    needs: detemine-package-manager
+    if: ${{ needs.detemine-package-manager.outputs.PNPM == 'no' }}
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["${{ inputs.node_version }}"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Linting
+        run: |
+          npm run lint
+
+  unit-testing-npm:
+    needs: linting-npm
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["${{ inputs.node_version }}"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Testing
+        run: |
+          npm run test
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coveragefile
+          path: ${{ inputs.working_directory }}/coverage.xml
+          retention-days: 1
+
+  code-coverage-npm:
+    needs: unit-testing-npm
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: coveragefile
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: coverage.xml
+        flags: ${{ inputs.codecov_flag }}
+        name: codecov-${{ inputs.app_name }}
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+
+  verify-build-npm:
+    needs: linting-npm
+    strategy:
+      fail-fast: true
+      matrix:
+        node-version: ["${{ inputs.node_version }}"]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working_directory }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Verify build
+        run: |
+          npm run build-check

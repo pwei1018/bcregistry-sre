@@ -137,7 +137,7 @@ steps:
       echo "npm build"
 
       npm ci
-      npm build
+      npm run build
     fi
 
     ls -la

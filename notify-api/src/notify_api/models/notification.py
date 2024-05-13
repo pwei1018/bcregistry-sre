@@ -21,7 +21,6 @@ from email_validator import EmailNotValidError, validate_email
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from notify_api.utils.base import BaseEnum
-from notify_api.utils.tracing import tracing
 from notify_api.utils.util import to_camel
 
 from .content import Content, ContentRequest
@@ -40,7 +39,6 @@ class NotificationRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @field_validator("recipients")
     @classmethod
-    @tracing
     def validate_recipients(cls, v_field):
         """Validate recipients."""
         if not v_field:
@@ -86,6 +84,7 @@ class Notification(db.Model):
         """Enum for the Notification Status."""
 
         PENDING = auto()
+        QUEUED = auto()
         SENT = auto()
         DELIVERED = auto()
         FAILURE = auto()
@@ -130,11 +129,11 @@ class Notification(db.Model):
         return notification_json
 
     @classmethod
-    def find_notification_by_id(cls, identifier: int = None):
+    def find_notification_by_id(cls, identifier: str = None):
         """Return a Notification by the id."""
         notification = None
         if identifier:
-            notification = cls.query.filter_by(id=identifier).one_or_none()
+            notification = cls.query.get(identifier)
 
         return notification
 
@@ -150,6 +149,7 @@ class Notification(db.Model):
     def find_resend_notifications(cls):
         """Return all Notifications that need to resend."""
         resend_statuses = (
+            Notification.NotificationStatus.QUEUED.value,
             Notification.NotificationStatus.PENDING.value,
             Notification.NotificationStatus.FAILURE.value,
         )

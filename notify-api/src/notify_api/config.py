@@ -29,11 +29,9 @@ class Config:  # pylint: disable=too-few-public-methods
     TESTING = False
     DEVELOPMENT = False
 
-    DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "GCP")
+    DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "gcp")
     DEPLOYMENT_PROJECT = os.getenv("DEPLOYMENT_PROJECT", "c4hnrd-dev")
-
     FLASK_PYDANTIC_VALIDATION_ERROR_RAISE = True
-
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ALEMBIC_INI = "migrations/alembic.ini"
 
@@ -42,36 +40,14 @@ class Config:  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv("NOTIFY_DATABASE_NAME", "")
     DB_HOST = os.getenv("NOTIFY_DATABASE_HOST", "")
     DB_PORT = os.getenv("NOTIFY_DATABASE_PORT", "5432")  # POSTGRESQL
+
     # POSTGRESQL
     if DB_UNIX_SOCKET := os.getenv("NOTIFY_DATABASE_UNIX_SOCKET", None):
-        SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@/{DB_NAME}?host={DB_UNIX_SOCKET}"
+        SQLALCHEMY_DATABASE_URI = (
+            f"postgresql+pg8000://{DB_USER}:{DB_PASSWORD}@/{DB_NAME}?unix_sock={DB_UNIX_SOCKET}/.s.PGSQL.5432"
+        )
     else:
-        SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-    # GC Notify
-    GC_NOTIFY_ENABLE = os.getenv("GC_NOTIFY_ENABLE", "True")
-    GC_NOTIFY_API_URL = os.getenv("GC_NOTIFY_API_URL", "")
-    GC_NOTIFY_API_KEY = os.getenv("GC_NOTIFY_API_KEY", "")
-    GC_NOTIFY_TEMPLATE_ID = os.getenv("GC_NOTIFY_TEMPLATE_ID", "")
-    GC_NOTIFY_SMS_TEMPLATE_ID = os.getenv("GC_NOTIFY_SMS_TEMPLATE_ID", "")
-    GC_NOTIFY_EMAIL_REPLY_TO_ID = os.getenv("GC_NOTIFY_EMAIL_REPLY_TO_ID", "")
-
-    # Email SMTP
-    MAIL_SERVER = os.getenv("MAIL_SERVER", "")
-    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD", "")
-    MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "")
-    MAIL_USE_SSL = os.getenv("MAIL_USE_SSL", "")
-    MAIL_PORT = int(os.getenv("MAIL_PORT", "25"))
-    MAIL_USERNAME = os.getenv("MAIL_USERNAME", "")
-    MAIL_FROM_ID = os.getenv("MAIL_FROM_ID", "")
-    MAIL_DEBUG = os.getenv("MAIL_DEBUG", "False")
-
-    # NOTIFY API - OCP Version
-    NOTIFY_API_URL = os.getenv("NOTIFY_API_URL", "")
-    NOTIFY_API_VERSION = os.getenv("NOTIFY_API_VERSION", "")
-    NOTIFY_API_VERSION_2 = os.getenv("NOTIFY_API_VERSION_2", "")
-    NOTIFY_API = f"{NOTIFY_API_URL + NOTIFY_API_VERSION}/notify/"
-    NOTIFY_API_V2 = f"{NOTIFY_API_URL + NOTIFY_API_VERSION_2}/notify/"
+        SQLALCHEMY_DATABASE_URI = f"postgresql+pg8000://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     # MILLIONVERIFIER
     MILLIONVERIFIER_API_URL = os.getenv("MILLIONVERIFIER_API_URL", "")
@@ -90,6 +66,13 @@ class Config:  # pylint: disable=too-few-public-methods
         JWT_OIDC_JWKS_CACHE_TIMEOUT = int(os.getenv("JWT_OIDC_JWKS_CACHE_TIMEOUT"))
     except (TypeError, ValueError):
         JWT_OIDC_JWKS_CACHE_TIMEOUT = 300
+
+    # PUBSUB
+    GCP_AUTH_KEY = os.getenv("GCP_AUTH_KEY", "")
+    AUDIENCE = os.getenv("AUDIENCE", "https://pubsub.googleapis.com/google.pubsub.v1.Subscriber")
+    PUBLISHER_AUDIENCE = os.getenv("PUBLISHER_AUDIENCE", "https://pubsub.googleapis.com/google.pubsub.v1.Publisher")
+    NOTIFY_DELIVERY_GCNOTIFY_TOPIC = os.getenv("DELIVERY_GCNOTIFY_TOPIC", "")
+    NOTIFY_DELIVERY_SMTP_TOPIC = os.getenv("DELIVERY_SMTP_TOPIC", "")
 
 
 class ProductionConfig(Config):  # pylint: disable=too-few-public-methods
@@ -124,8 +107,6 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     DEVELOPMENT = False
     TESTING = True
     DEBUG = True
-    TRACING_ENABLE = None
-    TRACING_DB_ENABLE = None
 
     # POSTGRESQL
     DB_USER = os.getenv("DATABASE_TEST_USERNAME", "")
@@ -133,11 +114,7 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv("DATABASE_TEST_NAME", "")
     DB_HOST = os.getenv("DATABASE_TEST_HOST", "")
     DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
-
-    if DB_UNIX_SOCKET := os.getenv("DATABASE_UNIX_SOCKET", None):
-        SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@/{DB_NAME}?host={DB_UNIX_SOCKET}"
-    else:
-        SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     LD_SDK_KEY = os.getenv("LD_SDK_KEY", None)
     SECRET_KEY = "a secret"

@@ -14,7 +14,4 @@
 """Exposes all of the resource endpoints mounted in Flask-Blueprints."""
 from .callback import bp as callback_bp_v2
 from .email_validation import bp as email_validation_bp_v2
-from .meta import bp as meta_bp_v2
-from .notify import bp as notify_bp_v2
-from .ops import bp as ops_bp_v2
 from .safe_list import bp as safe_list_bp_v2

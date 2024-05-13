@@ -1,0 +1,100 @@
+# Copyright 2022 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: dev
+description: Dev Environment
+deployParameters:
+  deploy-project-id: "c4hnrd-dev"
+  service-name: "notify-delivery-dev"
+  container-name: "notify-delivery-dev"
+  app-env: "dev"
+  cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-db-dev"
+  service-account: "sa-pubsub@c4hnrd-dev.iam.gserviceaccount.com"
+run:
+ location: projects/c4hnrd-dev/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: test
+description: Test Environment
+deployParameters:
+  deploy-project-id: "c4hnrd-test"
+  service-name: "notify-delivery-test"
+  container-name: "notify-delivery-test"
+  app-env: "test"
+  cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
+  service-account: "sa-pubsub@c4hnrd-test.iam.gserviceaccount.com"
+run:
+ location: projects/c4hnrd-test/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: sandbox
+description: Sandbox Environment
+requireApproval: true
+deployParameters:
+  deploy-project-id: "c4hnrd-sandbox"
+  service-name: "notify-delivery-sandbox"
+  container-name: "notify-delivery-sandbox"
+  app-env: "sandbox"
+  cloudsql-instances: "c4hnrd-sandbox:northamerica-northeast1:notify-db-sandbox"
+  service-account: "sa-pubsub@c4hnrd-sandbox.iam.gserviceaccount.com"
+  max-scale: "3"
+  container-concurrency: "7"
+  container-port: "8080"
+  resources-cpu: "1000m"
+  resources-memory: "512Mi"
+run:
+ location: projects/c4hnrd-integration/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
+---
+
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+ name: prod
+description: Production Environment
+requireApproval: true
+deployParameters:
+  deploy-project-id: "c4hnrd-prod"
+  service-name: "notify-delivery-prod"
+  container-name: "notify-delivery-prod"
+  app-env: "production"
+  cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-db-prod"
+  service-account: "sa-pubsub@c4hnrd-prod.iam.gserviceaccount.com"
+  max-scale: "3"
+  container-concurrency: "7"
+  container-port: "8080"
+  resources-cpu: "1000m"
+  resources-memory: "512Mi"
+run:
+ location: projects/c4hnrd-prod/locations/northamerica-northeast1
+executionConfigs:
+- usages: [DEPLOY, RENDER]
+  artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'

@@ -15,7 +15,6 @@
 from http import HTTPStatus
 from unittest.mock import patch
 
-from notify_api.errors import NotifyException
 from notify_api.services.notify_service import NotifyService
 from notify_api.utils.enums import Role
 from tests.factories.content import ContentFactory
@@ -121,7 +120,7 @@ def test_send_email(session, app, client, jwt, monkeypatch):  # pylint: disable=
         notification = NotificationFactory.create_model(session, notification_info=notification_data)
         ContentFactory.create_model(session, notification.id, content_info=notification_data["content"])
 
-        with patch.object(NotifyService, "notify", return_value=notification):
+        with patch.object(NotifyService, "queue_publish", return_value=notification):
             res = client.post("/api/v1/notify", json=notification_data, headers=headers)
             assert res.status_code == HTTPStatus.OK
             assert notification_data["recipients"] == res.json["recipients"]
@@ -134,11 +133,3 @@ def test_send_email_with_bad_data(session, app, jwt, client):  # pylint: disable
     for notification_data in list(NotificationFactory.RequestBadData):
         res = client.post("/api/v1/notify/", json=notification_data, headers=headers)
         assert res.status_code == HTTPStatus.BAD_REQUEST
-
-
-def test_send_email_exception(session, app, jwt, client):  # pylint: disable=unused-argument
-    """Assert the test can not be create notification."""
-    with patch.object(NotifyService, "notify", side_effect=NotifyException(error="mocked error", status_code=500)):
-        headers = create_header(jwt, [Role.SYSTEM.value], **{"Accept-Version": "v1"})
-        res = client.post("/api/v1/notify/", json=NotificationFactory.RequestData.REQUEST_1, headers=headers)
-        assert res.status_code == HTTPStatus.INTERNAL_SERVER_ERROR

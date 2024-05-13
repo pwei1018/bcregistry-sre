@@ -20,19 +20,15 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate, upgrade
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
-from opentelemetry.instrumentation.requests import RequestsInstrumentor
-from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 
 from notify_api import errorhandlers, models
 from notify_api.config import config
-from notify_api.metadata import APP_NAME, APP_RUNNING_ENVIRONMENT, APP_RUNNING_PROJECT
+from notify_api.metadata import APP_RUNNING_ENVIRONMENT
 from notify_api.models import db
-from notify_api.resources import TRACING_EXCLUED_URLS, v1_endpoint, v2_endpoint
-from notify_api.translations import babel
+from notify_api.resources import meta_endpoint, ops_endpoint, v1_endpoint, v2_endpoint
+from notify_api.services.gcp_queue import queue
 from notify_api.utils.auth import jwt
 from notify_api.utils.logging import logger, setup_logging
-from notify_api.utils.tracing import init_trace
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))  # important to do this first
 
@@ -45,26 +41,21 @@ def create_app(service_environment=APP_RUNNING_ENVIRONMENT, **kwargs):
     app.url_map.strict_slashes = False
 
     errorhandlers.init_app(app)
+
     db.init_app(app)
     Migrate(app, db)
-
     logger.info("Running migration upgrade.")
     with app.app_context():
         upgrade(directory="migrations", revision="head", sql=False, tag=None)
+
     # Alembic has it's own logging config, we'll need to restore our logging here.
     setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))
     logger.info("Finished migration upgrade.")
 
-    if app.config.get("TRACING_ENABLE", None):
-        init_trace(service_name=APP_NAME, service_environment=service_environment, service_project=APP_RUNNING_PROJECT)
-        with app.app_context():
-            app.wsgi_app = OpenTelemetryMiddleware(app.wsgi_app)
+    queue.init_app(app)
 
-        FlaskInstrumentor().instrument_app(app, excluded_urls=",".join(TRACING_EXCLUED_URLS))
-        RequestsInstrumentor().instrument()
-
-    babel.init_app(app)
-
+    meta_endpoint.init_app(app)
+    ops_endpoint.init_app(app)
     v1_endpoint.init_app(app)
     v2_endpoint.init_app(app)
 

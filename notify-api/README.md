@@ -31,14 +31,19 @@ Run `poetry shell`
 ### Bump version
 Run `poetry version (patch, minor, major, prepatch, preminor, premajor, prerelease)`
 
+### Running the db migration
+Run `poetry run flask db migrate -m "xxx"`
+Run `poetry run flask db upgrade`
+Run `poetry run flask db downgrade`
+
 ### Running the Notify-API
 Run `poetry run flask run`
 
 ### Running Linting
 Run `poetry run isort . --check`
 Run `poetry run black . --check`
-Run `poetry run pylint .`
-Run `poetry run flake8 .`
+Run `poetry run pylint src`
+Run `poetry run flake8 src`
 
 ### Running Unit Tests
 - For all tests run `poetry run pytest -v -s`

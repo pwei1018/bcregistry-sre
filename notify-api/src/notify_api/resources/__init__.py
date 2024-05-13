@@ -13,25 +13,31 @@
 # limitations under the License.
 """Exposes all of the resource endpoints mounted in Flask-Blueprint style."""
 from .constants import EndpointVersionPath
-from .v1 import meta_bp, notify_bp, ops_bp
-from .v2 import callback_bp_v2, email_validation_bp_v2, meta_bp_v2, notify_bp_v2, ops_bp_v2, safe_list_bp_v2
+from .meta import meta_bp
+from .ops import ops_bp
+from .v1 import notify_bp
+from .v2 import callback_bp_v2, email_validation_bp_v2, safe_list_bp_v2
 from .version_endpoint import VersionEndpoint
 
+meta_endpoint = VersionEndpoint(
+    name="META", path=EndpointVersionPath.META, bps=[meta_bp]
+)  # pylint: disable=invalid-name
+
+ops_endpoint = VersionEndpoint(name="OPS", path=EndpointVersionPath.OPS, bps=[ops_bp])  # pylint: disable=invalid-name
+
 v1_endpoint = VersionEndpoint(  # pylint: disable=invalid-name
-    name="API_V1", path=EndpointVersionPath.API_V1, bps=[meta_bp, notify_bp, ops_bp]
+    name="API_V1", path=EndpointVersionPath.API_V1, bps=[notify_bp]
 )
 
 v2_endpoint = VersionEndpoint(  # pylint: disable=invalid-name
     name="API_V2",
     path=EndpointVersionPath.API_V2,
-    bps=[meta_bp_v2, notify_bp_v2, ops_bp_v2, email_validation_bp_v2, safe_list_bp_v2, callback_bp_v2],
+    bps=[email_validation_bp_v2, safe_list_bp_v2, callback_bp_v2],
 )
 
 TRACING_EXCLUED_URLS = [
-    "/api/v1/meta",
-    "/api/v1/ops",
-    "/api/v2/meta",
-    "/api/v2/ops",
+    "/meta",
+    "/ops",
     "/api/v2/callback",
     "/api/v2/email_validation",
     "/api/v2/safe_list",

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """API endpoints for receive callback message from GC Notify."""
+import sys
 from http import HTTPStatus
 
 from flask import Blueprint
@@ -41,10 +42,8 @@ def callback(body: CallbackRequest):  # pylint: disable=unused-argument
         # Production history won't have records from Dev and Test.
         if history:
             history.gc_notify_status = body.status
-
             history.update()
 
-    except Exception as err:  # NOQA # pylint: disable=broad-except
-        logger.error(f"Callback error {err}", additional=True)
-
+    except Exception as err:  # NOQA # pylint: disable=broad-except,unused-variable
+        logger.error(f"Callback error {sys.exc_info()}")
     return {}, HTTPStatus.OK

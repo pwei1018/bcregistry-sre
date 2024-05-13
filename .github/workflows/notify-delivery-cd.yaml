@@ -1,0 +1,30 @@
+name: Notify Delivery CD GCP
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "notify-delivery/**"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Deploy To"
+        required: true
+        type: choice
+        options:
+        - dev
+        - test
+        - sandbox
+        - prod
+
+jobs:
+  notify-delivery-cd:
+    uses: bcgov/bcregistry-sre/.github/workflows/cloud-run-service-cd.yaml@main
+    with:
+      target: ${{ inputs.target }}
+      app_name: "notify-delivery"
+      working_directory: "./notify-delivery"
+    secrets:
+      WORKLOAD_IDENTIFY_POOLS_PROVIDER: ${{ secrets.WORKLOAD_IDENTIFY_POOLS_PROVIDER }}
+      GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}

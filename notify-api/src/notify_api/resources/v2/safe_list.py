@@ -40,6 +40,23 @@ def safe_list(body: SafeListRequest):  # pylint: disable=unused-argument
     return {}, HTTPStatus.OK
 
 
+@bp.route('/<string:email>', methods=['DELETE'])
+@jwt.requires_auth
+@jwt.has_one_of_roles([Role.SYSTEM.value, Role.STAFF.value])
+@validate()
+def delete_email(email: str):
+    if SafeList.is_in_safe_list(email):
+        email_to_delete = SafeList(email=email)
+        try:
+            email_to_delete.delete_email()
+        except Exception as err:  # NOQA # pylint: disable=broad-except
+            logger.debug(err)
+    else:
+       logger.debug("Email not found in safe list.")
+
+    return {}, HTTPStatus.OK
+
+
 @bp.route("/", methods=["OPTIONS"])
 @validate()
 def get_safe_list_preflight():

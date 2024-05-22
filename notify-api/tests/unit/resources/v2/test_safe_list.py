@@ -13,6 +13,8 @@
 # limitations under the License.
 """Tests to assure the safe list end-point."""
 
+import json
+
 from notify_api.models.safe_list import SafeList
 from notify_api.utils.enums import Role
 from tests.factories.jwt import create_header
@@ -29,3 +31,14 @@ def test_safe_list(session, client, jwt):  # pylint: disable=unused-argument
     assert response.json
     assert len(response.json) == 2
     assert response.json[0]["email"] == "hello@gogo.com"
+    response = client.delete(f'/api/v2/safe_list/{"hello@gogo.com"}', headers=headers)
+    assert response.status_code == 200
+    assert response.json
+    assert len(response.json) == 1
+    assert response.json[0]["email"] == "hello@gogo2.com"
+    request_json = json.dumps({"email": ["hello@gogo.com"]})
+    response = client.post("/api/v2/safe_list", json=request_json, headers=headers)
+    assert response.status_code == 200
+    assert response.json
+    assert len(response.json) == 2
+    assert response.json[0]["email"] == "hello@gogo2.com"

@@ -31,14 +31,19 @@ def test_safe_list(session, client, jwt):  # pylint: disable=unused-argument
     assert response.json
     assert len(response.json) == 2
     assert response.json[0]["email"] == "hello@gogo.com"
-    response = client.delete(f'/api/v2/safe_list/{"hello@gogo.com"}', headers=headers)
-    assert response.status_code == 200
-    assert response.json
-    assert len(response.json) == 1
-    assert response.json[0]["email"] == "hello@gogo2.com"
+    del_response = client.delete(f'/api/v2/safe_list/{"hello@gogo.com"}', headers=headers)
+    assert del_response.status_code == 200
+    get_response = client.get("/api/v2/safe_list/", headers=headers)
+    assert get_response.status_code == 200
+    assert get_response.json
+    assert len(get_response.json) == 1
+    assert get_response.json[0]["email"] == "hello@gogo2.com"
     request_json = json.dumps({"email": ["hello@gogo.com"]})
-    response = client.post("/api/v2/safe_list", json=request_json, headers=headers)
-    assert response.status_code == 200
-    assert response.json
-    assert len(response.json) == 2
-    assert response.json[0]["email"] == "hello@gogo2.com"
+    add_response = client.post("/api/v2/safe_list", json=request_json, headers=headers)
+    assert add_response.status_code == 200
+    assert add_response.json == {}
+    get_response = client.get("/api/v2/safe_list/", headers=headers)
+    assert get_response.status_code == 200
+    assert get_response.json
+    assert len(get_response.json) == 2
+    assert get_response.json[0]["email"] == "hello@gogo2.com"

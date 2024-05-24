@@ -45,15 +45,13 @@ def safe_list(body: SafeListRequest):  # pylint: disable=unused-argument
 @jwt.has_one_of_roles([Role.SYSTEM.value, Role.STAFF.value])
 @validate()
 def delete_email(email: str):
-    if SafeList.is_in_safe_list(email):
-        email_to_delete = SafeList(email=email)
-        try:
-            email_to_delete.delete_email()
-        except Exception as err:  # NOQA # pylint: disable=broad-except
-            logger.debug(err)
-    else:
+    if not SafeList.is_in_safe_list(email):
         logger.debug("Email not found in safe list.")
-
+        return {}, HTTPStatus.OK
+    try:
+        SafeList.delete_email(email)
+    except Exception as err:  # NOQA # pylint: disable=broad-except
+        logger.debug(err)
     return {}, HTTPStatus.OK
 
 

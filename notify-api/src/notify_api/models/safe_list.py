@@ -72,7 +72,9 @@ class SafeList(db.Model):
         safe_emails = cls.query.all()
         return safe_emails
 
-    def delete_email(self):
+    @classmethod
+    def delete_email(cls, email: str):
         """delete email from safe list."""
-        db.session.delete(self)
+        db_email = SafeList(email=email)
+        db.session.delete(db_email)
         db.session.commit()

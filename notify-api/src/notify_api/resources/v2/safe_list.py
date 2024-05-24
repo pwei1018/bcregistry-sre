@@ -49,7 +49,8 @@ def delete_email(email: str):
         logger.debug("Email not found in safe list.")
         return {}, HTTPStatus.OK
     try:
-        SafeList.delete_email(email)
+        safe_list = SafeList.find_by_email(email)
+        safe_list.delete_email()
     except Exception as err:  # NOQA # pylint: disable=broad-except
         logger.debug(err)
     return {}, HTTPStatus.OK

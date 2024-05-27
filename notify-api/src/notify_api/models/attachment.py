@@ -34,7 +34,7 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     file_name: str = Field(alias="fileName")
     file_bytes: str | None = Field(default=None, alias="fileBytes")
     file_url: str | None = Field(default=None, alias="fileUrl")
-    attach_order: str = Field(alias="attachOrder")
+    attach_order: str = Field(alias="attachOrder", coerce_numbers_to_str=True)
 
     @field_validator("file_name")
     @classmethod

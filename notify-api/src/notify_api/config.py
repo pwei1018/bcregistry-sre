@@ -28,8 +28,6 @@ class Config:  # pylint: disable=too-few-public-methods
     DEBUG = False
     TESTING = False
     DEVELOPMENT = False
-    TRACING_ENABLE = os.getenv("TRACING_ENABLE", None)
-    TRACING_DB_ENABLE = os.getenv("TRACING_DB_ENABLE", None)
 
     DEPLOYMENT_PLATFORM = os.getenv("DEPLOYMENT_PLATFORM", "GCP")
     DEPLOYMENT_PROJECT = os.getenv("DEPLOYMENT_PROJECT", "c4hnrd-dev")

@@ -1190,7 +1190,7 @@ requests = ">=2.0.0"
 
 [[package]]
 name = "notify-api"
-version = "2.2.0"
+version = "3.0.0"
 description = ""
 optional = false
 python-versions = "^3.12"
@@ -1221,7 +1221,7 @@ structured-logging = {git = "https://github.com/bcgov/sbc-connect-common.git", b
 type = "git"
 url = "https://github.com/pwei1018/bcregistry-sre.git"
 reference = "notify-pubsub"
-resolved_reference = "d2563c080523b68e075d0c5da2217aa4e3de68b2"
+resolved_reference = "3d44e1600bfb3e01d7822b09ea2e2649f35848d4"
 subdirectory = "notify-api"
 
 [[package]]
@@ -1740,13 +1740,13 @@ files = [
 
 [[package]]
 name = "requests"
-version = "2.32.2"
+version = "2.32.3"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "requests-2.32.2-py3-none-any.whl", hash = "sha256:fc06670dd0ed212426dfeb94fc1b983d917c4f9847c863f313c9dfaaffb7c23c"},
-    {file = "requests-2.32.2.tar.gz", hash = "sha256:dd951ff5ecf3e3b3aa26b40703ba77495dab41da839ae72ef3c8e5d8e2433289"},
+    {file = "requests-2.32.3-py3-none-any.whl", hash = "sha256:70761cfe03c773ceb22aa2f671b4757976145175cdfca038c02654d061d6dcc6"},
+    {file = "requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760"},
 ]
 
 [package.dependencies]
@@ -2119,4 +2119,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "e53c1594e7879fdb3d7d1d67d569d9cdac896eff4dec8c6e496ba07ebb44a006"
+content-hash = "05b51a41965151388826fec81c3b63c5e11f1906dd56d74136f55f552989158a"

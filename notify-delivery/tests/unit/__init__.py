@@ -37,7 +37,6 @@ import json
 from random import randrange
 from unittest.mock import Mock
 
-from sbc_common_components.utils.enums import QueueMessageTypes
 from simple_cloudevent import SimpleCloudEvent, to_queue_message
 
 from tests import EPOCH_DATETIME
@@ -72,7 +71,7 @@ def helper_create_cloud_event_envelope(
     cloud_event_id: str = None,
     source: str = "fake-for-tests",
     subject: str = "fake-subject",
-    type: str = QueueMessageTypes.NAMES_MESSAGE_TYPE.value,
+    type: str = "fake-message-type",
     data: dict = {},
     pubsub_project_id: str = "PUBSUB_PROJECT_ID",
     subscription_id: str = "SUBSCRIPTION_ID",
@@ -81,6 +80,7 @@ def helper_create_cloud_event_envelope(
     attributes: dict = {},
     ce: SimpleCloudEvent = None,
 ):
+    """Create cloud Event envelope helper."""
     if not data:
         data = {
             "email": {
@@ -108,10 +108,11 @@ def helper_create_cloud_event(
     cloud_event_id: str = None,
     source: str = "fake-for-tests",
     subject: str = "fake-subject",
-    type: str = QueueMessageTypes.PAYMENT.value,
+    type: str = "fake-type",
     data: dict = {},
 ):
+    """Create cloud Event helper."""
     if not data:
-        data = {"id": "29590", "statusCode": "COMPLETED", "corpTypeCode": "BC"}
+        data = {"notificationId": "29590"}
     ce = SimpleCloudEvent(id=cloud_event_id, source=source, subject=subject, type=type, data=data)
     return ce

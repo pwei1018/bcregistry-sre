@@ -12,6 +12,7 @@ python = "^3.12"
 notify-api = { git = "https://github.com/pwei1018/bcregistry-sre.git", subdirectory = "notify-api",  branch = "notify-pubsub" }
 
 [tool.poetry.group.dev.dependencies]
+psycopg2 = "^2.9.9"
 pytest = "^8.2.1"
 pytest-mock = "^3.14.0"
 pytest-cov = "^4.1.0"

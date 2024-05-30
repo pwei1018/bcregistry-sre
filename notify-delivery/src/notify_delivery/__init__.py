@@ -25,8 +25,8 @@ from notify_api.utils.logging import setup_logging
 
 from notify_delivery.config import config
 from notify_delivery.metadata import APP_RUNNING_ENVIRONMENT
-from notify_delivery.services.gcp_queue import queue
 from notify_delivery.resources import register_endpoints
+from notify_delivery.services.gcp_queue import queue
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))  # important to do this first
 

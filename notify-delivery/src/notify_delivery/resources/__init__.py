@@ -13,7 +13,6 @@
 # limitations under the License.
 """Resource package for the pay-queue service."""
 from flask import Flask
-
 from notify_api.resources.ops.ops import bp as ops_bp
 
 from notify_delivery.resources.email_smtp import bp as smtp_endpoint

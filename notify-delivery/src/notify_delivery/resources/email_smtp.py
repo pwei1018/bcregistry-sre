@@ -43,28 +43,7 @@ def worker():
     try:
         logger.info(f"Event Message Received: {ce}")
         if ce.type == "bc.registry.notify.smtp":
-            notification_data = ce.data["notificationRequest"]
-            notification_provider = ce.data["notificationProvider"]
-
-            if not notification_data:
-                raise Exception("Notification data not found.")  # pylint: disable=broad-exception-raised
-
-            notification_request = NotificationRequest.model_validate_json(notification_data)
-            notification: Notification = Notification.create_notification(notification_request)
-            notification.status_code = Notification.NotificationStatus.SENT
-            notification.provider_code = notification_provider
-            notification.sent_date = datetime.now(timezone.utc)
-            notification.update_notification()
-
-            responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
-
-            if responses:
-                for response in responses.recipients:
-                    # save to history as per recipient
-                    NotificationHistory.create_history(notification, response.recipient, response.response_id)
-
-                # clean notification record
-                notification.delete_notification()
+            process_message(ce.data)
         else:
             raise Exception("Invalid queue message type")  # pylint: disable=broad-exception-raised
 
@@ -74,3 +53,45 @@ def worker():
         logger.error(f"Failed to process queue message: {sys.exc_info()}")
         # Optionally, return an error status code or message
         return {}, HTTPStatus.OK
+
+
+def process_message(data: dict) -> NotificationHistory | Notification:
+    """Delivery message through GC Notify service."""
+    history: NotificationHistory = None
+
+    if "notificationRequest" not in data or not data["notificationRequest"]:
+        raise Exception("Notification data not found.")  # pylint: disable=broad-exception-raised
+
+    if "notificationProvider" not in data or not data["notificationProvider"]:
+        raise Exception("Notification provider not found.")  # pylint: disable=broad-exception-raised
+
+    notification_data = data["notificationRequest"]
+    notification_provider = data["notificationProvider"]
+
+    if notification_provider != Notification.NotificationProvider.SMTP:
+        raise Exception("Notification provider is incorrect.")  # pylint: disable=broad-exception-raised
+
+    # create notificaiton record in OCP database
+    notification_request = NotificationRequest.model_validate_json(notification_data)
+    notification: Notification = Notification.create_notification(notification_request)
+    notification.status_code = Notification.NotificationStatus.SENT
+    notification.provider_code = notification_provider
+    notification.sent_date = datetime.now(timezone.utc)
+    notification.update_notification()
+
+    responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
+
+    if responses:
+        for response in responses.recipients:
+            # save to history as per recipient
+            history = NotificationHistory.create_history(notification, response.recipient, response.response_id)
+
+        # clean notification record
+        notification.delete_notification()
+    else:
+        notification.status_code = Notification.NotificationStatus.FAILURE
+        notification.update_notification()
+
+        return notification
+
+    return history

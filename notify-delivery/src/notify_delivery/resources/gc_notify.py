@@ -13,6 +13,7 @@
 # limitations under the License.
 """Worker resource to handle incoming queue pushes from gcp."""
 import sys
+from datetime import datetime, timezone
 from http import HTTPStatus
 
 from flask import Blueprint, request
@@ -40,30 +41,7 @@ def worker():
     try:
         logger.info(f"Event Message Received: {ce}")
         if ce.type == "bc.registry.notify.gc_notify":
-            # Delivery message through GC Notify service.
-            notification_id = ce.data["notificationId"]
-            notification: Notification = Notification.find_notification_by_id(notification_id)
-            if notification is None:
-                raise Exception(  # pylint: disable=broad-exception-raised
-                    f"Unknown notification for notificationId {notification_id}"
-                )
-
-            if notification.status_code != Notification.NotificationStatus.QUEUED:
-                raise Exception(  # pylint: disable=broad-exception-raised
-                    f"Notification status is not {notification.status_code}"
-                )
-
-            responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
-
-            if responses:
-                for response in responses.recipients:
-                    # save to history as per recipient
-                    NotificationHistory.create_history(notification, response.recipient, response.response_id)
-            else:
-                NotificationHistory.create_history(notification)
-
-            # clean notification record
-            notification.delete_notification()
+            process_message(ce.data)
         else:
             raise Exception("Invalid queue message type")  # pylint: disable=broad-exception-raised
 
@@ -74,3 +52,38 @@ def worker():
         logger.error(f"Failed to process queue message: {sys.exc_info()}")
         # Optionally, return an error status code or message
         return {}, HTTPStatus.OK
+
+
+def process_message(data: dict) -> NotificationHistory | Notification:
+    """Delivery message through GC Notify service."""
+    history: NotificationHistory = None
+
+    notification_id = data["notificationId"]
+    notification: Notification = Notification.find_notification_by_id(notification_id)
+
+    if notification is None:
+        raise Exception(  # pylint: disable=broad-exception-raised
+            f"Unknown notification for notificationId {notification_id}"
+        )
+
+    if notification.status_code != Notification.NotificationStatus.QUEUED:
+        raise Exception(  # pylint: disable=broad-exception-raised
+            f"Notification status is not {notification.status_code}"
+        )
+
+    responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
+
+    if responses:
+        for response in responses.recipients:
+            # save to history as per recipient
+            history = NotificationHistory.create_history(notification, response.recipient, response.response_id)
+
+        # clean notification record
+        notification.delete_notification()
+    else:
+        notification.status_code = Notification.NotificationStatus.FAILURE
+        notification.update_notification()
+
+        return notification
+
+    return history

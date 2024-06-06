@@ -13,6 +13,7 @@
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
 import datetime
+import os
 from contextlib import contextmanager
 
 import pytest
@@ -62,6 +63,21 @@ def app():
 def client(app):  # pylint: disable=redefined-outer-name
     """Return a session-wide Flask test client."""
     return app.test_client()
+
+
+@pytest.fixture(scope="session")
+def app_smtp():
+    """Return a session-wide application configured in TEST mode."""
+    _app = create_app("unitTestingSMTP")
+
+    with _app.app_context():
+        yield _app
+
+
+@pytest.fixture(scope="function")
+def client_smtp(app_smtp):  # pylint: disable=redefined-outer-name
+    """Return a session-wide Flask test client."""
+    return app_smtp.test_client()
 
 
 @pytest.fixture(scope="session")

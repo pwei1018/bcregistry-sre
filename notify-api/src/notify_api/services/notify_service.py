@@ -77,7 +77,6 @@ class NotifyService:
             }
 
             if provider == Notification.NotificationProvider.SMTP:
-                notification_status = Notification.NotificationStatus.FORWARDED
                 deliery_topic = current_app.config.get("NOTIFY_DELIVERY_SMTP_TOPIC")
                 data = {
                     "notificationId": notification.id,
@@ -105,6 +104,8 @@ class NotifyService:
         if not is_safe_to_send or provider == Notification.NotificationProvider.SMTP:
             # recipint is not in the safe list (dev or test);
             # SMTP service handle by OpenShift;
+            if provider == Notification.NotificationProvider.SMTP:
+                notification.status_code = Notification.NotificationStatus.FORWARDED
             notification_history: NotificationHistory = NotificationHistory.create_history(notification)
             notification.delete_notification()
             return notification_history

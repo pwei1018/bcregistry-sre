@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """The Test Suites to ensure that the service is built and operating correctly."""
+import collections
 import datetime
+import time
+from typing import Dict, List
 
-EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
-FROZEN_DATETIME = datetime.datetime(2001, 8, 5, 7, 7, 58, 272362)
+EPOCH_DATETIME = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
+FROZEN_DATETIME = datetime.datetime(2001, 8, 5, 7, 7, 58, 272362).replace(tzinfo=datetime.timezone.utc)
+FROZEN_2018_DATETIME = datetime.datetime(2018, 12, 25, 0, 0, 50, 0).replace(tzinfo=datetime.timezone.utc)
+TIMEZONE_OFFSET = time.timezone / 60 / 60 if time.timezone else 0
 
 
 def add_years(d, years):
@@ -31,14 +36,44 @@ def add_years(d, years):
         return d + (datetime.date(d.year + years, 3, 1) - datetime.date(d.year, 3, 1))
 
 
-class MockResponse:
-    """Mock Response."""
+def strip_keys_from_dict(orig_dict: Dict, keys: List) -> Dict:
+    """Return a deep copy of the dict with the keys stripped out."""
+    try:
+        collections_abc = collections.abc
+    except AttributeError:
+        collections_abc = collections
 
-    def __init__(self, json_data, status_code):
-        """Mock Response __init__."""
-        self.json_data = json_data
-        self.status_code = status_code
+    def del_key_in_dict(orig_dict, keys):
+        """Remove keys from dictionaires."""
+        modified_dict = {}
+        for key, value in orig_dict.items():
+            if key not in keys:
+                if isinstance(value, collections_abc.MutableMapping):  # or
+                    modified_dict[key] = del_key_in_dict(value, keys)
+                elif isinstance(value, collections_abc.MutableSequence):
+                    if rv := scan_list(value, keys):
+                        modified_dict[key] = rv
+                else:
+                    modified_dict[key] = value  # or copy.deepcopy(value) if a copy is desired for non-dicts.
+        return modified_dict
 
-    def json(self):
-        """Mock Response json."""
-        return self.json_data
+    def scan_list(orig_list, keys):
+        """Remove keys from lists."""
+        modified_list = []
+        for item in orig_list:
+            if isinstance(item, collections_abc.MutableMapping):
+                if rv := del_key_in_dict(item, keys):
+                    modified_list.append(rv)
+            elif isinstance(item, collections_abc.MutableSequence):
+                if rv := scan_list(item, keys):
+                    modified_list.append(rv)
+            else:
+                try:
+                    if item not in keys:
+                        modified_list.append(item)
+                except:  # noqa: E722  # pylint: disable=bare-except
+                    modified_list.append(item)
+        return modified_list
+
+    key_set = set(keys)
+    return del_key_in_dict(orig_dict, key_set)

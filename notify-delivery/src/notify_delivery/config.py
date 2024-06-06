@@ -108,6 +108,7 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     DEVELOPMENT = False
     TESTING = True
     DEBUG = True
+    DEPLOYMENT_PLATFORM = "GCP"
 
     # POSTGRESQL
     DB_USER = os.getenv("DATABASE_TEST_USERNAME", "")
@@ -116,6 +117,25 @@ class UnitTestingConfig(Config):  # pylint: disable=too-few-public-methods
     DB_HOST = os.getenv("DATABASE_TEST_HOST", "")
     DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
     SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    print(SQLALCHEMY_DATABASE_URI)
+
+
+class UnitTestingSMTPConfig(Config):  # pylint: disable=too-few-public-methods
+    """Config object for unit testing environment."""
+
+    DEVELOPMENT = False
+    TESTING = True
+    DEBUG = True
+    DEPLOYMENT_PLATFORM = "OCP"
+
+    # POSTGRESQL
+    DB_USER = os.getenv("DATABASE_TEST_USERNAME", "")
+    DB_PASSWORD = os.getenv("DATABASE_TEST_PASSWORD", "")
+    DB_NAME = os.getenv("DATABASE_TEST_NAME", "")
+    DB_HOST = os.getenv("DATABASE_TEST_HOST", "")
+    DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    print(SQLALCHEMY_DATABASE_URI)
 
 
 config = {
@@ -124,4 +144,5 @@ config = {
     "sandbox": SandboxConfig,
     "production": ProductionConfig,
     "unitTesting": UnitTestingConfig,
+    "unitTestingSMTP": UnitTestingSMTPConfig,
 }

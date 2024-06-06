@@ -22,6 +22,7 @@ pylint = "^3.2.2"
 bandit = "^1.7.8"
 flake8-pyproject = "^1.2.3"
 isort = "^5.13.2"
+faker = "^25.6.0"
 
 [tool.bandit]
 exclude_dirs = [".venv","tests"]
@@ -53,6 +54,7 @@ extend-exclude = '''
   # The following are specific to Black, you probably don't want those.
   migrations
   | devops
+  | .history
 )/
 '''
 

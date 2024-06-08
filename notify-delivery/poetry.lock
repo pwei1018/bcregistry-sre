@@ -1233,9 +1233,9 @@ structured-logging = {git = "https://github.com/bcgov/sbc-connect-common.git", b
 
 [package.source]
 type = "git"
-url = "https://github.com/pwei1018/bcregistry-sre.git"
-reference = "notify-pubsub"
-resolved_reference = "17f0d1bdc5b8e7c2adabdfc08493ea61d2a1cfb1"
+url = "https://github.com/bcgov/bcregistry-sre.git"
+reference = "main"
+resolved_reference = "037b5b7c069e50370925cfcd4f52c2a57bf71c92"
 subdirectory = "notify-api"
 
 [[package]]
@@ -2155,4 +2155,4 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "203cd06eb3757f0fa88ad56d0ff3a5fa10b4a28d5db21c3d0204723ee8268e96"
+content-hash = "64bdd66f292bf29c90c6266d77210f28ea70a2b84ebe024a861fe776a196bbbc"

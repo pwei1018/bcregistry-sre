@@ -9,7 +9,7 @@ packages = [{include = "notify_delivery", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-notify-api = { git = "https://github.com/pwei1018/bcregistry-sre.git", subdirectory = "notify-api",  branch = "notify-pubsub" }
+notify-api = { git = "https://github.com/bcgov/bcregistry-sre.git", subdirectory = "notify-api",  branch = "main" }
 
 [tool.poetry.group.dev.dependencies]
 psycopg2 = "^2.9.9"

@@ -637,7 +637,7 @@ simple-cloudevent = {git = "https://github.com/daxiom/simple-cloudevent.py.git"}
 
 [package.source]
 type = "git"
-url = "https://github.com/bcgov/sbc-connect-common"
+url = "https://github.com/bcgov/sbc-connect-common.git"
 reference = "main"
 resolved_reference = "c348d30e91253daef7f433a15a12379eb6b68d55"
 subdirectory = "python/gcp-queue"
@@ -1221,7 +1221,7 @@ flask-jwt-oidc = {git = "https://github.com/thorwolpert/flask-jwt-oidc.git"}
 flask-migrate = "^4.0.7"
 Flask-Pydantic = "^0.12.0"
 flask-sqlalchemy = "^3.1.1"
-gcp-queue = {git = "https://github.com/bcgov/sbc-connect-common", branch = "main", subdirectory = "python/gcp-queue"}
+gcp-queue = {git = "https://github.com/bcgov/sbc-connect-common.git", branch = "main", subdirectory = "python/gcp-queue"}
 gunicorn = "^22.0.0"
 notifications-python-client = "7.0.0"
 pg8000 = "^1.31.2"
@@ -1235,7 +1235,7 @@ structured-logging = {git = "https://github.com/bcgov/sbc-connect-common.git", b
 type = "git"
 url = "https://github.com/bcgov/bcregistry-sre.git"
 reference = "main"
-resolved_reference = "037b5b7c069e50370925cfcd4f52c2a57bf71c92"
+resolved_reference = "ad41cb3701b3783e99db2410f570f05d8fa66da3"
 subdirectory = "notify-api"
 
 [[package]]

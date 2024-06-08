@@ -86,7 +86,7 @@ steps:
     if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${_DEPLOY_TARGET} ]; then
       RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
 
-      gcloud deploy releases create v-$_SHORT_SHA-${RELEASE_TIMESTAMP} \
+      gcloud deploy releases create v-${_APP_NAME}-${_SHORT_SHA}-${RELEASE_TIMESTAMP} \
         --delivery-pipeline=${_DEPLOY_PIPELINE} \
         --region=${_REGION} \
         --to-target=${_DEPLOY_TARGET} \

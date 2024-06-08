@@ -32,11 +32,8 @@ from inspect import getframeinfo, stack
 from logging import NullHandler
 
 import yaml
-from opentelemetry.instrumentation.logging import LoggingInstrumentor
 
 from notify_api.metadata import APP_RUNNING_PROJECT
-
-LoggingInstrumentor().instrument(set_logging_format=True)
 
 
 def setup_logging(conf):

@@ -15,12 +15,9 @@
 from __future__ import annotations
 
 import base64
-from http import HTTPStatus
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from notify_api.errors import NotifyException
-from notify_api.utils.tracing import tracing
 from notify_api.utils.util import download_file, to_camel
 
 from .db import db  # noqa: I001
@@ -38,7 +35,6 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @field_validator("file_name")
     @classmethod
-    @tracing
     def not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:
@@ -46,7 +42,6 @@ class AttachmentRequest(BaseModel):  # pylint: disable=too-few-public-methods
         return v_field
 
     @model_validator(mode="after")
-    @tracing
     def must_contain_one(self):
         """Valiate field is not empty."""
         if not self.file_bytes and not self.file_url:
@@ -79,25 +74,21 @@ class Attachment(db.Model):
         """Create notification attachment."""
         file_bytes = None
 
-        try:
-            if attachment.file_url:
-                file_bytes = download_file(attachment.file_url)
-            else:
-                file_bytes = base64.b64decode(attachment.file_bytes)
+        if attachment.file_url:
+            file_bytes = download_file(attachment.file_url)
+        else:
+            file_bytes = base64.b64decode(attachment.file_bytes)
 
-            db_attachment = Attachment(
-                content_id=content_id,
-                file_name=attachment.file_name,
-                file_bytes=file_bytes,
-                attach_order=attachment.attach_order,
-            )
-            db.session.add(db_attachment)
-            db.session.commit()
-            db.session.refresh(db_attachment)
-        except Exception as err:  # pylint: disable=broad-except # noqa F841;
-            raise NotifyException(
-                error=f"Create attachment record Error {err}", status_code=HTTPStatus.INTERNAL_SERVER_ERROR
-            ) from err
+        db_attachment = Attachment(
+            content_id=content_id,
+            file_name=attachment.file_name,
+            file_bytes=file_bytes,
+            attach_order=attachment.attach_order,
+        )
+        db.session.add(db_attachment)
+        db.session.commit()
+        db.session.refresh(db_attachment)
+
         return db_attachment
 
     def delete_attachment(self):

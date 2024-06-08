@@ -12,3 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Services."""
+from .gcp_queue import GcpQueue
+from .notify_service import NotifyService
+
+notify = NotifyService()

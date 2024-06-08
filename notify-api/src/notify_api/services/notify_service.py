@@ -12,25 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This provides the service for email notify calls."""
+import uuid
 import warnings
 from datetime import datetime, timezone
 
-import requests
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 from flask import current_app
-from opentelemetry import trace
+from simple_cloudevent import SimpleCloudEvent
 
-from notify_api.errors import BadGatewayException, NotifyException
-from notify_api.models import (
-    Notification,
-    NotificationHistory,
-    NotificationRequest,
-    NotificationSendResponses,
-    SafeList,
-)
-from notify_api.services.providers import _all_providers  # noqa: E402
+from notify_api.models import Notification, NotificationHistory, NotificationRequest, SafeList
+from notify_api.services.gcp_queue import GcpQueue, queue
 from notify_api.utils.logging import logger
-from notify_api.utils.tracing import TraceContextManager, tracing
 
 warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
@@ -42,171 +34,80 @@ class NotifyService:
         """Return a Notification service instance."""
 
     @classmethod
-    def get_provider(cls, notification: Notification) -> str:
+    def get_provider(cls, notify_type: str, content_body: str) -> str:
         """Get the notify service provider."""
-        if current_app.config.get("GC_NOTIFY_ENABLE") == "True":
-            if notification.type_code == Notification.NotificationType.TEXT:
-                # Send TEXT through GC Notify
-                return Notification.NotificationProvider.GC_NOTIFY
+        if notify_type == Notification.NotificationType.TEXT:
+            # Send TEXT through GC Notify
+            return Notification.NotificationProvider.GC_NOTIFY
 
-            # Send email through GC Notify if email body is not html
-            if not bool(BeautifulSoup(notification.content[0].body, "html.parser").find()):
-                return Notification.NotificationProvider.GC_NOTIFY
-        else:
-            if notification.type_code == Notification.NotificationType.TEXT:
-                # GC Notify is disabled, can't send TEXT through SMS
-                raise BadGatewayException(error="GC Notify is not enabled.")
+        # Send email through GC Notify if email body is not html
+        if not bool(BeautifulSoup(content_body, "html.parser").find()):
+            return Notification.NotificationProvider.GC_NOTIFY
 
         return Notification.NotificationProvider.SMTP
 
-    @tracing
-    def notify(  # pylint: disable=too-many-branches
-        self, notification_request: NotificationRequest, token=None
-    ) -> NotificationHistory:
+    def queue_publish(self, notification_request: NotificationRequest) -> Notification:
         """Send the notification."""
-        try:
-            current_span = trace.get_current_span()
+        notification: Notification = Notification.create_notification(notification_request)
 
-            notification = Notification.create_notification(notification_request)
+        provider: str = self.get_provider(notification_request.notify_type, notification_request.content.body)
 
-            provider: str = self.get_provider(notification)
+        notification_status: str = Notification.NotificationStatus.QUEUED
+        is_safe_to_send = True
 
-            is_safe_to_send = True
-
-            # Email must set in safe list of Dev and Test environment
-            if current_app.config.get("DEVELOPMENT"):
-                recipients = [
-                    r.strip() for r in notification.recipients.split(",") if SafeList.is_in_safe_list(r.lower().strip())
-                ]
-                unsafe_recipients = [r for r in notification.recipients.split(",") if r.strip() not in recipients]
-                if unsafe_recipients:
-                    logger.info(f"{unsafe_recipients} are not in the safe list")
-                if not recipients:
-                    is_safe_to_send = False
-                else:
-                    notification.recipients = ",".join(recipients)
-
-            responses: NotificationSendResponses = None
-            notification.status_code = Notification.NotificationStatus.SENT
-
-            if is_safe_to_send:
-                if notification.type_code == Notification.NotificationType.TEXT:
-                    responses = _all_providers[provider](notification).send_sms()
-                else:
-                    if current_app.config.get("DEPLOYMENT_PLATFORM") == "GCP":
-                        # GCP environment can't send the email by SMTP
-                        if provider == Notification.NotificationProvider.SMTP:
-                            # Forward the email to OCP notification API
-                            notification.status_code = Notification.NotificationStatus.FORWARDED
-                            self.forward_to_ocp(notification_request, token)
-                        else:
-                            responses = _all_providers[provider](notification).send()
-
-            # update the notification status
-            notification.sent_date = datetime.now(timezone.utc)
-            notification.provider_code = provider
-            notification.update_notification()
-
-            current_span.set_attribute("notification.id", notification.id)
-            current_span.set_attribute("notification.provider", provider)
-            current_span.set_attribute("notification.recipients", notification.recipients)
-            current_span.set_attribute("notification.is_safe_to_send", is_safe_to_send)
-
-            if responses:
-                for response in responses.recipients:
-                    # save to history as per recipient
-                    notification_history = NotificationHistory.create_history(
-                        notification, response.recipient, response.response_id
-                    )
-
-                    current_span.set_attribute("notification_history.id", notification_history.id)
+        # Email must set in safe list of Dev and Test environment
+        if current_app.config.get("DEVELOPMENT"):
+            recipients = [
+                r.strip()
+                for r in notification_request.recipients.split(",")
+                if SafeList.is_in_safe_list(r.lower().strip())
+            ]
+            unsafe_recipients = [r for r in notification_request.recipients.split(",") if r.strip() not in recipients]
+            if unsafe_recipients:
+                logger.info(f"{unsafe_recipients} are not in the safe list")
+            if not recipients:
+                is_safe_to_send = False
             else:
-                notification_history = NotificationHistory.create_history(notification)
-                current_span.set_attribute("notification_history.id", notification_history.id)
+                notification_request.recipients = ",".join(recipients)
 
-            # clean notification record
-            notification.delete_notification()
-
-        except (
-            BadGatewayException,
-            NotifyException,
-            requests.exceptions.RequestException,
-            Exception,
-        ) as err:  # NOQA # pylint: disable=broad-except
-            notification.sent_date = datetime.now(timezone.utc)
-            notification.status_code = Notification.NotificationStatus.FAILURE
-
-            notification.update_notification()
-
-            raise err
-        return notification_history
-
-    def resend(self):
-        """Resend the notifications."""
-        try:
-            notifications = Notification.find_resend_notifications()
-
-            for notification in notifications:
-                provider: str = self.get_provider(notification)
-
-                responses: NotificationSendResponses = None
-
-                if notification.type_code == Notification.NotificationType.TEXT:
-                    responses = _all_providers[provider](notification).send_sms()
-                else:
-                    responses = _all_providers[provider](notification).send()
-
-                # update the notification status
-                notification.sent_date = datetime.now(timezone.utc)
-                notification.status_code = Notification.NotificationStatus.SENT
-                notification.provider_code = provider
-                notification.update_notification()
-
-                if responses:
-                    for response in responses.recipients:
-                        # save to history as per recipient
-                        NotificationHistory.create_history(notification, response.recipient, response.response_id)
-                else:
-                    NotificationHistory.create_history(notification)
-
-                notification.delete_notification()
-
-        except (
-            BadGatewayException,
-            NotifyException,
-            Exception,
-        ) as err:  # NOQA # pylint: disable=broad-except
-            notification.sent_date = datetime.now(timezone.utc)
-            notification.status_code = Notification.NotificationStatus.FAILURE
-
-            notification.update_notification()
-
-            raise err
-
-    @classmethod
-    @tracing
-    def forward_to_ocp(cls, email: NotificationRequest, token: str):
-        """Forward notification to OCP notification API to using SMTP email service."""
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {token}",
+        if is_safe_to_send:
+            deliery_topic = current_app.config.get("NOTIFY_DELIVERY_GCNOTIFY_TOPIC")
+            data = {
+                "notificationId": notification.id,
             }
-            trace_context = TraceContextManager.get_trace_context()
-            if trace_context:
-                headers["X-Cloud-Trace-Context"] = trace_context
 
-            response = requests.post(
-                current_app.config.get("NOTIFY_API"),
-                json=email.dict(by_alias=True),
-                headers=headers,
-                timeout=600,
+            if provider == Notification.NotificationProvider.SMTP:
+                deliery_topic = current_app.config.get("NOTIFY_DELIVERY_SMTP_TOPIC")
+                data = {
+                    "notificationId": notification.id,
+                    "notificationProvider": provider,
+                    "notificationRequest": notification_request.model_dump_json(),
+                }
+
+            cloud_event = SimpleCloudEvent(
+                id=str(uuid.uuid4()),
+                source="notify-api",
+                subject=None,
+                time=datetime.now(tz=timezone.utc).isoformat(),
+                type=f"bc.registry.notify.{provider}",
+                data=data,
             )
 
-            # Handling the response
-            if response.status_code != 200:
-                # Request failed
-                logger.error("Forward notification Error: %s", response.text)
+            publish_future = queue.publish(deliery_topic, GcpQueue.to_queue_message(cloud_event))
+            logger.info(publish_future)
 
-        except requests.exceptions.RequestException as err:  # NOQA # pylint: disable=broad-except
-            raise err
+        notification.status_code = notification_status
+        notification.provider_code = provider
+        notification.sent_date = datetime.now(timezone.utc)
+        notification.update_notification()
+
+        if not is_safe_to_send or provider == Notification.NotificationProvider.SMTP:
+            # recipint is not in the safe list (dev or test);
+            # SMTP service handle by OpenShift;
+            if provider == Notification.NotificationProvider.SMTP:
+                notification.status_code = Notification.NotificationStatus.FORWARDED
+            notification_history: NotificationHistory = NotificationHistory.create_history(notification)
+            notification.delete_notification()
+            return notification_history
+
+        return notification

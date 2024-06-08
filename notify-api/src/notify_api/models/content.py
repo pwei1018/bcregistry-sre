@@ -18,7 +18,6 @@ from typing import ForwardRef, List, Optional  # noqa: F401 # pylint: disable=un
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from notify_api.utils.tracing import tracing
 from notify_api.utils.util import to_camel
 
 from .attachment import Attachment, AttachmentRequest  # noqa: F401 # pylint: disable=unused-import
@@ -30,7 +29,7 @@ ListAttachmentRequest = ForwardRef("List[AttachmentRequest]")
 class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
     """Entity Request model for the Notification content."""
 
-    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel, coerce_numbers_to_str=True)
 
     subject: str = Field(alias="subject")
     body: str = Field(alias="body")
@@ -38,7 +37,6 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @field_validator("subject")
     @classmethod
-    @tracing
     def subject_not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:
@@ -47,7 +45,6 @@ class ContentRequest(BaseModel):  # pylint: disable=too-few-public-methods
 
     @field_validator("body")
     @classmethod
-    @tracing
     def body_not_empty(cls, v_field):
         """Valiate field is not empty."""
         if not v_field:

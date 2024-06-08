@@ -25,7 +25,6 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.routing import RoutingException
 
 from notify_api.utils.logging import logger
-from notify_api.utils.tracing import tracing
 
 
 def init_app(app):
@@ -35,7 +34,6 @@ def init_app(app):
     app.register_error_handler(Exception, handle_uncaught_error)
 
 
-@tracing
 def handle_http_error(error):
     """Handle HTTPExceptions.
 
@@ -53,7 +51,6 @@ def handle_http_error(error):
     return response
 
 
-@tracing
 def handle_uncaught_error(error: Exception):  # pylint: disable=unused-argument
     """Handle any uncaught exceptions.
 

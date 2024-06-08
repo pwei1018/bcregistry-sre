@@ -13,16 +13,16 @@ notify-api = { git = "https://github.com/pwei1018/bcregistry-sre.git", subdirect
 
 [tool.poetry.group.dev.dependencies]
 psycopg2 = "^2.9.9"
-pytest = "^8.2.1"
+pytest = "^8.2.2"
 pytest-mock = "^3.14.0"
 pytest-cov = "^4.1.0"
 requests-mock = "^1.12.1"
 black = "^24.4.2"
-pylint = "^3.2.2"
+pylint = "^3.2.3"
 bandit = "^1.7.8"
 flake8-pyproject = "^1.2.3"
 isort = "^5.13.2"
-faker = "^25.6.0"
+faker = "^25.8.0"
 
 [tool.bandit]
 exclude_dirs = [".venv","tests"]

@@ -692,13 +692,13 @@ requests = ["requests (>=2.20.0,<3.0.0.dev0)"]
 
 [[package]]
 name = "google-cloud-pubsub"
-version = "2.21.2"
+version = "2.21.3"
 description = "Google Cloud Pub/Sub API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google-cloud-pubsub-2.21.2.tar.gz", hash = "sha256:fc72226b14731db2873f7c4031cc757e274bbcdabcac7523b2cd6e46130d6096"},
-    {file = "google_cloud_pubsub-2.21.2-py2.py3-none-any.whl", hash = "sha256:05a6b01e5bda6f4a4858700e3e9a12e3080589718d648b2383e5818131db9ce4"},
+    {file = "google-cloud-pubsub-2.21.3.tar.gz", hash = "sha256:df44c79a4d7bfb5adfa675413e3b91bbbe06e91d2715a15f925140b05715bb7d"},
+    {file = "google_cloud_pubsub-2.21.3-py2.py3-none-any.whl", hash = "sha256:a417d63d9db5e8b9ff51dee705c69ed02b0a8bc62cac2474a86f22aea288c0ec"},
 ]
 
 [package.dependencies]
@@ -1225,7 +1225,7 @@ gcp-queue = {git = "https://github.com/bcgov/sbc-connect-common.git", branch = "
 gunicorn = "^22.0.0"
 notifications-python-client = "7.0.0"
 pg8000 = "^1.31.2"
-phonenumbers = "8.13.35"
+phonenumbers = "8.13.38"
 pycountry = "^23.12.11"
 python-dotenv = "^1.0.1"
 sqlalchemy-continuum = "^1.4.2"
@@ -1235,18 +1235,18 @@ structured-logging = {git = "https://github.com/bcgov/sbc-connect-common.git", b
 type = "git"
 url = "https://github.com/bcgov/bcregistry-sre.git"
 reference = "main"
-resolved_reference = "bdbe96dbc38bf3219ebe153e285df6de6738870f"
+resolved_reference = "372a7b419fd6572219796b019861a8da64c66913"
 subdirectory = "notify-api"
 
 [[package]]
 name = "packaging"
-version = "24.0"
+version = "24.1"
 description = "Core utilities for Python packages"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
-    {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
+    {file = "packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124"},
+    {file = "packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002"},
 ]
 
 [[package]]
@@ -1288,13 +1288,13 @@ scramp = ">=1.4.5"
 
 [[package]]
 name = "phonenumbers"
-version = "8.13.35"
+version = "8.13.38"
 description = "Python version of Google's common library for parsing, formatting, storing and validating international phone numbers."
 optional = false
 python-versions = "*"
 files = [
-    {file = "phonenumbers-8.13.35-py2.py3-none-any.whl", hash = "sha256:58286a8e617bd75f541e04313b28c36398be6d4443a778c85e9617a93c391310"},
-    {file = "phonenumbers-8.13.35.tar.gz", hash = "sha256:64f061a967dcdae11e1c59f3688649e697b897110a33bb74d5a69c3e35321245"},
+    {file = "phonenumbers-8.13.38-py2.py3-none-any.whl", hash = "sha256:d22aa747fb591ef2a18afec13cab5a0e294ab20fce5a1560e4949e459e70eeef"},
+    {file = "phonenumbers-8.13.38.tar.gz", hash = "sha256:2822c74ee9334e9d8ad792fc352cc8d21004307349b6b1bb61da12937fa2eaba"},
 ]
 
 [[package]]

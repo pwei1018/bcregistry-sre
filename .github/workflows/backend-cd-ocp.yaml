@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "TARGETS=${{ env.DEPLOY_TARGETS }}" >> "$GITHUB_OUTPUT"
           echo "TARGET=${{ env.DEPLOY_TARGET }}" >> "$GITHUB_OUTPUT"
-          echo "TARGET_FROM=${{ env.DEPLOY_TARGET_FROM }}" >> "$GITHUB_OUTPUT"
+          echo "TARGET_FROM=${{ env.TARGET_FROM }}" >> "$GITHUB_OUTPUT"
           echo "PIPELINE=${{ env.DEPLOY_PIPELINE }}" >> "$GITHUB_OUTPUT"
 
   deploy:

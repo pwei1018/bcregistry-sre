@@ -113,5 +113,5 @@ jobs:
 
           gcloud builds submit \
             --region=northamerica-northeast1 \
-            --substitutions _SHORT_SHA=$SHORT_SHA,_NODE_VERSION="${{ inputs.node_version }}",_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_FROM="${{ needs.setup.outputs.DEPLOY_TARGET_FROM }}" \
+            --substitutions _SHORT_SHA=$SHORT_SHA,_NODE_VERSION="${{ inputs.node_version }}",_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVIRONMENT="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_FROM="${{ needs.setup.outputs.TARGET_FROM }}" \
             --config cloudbuild.yaml

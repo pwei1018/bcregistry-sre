@@ -13,7 +13,6 @@
 # limitations under the License.
 """Worker resource to handle incoming queue pushes from gcp."""
 import sys
-from datetime import datetime, timezone
 from http import HTTPStatus
 
 from flask import Blueprint, request

@@ -20,7 +20,7 @@ from __future__ import annotations
 import os
 
 from flask import Flask
-from flask_migrate import Migrate, upgrade
+from flask_migrate import Migrate
 from notify_api.models import db
 from notify_api.utils.logging import logger, setup_logging
 
@@ -41,14 +41,8 @@ def create_app(service_environment=APP_RUNNING_ENVIRONMENT, **kwargs):
 
     # Have to setup another database in OpenShift platform
     if app.config.get("DEPLOYMENT_PLATFORM") == "OCP":
-        Migrate(app, db)
         logger.info("Running migration upgrade.")
-
-        with app.app_context():
-            upgrade(directory="migrations", revision="head", sql=False, tag=None)
-
-        # Alembic has it's own logging config, we'll need to restore our logging here.
-        setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), "logging.yaml"))
+        Migrate(app, db)
         logger.info("Finished migration upgrade.")
 
     queue.init_app(app)

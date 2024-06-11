@@ -11,6 +11,5 @@ Makefile
 devops
 k8s
 manage.py
-migrations
 requirements
 tests

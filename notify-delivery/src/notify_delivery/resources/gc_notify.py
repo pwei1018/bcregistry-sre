@@ -73,8 +73,12 @@ def process_message(data: dict) -> NotificationHistory | Notification:
     responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
 
     if responses:
+        notification.status_code = Notification.NotificationStatus.SENT
+        notification.update_notification()
+
         for response in responses.recipients:
             # save to history as per recipient
+
             history = NotificationHistory.create_history(notification, response.recipient, response.response_id)
 
         # clean notification record

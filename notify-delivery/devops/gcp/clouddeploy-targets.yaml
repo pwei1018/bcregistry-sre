@@ -18,10 +18,10 @@ metadata:
  name: dev
 description: Dev Environment
 deployParameters:
+  deploy-env: "development"
   deploy-project-id: "c4hnrd-dev"
   service-name: "notify-delivery-dev"
   container-name: "notify-delivery-dev"
-  app-env: "dev"
   cloudsql-instances: "c4hnrd-dev:northamerica-northeast1:notify-db-dev"
   service-account: "sa-pubsub@c4hnrd-dev.iam.gserviceaccount.com"
 run:
@@ -37,10 +37,10 @@ metadata:
  name: test
 description: Test Environment
 deployParameters:
+  deploy-env: "test"
   deploy-project-id: "c4hnrd-test"
   service-name: "notify-delivery-test"
   container-name: "notify-delivery-test"
-  app-env: "test"
   cloudsql-instances: "c4hnrd-test:northamerica-northeast1:notify-db-test"
   service-account: "sa-pubsub@c4hnrd-test.iam.gserviceaccount.com"
 run:
@@ -57,17 +57,14 @@ metadata:
 description: Sandbox Environment
 requireApproval: true
 deployParameters:
+  deploy-env: "sandbox"
   deploy-project-id: "c4hnrd-sandbox"
   service-name: "notify-delivery-sandbox"
   container-name: "notify-delivery-sandbox"
-  app-env: "sandbox"
   cloudsql-instances: "c4hnrd-sandbox:northamerica-northeast1:notify-db-sandbox"
   service-account: "sa-pubsub@c4hnrd-sandbox.iam.gserviceaccount.com"
   max-scale: "3"
   container-concurrency: "7"
-  container-port: "8080"
-  resources-cpu: "1000m"
-  resources-memory: "512Mi"
 run:
  location: projects/c4hnrd-integration/locations/northamerica-northeast1
 executionConfigs:
@@ -82,17 +79,14 @@ metadata:
 description: Production Environment
 requireApproval: true
 deployParameters:
+  deploy-env: "production"
   deploy-project-id: "c4hnrd-prod"
   service-name: "notify-delivery-prod"
   container-name: "notify-delivery-prod"
-  app-env: "production"
   cloudsql-instances: "c4hnrd-prod:northamerica-northeast1:notify-db-prod"
   service-account: "sa-pubsub@c4hnrd-prod.iam.gserviceaccount.com"
-  max-scale: "3"
-  container-concurrency: "7"
-  container-port: "8080"
-  resources-cpu: "1000m"
-  resources-memory: "512Mi"
+  max-scale: "10"
+  container-concurrency: "20"
 run:
  location: projects/c4hnrd-prod/locations/northamerica-northeast1
 executionConfigs:

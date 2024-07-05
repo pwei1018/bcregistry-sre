@@ -64,7 +64,7 @@ jobs:
       DATABASE_TEST_PORT: "5432"
     services:
       postgres:
-        image: postgres:15
+        image: postgis/postgis:15-master
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

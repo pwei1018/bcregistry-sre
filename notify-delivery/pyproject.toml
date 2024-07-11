@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "notify-delivery"
-version = "1.1.0"
+version = "1.1.1"
 description = "This module is the service worker for delivery emails."
 authors = ["pwei1018 <patrick.wei@gov.bc.ca>"]
 license = "BSD-3-Clause"

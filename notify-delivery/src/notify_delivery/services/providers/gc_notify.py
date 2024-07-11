@@ -17,6 +17,7 @@ from typing import List
 
 from flask import current_app
 from notifications_python_client import NotificationsAPIClient
+from notifications_python_client.errors import HTTPError
 from notify_api.models import Notification, NotificationSendResponse, NotificationSendResponses
 
 
@@ -32,7 +33,7 @@ class GCNotify:
         self.gc_notify_email_reply_to_id = current_app.config.get("GC_NOTIFY_EMAIL_REPLY_TO_ID")
         self.notification = notification
 
-    def send(self):
+    def send(self) -> NotificationSendResponses:
         """Send email through GC Notify."""
         client = NotificationsAPIClient(api_key=self.api_key, base_url=self.gc_notify_url)
 
@@ -54,32 +55,19 @@ class GCNotify:
 
         # send one email at a time
         for recipient in self.notification.recipients.split(","):
-            response = client.send_email_notification(
-                email_address=recipient,
-                template_id=self.gc_notify_template_id,
-                personalisation=email_content,
-                email_reply_to_id=self.gc_notify_email_reply_to_id,
-            )
+            try:
+                response = client.send_email_notification(
+                    email_address=recipient,
+                    template_id=self.gc_notify_template_id,
+                    personalisation=email_content,
+                    email_reply_to_id=self.gc_notify_email_reply_to_id,
+                )
 
-            sent_response = NotificationSendResponse(response_id=response["id"], recipient=recipient)
-            response_list.append(sent_response)
-
-        return NotificationSendResponses(**{"recipients": response_list})
-
-    def send_sms(self):
-        """Send TEXT through GC Notify."""
-        client = NotificationsAPIClient(api_key=self.api_key, base_url=self.gc_notify_url)
-
-        response_list: List[NotificationSendResponse] = []
-
-        for phone in self.notification.recipients.split(","):
-            response = client.send_sms_notification(
-                phone_number=phone,
-                template_id=self.gc_notify_sms_template_id,
-                personalisation={"sms_body": self.notification.content[0].body},
-            )
-
-            sent_response = NotificationSendResponse(response_id=response["id"], recipient=phone)
-            response_list.append(sent_response)
+                sent_response = NotificationSendResponse(response_id=response["id"], recipient=recipient)
+                response_list.append(sent_response)
+            except HTTPError as e:
+                current_app.logger.error(f"Error sending email to {recipient}: {e}")
+            except Exception as e:
+                current_app.logger.error(f"Error sending email to {recipient}: {e}")
 
         return NotificationSendResponses(**{"recipients": response_list})

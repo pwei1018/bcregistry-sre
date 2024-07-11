@@ -68,7 +68,7 @@ class NotificationSendResponse(BaseModel):  # pylint: disable=too-few-public-met
 class NotificationSendResponses(BaseModel):  # pylint: disable=too-few-public-methods
     """Notification model for resquest."""
 
-    recipients: List[NotificationSendResponse] | None = None
+    recipients: List[NotificationSendResponse] = []
 
 
 class Notification(db.Model):

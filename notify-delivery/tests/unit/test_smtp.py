@@ -12,146 +12,265 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """The Test Suites to ensure that the worker is operating correctly."""
-import base64
-import json
+import unittest
 from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-from notify_api.models.notification import Notification, NotificationSendResponses
-from notify_api.models.notification_history import NotificationHistory
-from simple_cloudevent import SimpleCloudEvent, to_queue_message
+from notify_api.models import (
+    Content,
+    ContentRequest,
+    Notification,
+    NotificationRequest,
+    NotificationSendResponse,
+    NotificationSendResponses,
+)
+from simple_cloudevent import SimpleCloudEvent
 
 from notify_delivery.resources.email_smtp import process_message
-from notify_delivery.services.providers.email_smtp import EmailSMTP
-from tests.factories.notification import ContentFactory, NotificationFactory
-
-CLOUD_EVENT = SimpleCloudEvent(
-    id="fake-id",
-    source="fake-for-tests",
-    subject="fake-subject",
-    type="fake-type",
-    data={
-        "notificationId": "29590",
-    },
-)
 
 
-CLOUD_EVENT_ENVELOPE = {
-    "subscription": "projects/PUBSUB_PROJECT_ID/subscriptions/SUBSCRIPTION_ID",
-    "message": {
-        "data": base64.b64encode(to_queue_message(CLOUD_EVENT)).decode("UTF-8"),
-        "messageId": "10",
-        "attributes": {},
-    },
-    "id": 1,
-}
+@pytest.mark.usefixtures("client_smtp")
+class TestEmailSMTP(unittest.TestCase):
+    """Test Email SMTP worker."""
 
+    # pylint: disable=no-member
 
-def test_invalid_endpoints(client_smtp):
-    """Return a 4xx when endpoint is invalid."""
-    rv = client_smtp.post("/")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+    def test_invalid_endpoints(self):
+        """Return a 4xx when endpoint is invalid"""
+        response = self.client.post("/")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client_smtp.post("")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        response = self.client.post("")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client_smtp.post("/smt")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        response = self.client.post("/gcnotify")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client_smtp.post("/smtp/test")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        response = self.client.post("/smto")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client_smtp.post("/gcnotify")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        response = self.client.post("/smtp/test")
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
+    def test_without_jwt(self):
+        """Return a 4xx when jwt."""
+        response = self.client.post("/smtp")
+        assert response.status_code == HTTPStatus.UNAUTHORIZED
 
-def test_without_jwt(client_smtp, mocker):
-    """Return a 4xx when jwt."""
-    rv = client_smtp.post("/smtp")
-    assert rv.status_code == HTTPStatus.UNAUTHORIZED
+    @patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt")
+    @patch("notify_delivery.resources.email_smtp.process_message")
+    def test_worker_no_data(self, mock_process_message, mock_verify_jwt):
+        """Test worker with no data."""
+        mock_verify_jwt.return_value = None
+        response = self.client.post("/smtp", data=None)
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_not_called()
 
+    @patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt")
+    @patch("notify_delivery.resources.email_smtp.queue.get_simple_cloud_event")
+    def test_worker_no_cloud_event(self, mock_get_simple_cloud_event, mock_verify_jwt):
+        """Test worker with no cloud event."""
+        mock_verify_jwt.return_value = None
+        mock_get_simple_cloud_event.return_value = None
+        response = self.client.post("/smtp", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_get_simple_cloud_event.assert_called_once()
 
-def test_no_message(client_smtp, mocker):
-    """Return a 4xx when an no JSON present."""
-    mocker.patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt", return_value="")
-    rv = client_smtp.post("/smtp")
+    @patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt")
+    @patch("notify_delivery.resources.email_smtp.queue.get_simple_cloud_event")
+    @patch("notify_delivery.resources.email_smtp.process_message")
+    def test_worker_valid_event(self, mock_process_message, mock_get_simple_cloud_event, mock_verify_jwt):
+        """Test worker with valid cloud event."""
+        mock_verify_jwt.return_value = None
+        mock_get_simple_cloud_event.return_value = SimpleCloudEvent(
+            type="bc.registry.notify.smtp",
+            data={"notificationRequest": "test_notification_request", "notificationProvider": "SMTP"},
+        )
+        response = self.client.post("/smtp", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_called_once_with(
+            {"notificationRequest": "test_notification_request", "notificationProvider": "SMTP"}
+        )
 
-    assert rv.status_code == HTTPStatus.OK
+    @patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt")
+    @patch("notify_delivery.resources.email_smtp.queue.get_simple_cloud_event")
+    @patch("notify_delivery.resources.email_smtp.process_message")
+    def test_worker_invalid_event_type(self, mock_process_message, mock_get_simple_cloud_event, mock_verify_jwt):
+        """Test worker with invalid cloud event type."""
+        mock_verify_jwt.return_value = None
+        mock_get_simple_cloud_event.return_value = SimpleCloudEvent(
+            type="invalid.event.type",
+            data={"notificationRequest": "test_notification_request", "notificationProvider": "SMTP"},
+        )
+        response = self.client.post("/smtp", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_not_called()
 
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    def test_process_message_no_notification_data(self, mock_create_notification, mock_model_validate_json):
+        """Test process_message with no notification data."""
+        mock_model_validate_json.return_value = None
+        with pytest.raises(Exception) as e:
+            process_message({"notificationRequest": None, "notificationProvider": "SMTP"})
+        assert str(e.value) == "Notification data not found."
 
-@pytest.mark.parametrize(
-    "test_name,queue_envelope,expected",
-    [("invalid", {}, HTTPStatus.OK), ("valid", CLOUD_EVENT_ENVELOPE, HTTPStatus.OK)],
-)
-def test_worker_smtp(client_smtp, test_name, queue_envelope, expected, mocker):
-    """Test cloud event"""
-    mocker.patch("notify_delivery.services.gcp_queue.gcp_auth.verify_jwt", return_value="")
-    rv = client_smtp.post("/smtp", json=CLOUD_EVENT_ENVELOPE)
-    assert rv.status_code == expected
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    def test_process_message_no_notification_provider(self, mock_create_notification, mock_model_validate_json):
+        """Test process_message with no notification provider."""
+        mock_model_validate_json.return_value = None
+        with pytest.raises(Exception) as e:
+            process_message({"notificationRequest": "test_notification_request", "notificationProvider": None})
+        assert str(e.value) == "Notification provider not found."
 
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    def test_process_message_invalid_notification_provider(self, mock_create_notification, mock_model_validate_json):
+        """Test process_message with invalid notification provider."""
+        mock_model_validate_json.return_value = None
+        with pytest.raises(Exception) as e:
+            process_message({"notificationRequest": "test_notification_request", "notificationProvider": "INVALID"})
+        assert str(e.value) == "Notification provider is incorrect."
 
-def test_process_message(session):
-    """Test process_message function."""
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_5
+    @patch("notify_delivery.resources.email_smtp.EmailSMTP.send")
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    @patch("notify_delivery.resources.email_smtp.NotificationHistory.create_history")
+    @patch("notify_delivery.resources.email_smtp.Notification.update_notification")
+    @patch("notify_delivery.resources.email_smtp.Notification.delete_notification")
+    def test_process_message_success(
+        self,
+        mock_delete_notification,
+        mock_update_notification,
+        mock_create_history,
+        mock_create_notification,
+        mock_model_validate_json,
+        mock_send,
+    ):
+        """Test process_message with successful notification delivery."""
+        notification_request = NotificationRequest(
+            Content=[
+                ContentRequest(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+        )
+        mock_model_validate_json.return_value = notification_request
+        mock_create_notification.return_value = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+            status_code=Notification.NotificationStatus.QUEUED,
+            provider_code=Notification.NotificationProvider.SMTP,
+        )
+        mock_send.return_value = NotificationSendResponses(
+            recipients=[NotificationSendResponse(recipient="abc@gmail.com", response_id="some_id")]
+        )
+        process_message({"notificationRequest": "test_notification_request", "notificationProvider": "smtp"})
+        mock_model_validate_json.assert_called_once_with("test_notification_request")
+        mock_create_notification.assert_called_once()
+        mock_send.assert_called_once()
+        mock_update_notification.assert_called_once()
+        mock_create_history.assert_called_once_with(mock_create_notification.return_value, "abc@gmail.com", "some_id")
+        mock_delete_notification.assert_called_once()
 
-    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE])
-    with (patch.object(EmailSMTP, "send", return_value=responses),):
-        history: NotificationHistory = process_message(data)
-
-        assert history is not None
-        assert history.recipients == json.loads(data["notificationRequest"])["recipients"]
-
-
-def test_process_message_no_response(session):
-    """Test process_message function with no response from provider."""
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_5
-
-    with (patch.object(EmailSMTP, "send", return_value=None),):
-        result: Notification = process_message(data)
-        assert result is not None
+    @patch("notify_delivery.resources.email_smtp.EmailSMTP.send")
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    @patch("notify_delivery.resources.email_smtp.Notification.update_notification")
+    def test_process_message_failure(
+        self,
+        mock_update_notification,
+        mock_create_notification,
+        mock_model_validate_json,
+        mock_send,
+    ):
+        """Test process_message with failed notification delivery."""
+        notification_request = NotificationRequest(
+            Content=[
+                ContentRequest(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+        )
+        mock_model_validate_json.return_value = notification_request
+        mock_create_notification.return_value = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+            status_code=Notification.NotificationStatus.QUEUED,
+            provider_code=Notification.NotificationProvider.SMTP,
+        )
+        mock_send.return_value = None
+        result = process_message({"notificationRequest": "test_notification_request", "notificationProvider": "smtp"})
+        mock_model_validate_json.assert_called_once_with("test_notification_request")
+        mock_create_notification.assert_called_once()
+        mock_send.assert_called_once()
+        assert mock_update_notification.call_count == 2
+        assert isinstance(result, Notification)
         assert result.status_code == Notification.NotificationStatus.FAILURE
 
-
-def test_process_message_no_request_data(session):
-    """Test process_message function that notification data not exist."""
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_6
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == "Notification data not found."
-
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_6_1
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == "Notification data not found."
-
-
-def test_process_message_no_provider(session):
-    """Test process_message function that provider not exist."""
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_7
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == "Notification provider not found."
-
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_7_1
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == "Notification provider not found."
-
-
-def test_process_message_wrong_provider(session):
-    """Test process_message function that provider is incorrect."""
-    data: dict = NotificationFactory.RequestProviderData.REQUEST_PROVIDER_8
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == "Notification provider is incorrect."
+    @patch("notify_delivery.resources.email_smtp.EmailSMTP.send")
+    @patch("notify_delivery.resources.email_smtp.NotificationRequest.model_validate_json")
+    @patch("notify_delivery.resources.email_smtp.Notification.create_notification")
+    @patch("notify_delivery.resources.email_smtp.Notification.update_notification")
+    def test_process_message_with_error(
+        self,
+        mock_update_notification,
+        mock_create_notification,
+        mock_model_validate_json,
+        mock_send,
+    ):
+        """Test process_message with error during notification delivery."""
+        notification_request = NotificationRequest(
+            Content=[
+                ContentRequest(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+        )
+        mock_model_validate_json.return_value = notification_request
+        mock_create_notification.return_value = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="abc@gmail.com",
+            status_code=Notification.NotificationStatus.QUEUED,
+            provider_code=Notification.NotificationProvider.SMTP,
+        )
+        mock_send.side_effect = Exception("Test Error")
+        with pytest.raises(Exception):
+            result = process_message(
+                {"notificationRequest": "test_notification_request", "notificationProvider": "smtp"}
+            )
+            mock_model_validate_json.assert_called_once_with("test_notification_request")
+            mock_create_notification.assert_called_once()
+            mock_send.assert_called_once()
+            mock_update_notification.assert_called_once()
+            assert isinstance(result, Notification)
+            assert result.status_code == Notification.NotificationStatus.FAILURE

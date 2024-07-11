@@ -54,6 +54,9 @@ includedPermissions:
 - cloudsql.instances.get
 - cloudsql.instances.list
 - cloudsql.instances.connect
+- cloudsql.instances.executeSql
+- cloudsql.users.get
+- cloudsql.users.list
 - cloudbuild.builds.get
 - cloudbuild.builds.list
 - cloudbuild.connections.list

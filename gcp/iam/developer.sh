@@ -23,11 +23,12 @@ do
 
                 for ro in "${roles[@]}"
                 do
-                    ROLE_NAME="projects/${PROJECT_ID}/roles/role$ro"
-                    ROLE_FILE=role-$se.yaml
+                    ROLE_NAME="role$ro"
+                    FULL_ROLE_NAME="projects/${PROJECT_ID}/roles/$ROLE_NAME"
+                    ROLE_FILE=role-$ro.yaml
 
                     if [ $ev = 'dev' ]; then
-                        ROLE_FILE=role-$se-dev.yaml
+                        ROLE_FILE=role-$ro-dev.yaml
                     fi
 
                     echo "role: $ROLE_NAME"
@@ -41,7 +42,7 @@ do
 
                     gcloud projects add-iam-policy-binding $PROJECT_ID \
                         --member user:$user \
-                        --role=$ROLE_NAME \
+                        --role=$FULL_ROLE_NAME \
                         --condition=None --verbosity=none --quiet
                 done
             fi

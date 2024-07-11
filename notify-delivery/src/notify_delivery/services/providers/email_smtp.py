@@ -66,14 +66,19 @@ class EmailSMTP:  # pylint: disable=too-few-public-methods
 
         response_list: List[NotificationSendResponse] = []
 
-        server = smtplib.SMTP()
-        server.connect(host=self.mail_server, port=self.mail_port)
-        for email in message["To"].split(","):
-            server.sendmail(message["From"], [email], message.as_string())
+        try:
+            server = smtplib.SMTP()
+            server.connect(host=self.mail_server, port=self.mail_port)
+            for email in message["To"].split(","):
+                try:
+                    server.sendmail(message["From"], [email], message.as_string())
+                    sent_response = NotificationSendResponse(response_id=None, recipient=email)
+                    response_list.append(sent_response)
+                except Exception as e:
+                    current_app.logger.error(f"Error sending email: {e}")
 
-            sent_response = NotificationSendResponse(response_id=None, recipient=email)
-            response_list.append(sent_response)
-
-        server.quit()
+                server.quit()
+        except smtplib.SMTPException as e:
+            current_app.logger.error(f"Error sending email: {e}")
 
         return NotificationSendResponses(**{"recipients": response_list})

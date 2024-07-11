@@ -22,7 +22,7 @@ from notify_api.services.gcp_queue import queue
 from notify_api.utils.logging import logger
 
 from notify_delivery.services.gcp_queue.gcp_auth import ensure_authorized_queue_user
-from notify_delivery.services.providers import _all_providers  # noqa: E402
+from notify_delivery.services.providers.email_smtp import EmailSMTP
 
 bp = Blueprint("smtp", __name__)
 
@@ -79,7 +79,8 @@ def process_message(data: dict) -> NotificationHistory | Notification:
     notification.sent_date = datetime.now(timezone.utc)
     notification.update_notification()
 
-    responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
+    smtp_provider = EmailSMTP(notification)
+    responses: NotificationSendResponses = smtp_provider.send()
 
     if responses:
         for response in responses.recipients:

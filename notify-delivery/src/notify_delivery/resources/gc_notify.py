@@ -20,7 +20,7 @@ from notify_api.models import Notification, NotificationHistory, NotificationSen
 from notify_api.services.gcp_queue import queue
 from notify_api.utils.logging import logger
 
-from notify_delivery.services.providers import _all_providers  # noqa: E402
+from notify_delivery.services.providers.gc_notify import GCNotify
 
 bp = Blueprint("gcnotify", __name__)
 
@@ -70,7 +70,8 @@ def process_message(data: dict) -> NotificationHistory | Notification:
             f"Notification status is not {notification.status_code}"
         )
 
-    responses: NotificationSendResponses = _all_providers[notification.provider_code](notification).send()
+    gc_notify_provider = GCNotify(notification)
+    responses: NotificationSendResponses = gc_notify_provider.send()
 
     if responses:
         notification.status_code = Notification.NotificationStatus.SENT
@@ -78,7 +79,6 @@ def process_message(data: dict) -> NotificationHistory | Notification:
 
         for response in responses.recipients:
             # save to history as per recipient
-
             history = NotificationHistory.create_history(notification, response.recipient, response.response_id)
 
         # clean notification record

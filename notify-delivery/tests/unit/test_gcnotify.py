@@ -12,159 +12,164 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """The Test Suites to ensure that the worker is operating correctly."""
-import base64
+import unittest
 from http import HTTPStatus
 from unittest.mock import patch
 
 import pytest
-from notify_api.models.notification import Notification, NotificationSendResponses
-from notify_api.models.notification_history import NotificationHistory
-from simple_cloudevent import SimpleCloudEvent, to_queue_message
+from notify_api.models import Content, Notification, NotificationSendResponse, NotificationSendResponses
+from simple_cloudevent import SimpleCloudEvent
 
 from notify_delivery.resources.gc_notify import process_message
-from notify_delivery.services.providers.gc_notify import GCNotify
-from tests.factories.notification import ContentFactory, NotificationFactory
-
-CLOUD_EVENT = SimpleCloudEvent(
-    id="fake-id",
-    source="fake-for-tests",
-    subject="fake-subject",
-    type="fake-type",
-    data={
-        "notificationId": "29590",
-    },
-)
-
-#
-# This needs to mimic the envelope created by GCP PubSb when call a resource
-#
-CLOUD_EVENT_ENVELOPE = {
-    "subscription": "projects/PUBSUB_PROJECT_ID/subscriptions/SUBSCRIPTION_ID",
-    "message": {
-        "data": base64.b64encode(to_queue_message(CLOUD_EVENT)).decode("UTF-8"),
-        "messageId": "10",
-        "attributes": {},
-    },
-    "id": 1,
-}
 
 
-def test_invalid_endpoints(client):
-    """Return a 4xx when endpoint is invalid"""
-    rv = client.post("/")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+@pytest.mark.usefixtures("client")
+class TestGCNotify(unittest.TestCase):
+    """Test GC Notify worker."""
 
-    rv = client.post("")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+    # pylint: disable=no-member
 
-    rv = client.post("/smtp")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+    def test_invalid_endpoints(self):
+        """Return a 4xx when endpoint is invalid"""
+        rv = self.client.post("/")
+        assert rv.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client.post("/gcno")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        rv = self.client.post("")
+        assert rv.status_code == HTTPStatus.NOT_FOUND
 
-    rv = client.post("/gcnotify/test")
-    assert rv.status_code == HTTPStatus.NOT_FOUND
+        rv = self.client.post("/smtp")
+        assert rv.status_code == HTTPStatus.NOT_FOUND
 
+        rv = self.client.post("/gcno")
+        assert rv.status_code == HTTPStatus.NOT_FOUND
 
-def test_no_message(client):
-    """Return a 4xx when an no JSON present."""
-    rv = client.post("/gcnotify")
-    assert rv.status_code == HTTPStatus.OK
+        rv = self.client.post("/gcnotify/test")
+        assert rv.status_code == HTTPStatus.NOT_FOUND
 
+    @patch("notify_delivery.resources.gc_notify.process_message")
+    def test_worker_no_data(self, mock_process_message):
+        """Test worker with no data."""
+        response = self.client.post("/gcnotify", data=None)
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_not_called()
 
-@pytest.mark.parametrize(
-    "test_name,queue_envelope,expected",
-    [("invalid", {}, HTTPStatus.OK), ("valid", CLOUD_EVENT_ENVELOPE, HTTPStatus.OK)],
-)
-def test_worker_gcnotify(client, test_name, queue_envelope, expected):
-    """Test cloud event"""
-    rv = client.post("/gcnotify", json=CLOUD_EVENT_ENVELOPE)
-    assert rv.status_code == expected
+    @patch("notify_delivery.resources.gc_notify.queue.get_simple_cloud_event")
+    def test_worker_no_cloud_event(self, mock_get_simple_cloud_event):
+        """Test worker with no cloud event."""
+        mock_get_simple_cloud_event.return_value = None
+        response = self.client.post("/gcnotify", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_get_simple_cloud_event.assert_called_once()
 
+    @patch("notify_delivery.resources.gc_notify.queue.get_simple_cloud_event")
+    @patch("notify_delivery.resources.gc_notify.process_message")
+    def test_worker_valid_event(self, mock_process_message, mock_get_simple_cloud_event):
+        """Test worker with valid cloud event."""
+        mock_get_simple_cloud_event.return_value = SimpleCloudEvent(
+            type="bc.registry.notify.gc_notify",
+            data={"notificationId": "test_notification_id"},
+        )
+        response = self.client.post("/gcnotify", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_called_once_with({"notificationId": "test_notification_id"})
 
-def test_process_message(session):
-    """Test process_message function."""
-    notification: Notification = NotificationFactory.create_model(
-        session, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_4["data"]
-    )
+    @patch("notify_delivery.resources.gc_notify.queue.get_simple_cloud_event")
+    @patch("notify_delivery.resources.gc_notify.process_message")
+    def test_worker_invalid_event_type(self, mock_process_message, mock_get_simple_cloud_event):
+        """Test worker with invalid cloud event type."""
+        mock_get_simple_cloud_event.return_value = SimpleCloudEvent(
+            type="invalid.event.type",
+            data={"notificationId": "test_notification_id"},
+        )
+        response = self.client.post("/gcnotify", data="{}")
+        assert response.status_code == HTTPStatus.OK
+        mock_process_message.assert_not_called()
 
-    ContentFactory.create_model(
-        session, notification.id, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_1["data"]["content"]
-    )
+    @patch("notify_delivery.resources.gc_notify.Notification.find_notification_by_id")
+    def test_process_message_unknown_notification(self, mock_find_notification_by_id):
+        """Test process_message with unknown notification."""
+        mock_find_notification_by_id.return_value = None
+        with pytest.raises(Exception) as e:
+            process_message({"notificationId": "test_notification_id"})
+        assert str(e.value) == "Unknown notification for notificationId test_notification_id"
 
-    notification.status_code = Notification.NotificationStatus.QUEUED
-    notification.provider_code = Notification.NotificationProvider.GC_NOTIFY
-    notification.update_notification()
+    @patch("notify_delivery.resources.gc_notify.Notification.find_notification_by_id")
+    def test_process_message_invalid_notification_status(self, mock_find_notification_by_id):
+        """Test process_message with invalid notification status."""
+        notification = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="test@example.com",
+            status_code=Notification.NotificationStatus.SENT,
+        )
+        mock_find_notification_by_id.return_value = notification
+        with pytest.raises(Exception) as e:
+            process_message({"notificationId": "test_notification_id"})
+        assert str(e.value) == "Notification status is not sent"
 
-    data: dict = {"notificationId": notification.id}
+    @patch("notify_delivery.services.providers.gc_notify.GCNotify.send")
+    @patch("notify_delivery.resources.gc_notify.Notification.find_notification_by_id")
+    @patch("notify_delivery.resources.gc_notify.NotificationHistory.create_history")
+    @patch("notify_delivery.resources.gc_notify.Notification.update_notification")
+    @patch("notify_delivery.resources.gc_notify.Notification.delete_notification")
+    def test_process_message_success(
+        self,
+        mock_delete_notification,
+        mock_update_notification,
+        mock_create_history,
+        mock_find_notification_by_id,
+        mock_send,
+    ):
+        """Test process_message with successful notification delivery."""
+        notification = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                    attachments=[],
+                )
+            ],
+            recipients="test@example.com",
+            status_code=Notification.NotificationStatus.QUEUED,
+            provider_code="test_provider",
+        )
+        mock_find_notification_by_id.return_value = notification
+        mock_send.return_value = NotificationSendResponses(
+            recipients=[NotificationSendResponse(recipient="test@example.com", response_id="some_id")]
+        )
+        process_message({"notificationId": "test_notification_id"})
+        mock_find_notification_by_id.assert_called_once_with("test_notification_id")
+        mock_send.assert_called_once()
+        mock_update_notification.assert_called_once()
+        mock_create_history.assert_called_once_with(notification, "test@example.com", "some_id")
+        mock_delete_notification.assert_called_once()
 
-    responses = NotificationSendResponses(recipients=[NotificationFactory.SendResponseData.SEND_RESPONSE])
-    with (patch.object(GCNotify, "send", return_value=responses),):
-        history: NotificationHistory = process_message(data)
-
-        assert history is not None
-        assert history.recipients == NotificationFactory.RequestProviderData.REQUEST_PROVIDER_4["data"]["recipients"]
-
-
-def test_process_message_no_response(session):
-    """Test process_message function with no response from provider."""
-    notification: Notification = NotificationFactory.create_model(
-        session, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_4["data"]
-    )
-
-    ContentFactory.create_model(
-        session, notification.id, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_1["data"]["content"]
-    )
-
-    notification.status_code = Notification.NotificationStatus.QUEUED
-    notification.provider_code = Notification.NotificationProvider.GC_NOTIFY
-    notification.update_notification()
-
-    data: dict = {"notificationId": notification.id}
-
-    with (patch.object(GCNotify, "send", return_value=None),):
-        result: Notification = process_message(data)
-        assert result is not None
+    @patch("notify_delivery.services.providers.gc_notify.GCNotify.send")
+    @patch("notify_delivery.resources.gc_notify.Notification.find_notification_by_id")
+    @patch("notify_delivery.resources.gc_notify.Notification.update_notification")
+    def test_process_message_failure(self, mock_update_notification, mock_find_notification_by_id, mock_send):
+        """Test process_message with failed notification delivery."""
+        notification = Notification(
+            content=[
+                Content(
+                    subject="Test Subject",
+                    body="Test Body",
+                )
+            ],
+            recipients="test@example.com",
+            status_code=Notification.NotificationStatus.QUEUED,
+            provider_code="GC_NOTIFY",
+        )
+        mock_find_notification_by_id.return_value = notification
+        mock_send.return_value = None
+        result = process_message({"notificationId": "test_notification_id"})
+        mock_find_notification_by_id.assert_called_once_with("test_notification_id")
+        mock_send.assert_called_once()
+        mock_update_notification.assert_called_once()
+        assert isinstance(result, Notification)
         assert result.status_code == Notification.NotificationStatus.FAILURE
-
-
-def test_process_message_id_not_exist_exception(session):
-    """Test process_message function that notification not exist."""
-    notification_id = 3333
-    data: dict = {"notificationId": notification_id}
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == f"Unknown notification for notificationId {notification_id}"
-
-    notification_id = ""
-    data: dict = {"notificationId": notification_id}
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == f"Unknown notification for notificationId {notification_id}"
-
-
-def test_process_message_status_code_exception(session):
-    """Test process_message function that notify status is not QUEUED."""
-    notification: Notification = NotificationFactory.create_model(
-        session, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_4["data"]
-    )
-
-    ContentFactory.create_model(
-        session, notification.id, NotificationFactory.RequestProviderData.REQUEST_PROVIDER_1["data"]["content"]
-    )
-
-    notification.status_code = Notification.NotificationStatus.PENDING
-    notification.provider_code = Notification.NotificationProvider.GC_NOTIFY
-    notification.update_notification()
-
-    data: dict = {"notificationId": notification.id}
-
-    with pytest.raises(Exception) as exception:
-        process_message(data)
-
-    assert exception.value.args[0] == f"Notification status is not {notification.status_code}"

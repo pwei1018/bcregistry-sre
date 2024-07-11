@@ -12,11 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """list of providers."""
-from notify_api.models import Notification
-
-from . import email_smtp, gc_notify
-
-_all_providers = {
-    Notification.NotificationProvider.SMTP: email_smtp.EmailSMTP,
-    Notification.NotificationProvider.GC_NOTIFY: gc_notify.GCNotify,
-}

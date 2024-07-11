@@ -50,6 +50,15 @@ def freeze_datetime_utcnow(monkeypatch):
     monkeypatch.setattr(datetime, "datetime", _Datetime)
 
 
+@pytest.fixture(autouse=True)
+def app1():
+    """Return a session-wide application configured in TEST mode."""
+    _app = create_app("unitTesting")
+
+    with _app.app_context():
+        yield _app
+
+
 @pytest.fixture(scope="session")
 def app():
     """Return a session-wide application configured in TEST mode."""

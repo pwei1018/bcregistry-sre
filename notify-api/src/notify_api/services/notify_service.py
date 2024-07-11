@@ -111,3 +111,29 @@ class NotifyService:
             return notification_history
 
         return notification
+
+    def queue_republish(self):
+        """Republish notifications to queue."""
+        notifications = Notification.find_resend_notifications()
+
+        for notification in notifications:
+
+            deliery_topic = current_app.config.get("NOTIFY_DELIVERY_GCNOTIFY_TOPIC")
+            data = {
+                "notificationId": notification.id,
+            }
+
+            cloud_event = SimpleCloudEvent(
+                id=str(uuid.uuid4()),
+                source="notify-api",
+                subject=None,
+                time=datetime.now(tz=timezone.utc).isoformat(),
+                type=f"bc.registry.notify.{notification.provider_code}",
+                data=data,
+            )
+
+            publish_future = queue.publish(deliery_topic, GcpQueue.to_queue_message(cloud_event))
+            logger.info(publish_future)
+
+            notification.status_code = Notification.NotificationStatus.QUEUED
+            notification.update_notification()

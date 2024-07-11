@@ -29,9 +29,12 @@ includedPermissions:
 - cloudscheduler.locations.list
 - cloudsql.databases.get
 - cloudsql.databases.list
-- cloudsql.instances.connect
 - cloudsql.instances.get
 - cloudsql.instances.list
+- cloudsql.instances.connect
+- cloudsql.instances.executeSql
+- cloudsql.users.get
+- cloudsql.users.list
 - cloudtrace.traces.get
 - firebase.clients.get
 - firebase.clients.list

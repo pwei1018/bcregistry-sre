@@ -151,7 +151,7 @@ class TestEmailSMTP(unittest.TestCase):
     ):
         """Test process_message with successful notification delivery."""
         notification_request = NotificationRequest(
-            content=[
+            Content=[
                 ContentRequest(
                     subject="Test Subject",
                     body="Test Body",
@@ -197,7 +197,7 @@ class TestEmailSMTP(unittest.TestCase):
     ):
         """Test process_message with failed notification delivery."""
         notification_request = NotificationRequest(
-            content=[
+            Content=[
                 ContentRequest(
                     subject="Test Subject",
                     body="Test Body",
@@ -241,7 +241,7 @@ class TestEmailSMTP(unittest.TestCase):
     ):
         """Test process_message with error during notification delivery."""
         notification_request = NotificationRequest(
-            content=[
+            Content=[
                 ContentRequest(
                     subject="Test Subject",
                     body="Test Body",

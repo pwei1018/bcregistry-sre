@@ -75,6 +75,8 @@ steps:
     # Merge cloud deploy files
     yq eval-all ./devops/gcp/clouddeploy.yaml ./devops/gcp/clouddeploy-targets.yaml > ./devops/gcp/clouddeploy-with-targets.yaml
 
+    cat ./devops/gcp/clouddeploy-with-targets.yaml
+    
     # Update Cloud Deploy deployment manifests and skaffold.yaml
     gcloud deploy apply --file=./devops/gcp/clouddeploy-with-targets.yaml  \
       --region=${_REGION} \

@@ -24,7 +24,9 @@ steps:
   script: |
     #!/usr/bin/env bash
 
-    PROJECT_NAME=$(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID | cut -d'-' -f 1)
+    PROJECT_ID=$(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID)
+    echo $PROJECT_ID > /workspace/project_id.txt
+    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
 
     targets=(${_DEPLOY_TARGETS})
     if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
@@ -75,6 +77,10 @@ steps:
   script: |
     #!/usr/bin/env bash
 
+    PROJECT_ID=$(cat /workspace/project_id.txt)
+    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
+    TARGE_ENV=${PROJECT_NAME}-${_DEPLOY_TARGET}
+
     # tag image
     gcloud artifacts docker tags add \
           ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
@@ -88,7 +94,7 @@ steps:
       gcloud deploy releases create v-${_APP_NAME}-${_SHORT_SHA}-${RELEASE_TIMESTAMP} \
         --delivery-pipeline=${_DEPLOY_PIPELINE} \
         --region=${_REGION} \
-        --to-target=${_DEPLOY_TARGET} \
+        --to-target=${TARGE_ENV} \
         --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
     else
       # prompt the existing release
@@ -104,7 +110,7 @@ steps:
       gcloud deploy releases promote --release=${LATEST_RELEASE_NAME} \
         --delivery-pipeline=${_DEPLOY_PIPELINE}\
         --region=${_REGION} \
-        --to-target=${_DEPLOY_TARGET}
+        --to-target=${TARGE_ENV}
     fi
 
 availableSecrets:

@@ -16,6 +16,11 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
+    permissions:
+      contents: read
+      actions: read
+      checks: write
+
     steps:
       - uses: actions/checkout@v4
 

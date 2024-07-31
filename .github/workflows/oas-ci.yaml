@@ -6,6 +6,9 @@ on:
       working_directory:
         type: string
         default: "."
+      oas_file_directory:
+        type: string
+        default: "./docs"
 
 jobs:
   spectralChecks:
@@ -16,11 +19,6 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working_directory }}
 
-    permissions:
-      contents: write
-      actions: read
-      checks: write
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,8 +27,12 @@ jobs:
         with:
           working-directory: ${{ inputs.working_directory }}
 
-      - name: Test this action against an incorrect file.
-        uses: stoplightio/spectral-action@latest
-        with:
-          file_glob: ./docs/oas/*.yaml
-          spectral_ruleset: .spectral.yaml
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        
+      - name: Install spectral
+        run: npm install --location=global @stoplight/spectral-cli
+        
+      - name: Spectral linting
+        run: spectral lint ${{ inputs.oas_file_directory }}/*.yaml --ruleset .spectral.yaml --verbose
+

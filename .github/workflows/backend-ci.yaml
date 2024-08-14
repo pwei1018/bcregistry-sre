@@ -138,7 +138,7 @@ jobs:
         file: coverage.xml
         flags: ${{ inputs.codecov_flag }}
         name: codecov-${{ inputs.app_name }}
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: ${{ vars.CODECOV_TOKEN }}
         fail_ci_if_error: false
 
   verify-build:

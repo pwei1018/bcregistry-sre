@@ -65,6 +65,7 @@ jobs:
       DATABASE_TEST_HOST: "localhost"
       DATABASE_TEST_PORT: "5432"
       FLASK_ENV: "testing"
+      DEPLOYMENT_ENV: "testing"
       DATABASE_TEST_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
       JWT_OIDC_TEST_ISSUER: "http://localhost:8081/auth/realms/demo"
       JWT_OIDC_TEST_WELL_KNOWN_CONFIG: "http://localhost:8081/auth/realms/demo/.well-known/openid-configuration"

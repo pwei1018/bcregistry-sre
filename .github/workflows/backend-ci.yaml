@@ -30,8 +30,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          #cache: poetry
-          #cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
+          cache: poetry
+          #ache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
         run: |
           poetry update
@@ -91,7 +91,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
+          POSTGRES_DB: unittesting
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
@@ -111,8 +111,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          #cache: poetry
-          #cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
+          cache: poetry
+          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
       - name: Install dependencies
         run: |
           poetry update

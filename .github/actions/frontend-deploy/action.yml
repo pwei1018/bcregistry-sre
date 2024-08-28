@@ -13,4 +13,6 @@ runs:
     - name: Copy build/deployment files
       shell: bash
       run: |
+        ls -l ${{ github.action_path }}/files
         cp  ${{ github.action_path }}/files/* ${{ inputs.working-directory }}
+        ls -l ${{ inputs.working-directory }}

@@ -75,6 +75,10 @@ steps:
   script: |
     #!/usr/bin/env bash
 
+    pwd
+
+    ls -l
+
     # Set firebase config
     APP_HOST_NAME=$(op read -n op://CD/${_DEPLOYMENT_ENVIRONMENT}/${_APP_NAME}/FIREBASE_HOST_NAME)
     firebase=$(jq '.hosting.site='\"$APP_HOST_NAME\"'' firebase-${_DEPLOYMENT_ENVIRONMENT}.json)

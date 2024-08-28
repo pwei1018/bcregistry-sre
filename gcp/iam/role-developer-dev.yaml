@@ -84,6 +84,7 @@ includedPermissions:
 - run.executions.list
 - run.jobs.get
 - run.jobs.list
+- run.jobs.run
 - run.locations.list
 - run.operations.get
 - run.operations.list

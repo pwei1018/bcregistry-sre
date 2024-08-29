@@ -207,12 +207,18 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+      - name: Debug hashFiles
+        run: |
+            pwd
+            ls -l
+            echo "example FILES: |${{ hashFiles('.env.example') }}|"       
+            echo "sample FILES: |${{ hashFiles('.env.sample') }}|"    
       - name: Copy .env.example
-        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.example') != '' }}
+        if: ${{ hashFiles('.env.example') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
       - name: Copy .env.sample
-        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.sample') != '' }}
+        if: ${{ hashFiles('.env.sample') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env             
       - name: Install dependencies

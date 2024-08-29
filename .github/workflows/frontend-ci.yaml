@@ -95,6 +95,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
+      - name: Copy .env
+        if: ${{ hashFiles('.env.example') != '' }}
+        run: |
+          cp .env.example .env       
+      - name: Copy .env
+        if: ${{ hashFiles('.env.sample') != '' }}
+        run: |
+          cp .env.sample .env           
       - name: Install dependencies
         run: pnpm install
       - name: Testing
@@ -199,6 +207,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
+      - name: Copy .env
+        if: ${{ hashFiles('.env.example') != '' }}
+        run: |
+          cp .env.example .env       
+      - name: Copy .env
+        if: ${{ hashFiles('.env.sample') != '' }}
+        run: |
+          cp .env.sample .env             
       - name: Install dependencies
         run: |
           npm ci

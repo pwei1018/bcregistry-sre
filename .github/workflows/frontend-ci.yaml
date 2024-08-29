@@ -210,7 +210,7 @@ jobs:
       - name: Debug hashFiles
         run: |
             pwd
-            ls -l
+            ls -la
             echo "example FILES: |${{ hashFiles('.env.example') }}|"       
             echo "sample FILES: |${{ hashFiles('.env.sample') }}|"    
       - name: Copy .env.example

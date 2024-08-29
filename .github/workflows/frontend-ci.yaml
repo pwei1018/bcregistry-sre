@@ -125,6 +125,7 @@ jobs:
         name: coveragefile
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
+      continue-on-error: true
       with:
         file: coverage.xml
         flags: ${{ inputs.codecov_flag }}
@@ -240,6 +241,7 @@ jobs:
         name: coveragefile
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
+      continue-on-error: true
       with:
         file: coverage.xml
         flags: ${{ inputs.codecov_flag }}

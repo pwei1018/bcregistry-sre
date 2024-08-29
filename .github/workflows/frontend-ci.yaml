@@ -95,14 +95,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
-      - name: Copy .env
-        if: ${{ hashFiles('.env.example') != '' }}
+      - name: Copy .env.example
+        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.example') != '' }}
         run: |
-          cp .env.example .env       
-      - name: Copy .env
-        if: ${{ hashFiles('.env.sample') != '' }}
+          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
+      - name: Copy .env.sample
+        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.sample') != '' }}
         run: |
-          cp .env.sample .env           
+          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env         
       - name: Install dependencies
         run: pnpm install
       - name: Testing
@@ -207,14 +207,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
-      - name: Copy .env
-        if: ${{ hashFiles('.env.example') != '' }}
+      - name: Copy .env.example
+        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.example') != '' }}
         run: |
-          cp .env.example .env       
-      - name: Copy .env
-        if: ${{ hashFiles('.env.sample') != '' }}
+          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
+      - name: Copy .env.sample
+        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.sample') != '' }}
         run: |
-          cp .env.sample .env             
+          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env             
       - name: Install dependencies
         run: |
           npm ci

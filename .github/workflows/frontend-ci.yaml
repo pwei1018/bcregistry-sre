@@ -119,13 +119,13 @@ jobs:
   code-coverage:
     needs: unit-testing-pnpm
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
     - uses: actions/download-artifact@v4
       with:
         name: coveragefile
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
-      continue-on-error: true
       with:
         file: coverage.xml
         flags: ${{ inputs.codecov_flag }}
@@ -235,13 +235,13 @@ jobs:
   code-coverage-npm:
     needs: unit-testing-npm
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
     - uses: actions/download-artifact@v4
       with:
         name: coveragefile
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
-      continue-on-error: true
       with:
         file: coverage.xml
         flags: ${{ inputs.codecov_flag }}

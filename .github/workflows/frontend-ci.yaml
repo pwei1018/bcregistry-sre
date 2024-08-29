@@ -95,14 +95,20 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
+      - name: Debug hashFiles
+        run: |
+            pwd
+            ls -la
+            echo "example FILES: |${{ hashFiles('**/.env.example') }}|"       
+            echo "sample FILES: |${{ hashFiles('**/.env.sample') }}|"    
       - name: Copy .env.example
-        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.example') != '' }}
+        if: ${{ hashFiles('**/*env.example') != '' }}
         run: |
-          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
+          cp  .env.example .env        
       - name: Copy .env.sample
-        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.sample') != '' }}
+        if: ${{ hashFiles('**/*env.sample') != '' }}
         run: |
-          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env         
+          cp  .env.sample .env           
       - name: Install dependencies
         run: pnpm install
       - name: Testing
@@ -211,16 +217,16 @@ jobs:
         run: |
             pwd
             ls -la
-            echo "example FILES: |${{ hashFiles('.env.example') }}|"       
-            echo "sample FILES: |${{ hashFiles('.env.sample') }}|"    
+            echo "example FILES: |${{ hashFiles('**/.env.example') }}|"       
+            echo "sample FILES: |${{ hashFiles('**/.env.sample') }}|"    
       - name: Copy .env.example
-        if: ${{ hashFiles('.env.example') != '' }}
+        if: ${{ hashFiles('**/*env.example') != '' }}
         run: |
-          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
+          cp  .env.example .env        
       - name: Copy .env.sample
-        if: ${{ hashFiles('.env.sample') != '' }}
+        if: ${{ hashFiles('**/*env.sample') != '' }}
         run: |
-          cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env             
+          cp  .env.sample .env             
       - name: Install dependencies
         run: |
           npm ci

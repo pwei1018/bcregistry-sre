@@ -97,14 +97,14 @@ jobs:
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
       - name: Debug files
         run: |
-            pwd
-            ls -la
+          pwd
+          ls -la
       - name: Copy .env
         run: |
-          cp  .env.example .env 2>/dev/null
-          cp  .env.sample .env 2>/dev/null
-          cp  env.example .env 2>/dev/null
-          cp  env.sample .env 2>/dev/null        
+          cp .env.example .env 2>/dev/null
+          cp .env.sample .env 2>/dev/null
+          cp env.example .env 2>/dev/null
+          cp env.sample .env 2>/dev/null        
       - name: Install dependencies
         run: pnpm install
       - name: Testing
@@ -215,10 +215,10 @@ jobs:
             ls -la
       - name: Copy .env
         run: |
-          cp  .env.example .env 2>/dev/null
-          cp  .env.sample .env 2>/dev/null
-          cp  env.example .env 2>/dev/null
-          cp  env.sample .env 2>/dev/null          
+          cp .env.example .env 2>/dev/null
+          cp .env.sample .env 2>/dev/null
+          cp env.example .env 2>/dev/null
+          cp env.sample .env 2>/dev/null          
       - name: Install dependencies
         run: |
           npm ci

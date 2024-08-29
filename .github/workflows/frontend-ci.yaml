@@ -96,11 +96,11 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
       - name: Copy .env.example
-        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.example') != '' }}
+        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.example') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
       - name: Copy .env.sample
-        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.sample') != '' }}
+        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.sample') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env         
       - name: Install dependencies
@@ -208,11 +208,11 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
       - name: Copy .env.example
-        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.example') != '' }}
+        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.example') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env        
       - name: Copy .env.sample
-        if: ${{ hashFiles(${{ inputs.working_directory }}/'.env.sample') != '' }}
+        if: ${{ hashFiles('${{ inputs.working_directory }}/.env.sample') != '' }}
         run: |
           cp  ${{ inputs.working_directory }}/.env.sample  ${{ inputs.working_directory }}/.env             
       - name: Install dependencies

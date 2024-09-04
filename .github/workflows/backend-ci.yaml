@@ -43,11 +43,11 @@ jobs:
           poetry update
           poetry install
       - name: Run isort
-        if: ${{ inputs.skip_isort == "false" }}
+        if: ${{ inputs.skip_isort == 'false' }}
         run: |
           poetry run isort . --check -v
       - name: Run black
-        if: ${{ inputs.skip_black == "false" }}
+        if: ${{ inputs.skip_black == 'false' }}
         run: |
           poetry run black . --check
       - name: Run pylint

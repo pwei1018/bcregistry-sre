@@ -38,7 +38,7 @@ jobs:
           poetry install
       - name: Run isort
         run: |
-          poetry run isort . --check
+          poetry run isort . --check -v
       - name: Run black
         run: |
           poetry run black . --check

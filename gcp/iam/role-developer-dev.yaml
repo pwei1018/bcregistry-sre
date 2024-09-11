@@ -2,6 +2,9 @@ title: "Role Developer"
 description: "Role for Developer."
 stage: "GA"
 includedPermissions:
+- resourcemanager.projects.get
+- serviceusage.services.get
+- serviceusage.services.list
 - artifactregistry.repositories.get
 - artifactregistry.tags.get
 - cloudbuild.builds.get
@@ -25,7 +28,17 @@ includedPermissions:
 - clouddeploy.rollouts.list
 - clouddeploy.targets.get
 - clouddeploy.targets.list
+- appengine.applications.get
+- cloudscheduler.jobs.create
+- cloudscheduler.jobs.delete
+- cloudscheduler.jobs.enable
+- cloudscheduler.jobs.fullView
+- cloudscheduler.jobs.get
 - cloudscheduler.jobs.list
+- cloudscheduler.jobs.pause
+- cloudscheduler.jobs.run
+- cloudscheduler.jobs.update
+- cloudscheduler.locations.get
 - cloudscheduler.locations.list
 - cloudsql.databases.get
 - cloudsql.databases.list
@@ -77,7 +90,6 @@ includedPermissions:
 - pubsub.topics.publish
 - pubsub.topics.update
 - pubsub.topics.updateTag
-- resourcemanager.projects.get
 - run.configurations.get
 - run.configurations.list
 - run.executions.get
@@ -103,3 +115,5 @@ includedPermissions:
 - storage.managedFolders.get
 - storage.objects.get
 - storage.objects.list
+- storage.buckets.get
+- storage.buckets.list

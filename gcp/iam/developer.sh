@@ -1,11 +1,11 @@
 
 #!/bin/bash
 
-#declare -a users=("b")
+declare -a users=("bcregistry.sre@gov.bc.ca")
 
-#declare -a projects=("")
+declare -a projects=("a083gt" "bcrbk9" "c4hnrd" "eogruh" "gtksf3" "k973yf" "keee67" "okagqp" "sbgmug" "yfjq17" "yfthig")
 
-#declare -a environments=("dev" "test" "tools" "prod" "integration" "sandbox")
+declare -a environments=("dev" "test" "tools" "prod" "integration" "sandbox")
 declare -a roles=("developer")
 
 for user in "${users[@]}"

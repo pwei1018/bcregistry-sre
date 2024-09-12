@@ -3,10 +3,13 @@ description: "Role for Developer."
 stage: "GA"
 includedPermissions:
 - resourcemanager.projects.get
+- serviceusage.services.get
 - serviceusage.services.list
 - storage.managedFolders.get
 - storage.objects.get
 - storage.objects.list
+- storage.buckets.get
+- storage.buckets.list
 - artifactregistry.repositories.get
 - artifactregistry.tags.get
 - run.locations.list
@@ -23,7 +26,14 @@ includedPermissions:
 - run.jobs.get
 - run.jobs.list
 - run.jobs.run
+- appengine.applications.get
+- cloudscheduler.jobs.enable
+- cloudscheduler.jobs.fullView
+- cloudscheduler.jobs.get
 - cloudscheduler.jobs.list
+- cloudscheduler.jobs.pause
+- cloudscheduler.jobs.run
+- cloudscheduler.locations.get
 - cloudscheduler.locations.list
 - pubsub.topics.get
 - pubsub.topics.list

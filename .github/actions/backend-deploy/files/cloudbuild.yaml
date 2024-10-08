@@ -90,9 +90,11 @@ steps:
     tag_image() {
       local source_tag="$1"
       local target_tag="$2"
-      gcloud artifacts docker tags add \
-        "${IMAGE_PATH}:${source_tag}" \
-        "${IMAGE_PATH}:${target_tag}"
+      if ! tag_exists "${source_tag}"; then
+        gcloud artifacts docker tags add \
+          "${IMAGE_PATH}:${source_tag}" \
+          "${IMAGE_PATH}:${target_tag}"
+      fi
     }
 
     # Function to build and push Docker image
@@ -100,7 +102,7 @@ steps:
       local target_tag="$1"
 
       # If the tag does not exist, build and push the image
-      if [ -z "$(tag_exists ${_SHORT_SHA})" ]; then
+      if ! tag_exists "${_SHORT_SHA}"; then
         docker build \
           -t "${IMAGE_PATH}:${_SHORT_SHA}" \
           --cache-from "${IMAGE_PATH}:latest" \
@@ -109,6 +111,8 @@ steps:
         docker push "${IMAGE_PATH}:${_SHORT_SHA}"
 
         tag_image "${_SHORT_SHA}" "latest"
+      else
+        echo "Image ${IMAGE_PATH}:${_SHORT_SHA} already exists. Skipping build." >&2
       fi
 
       tag_image "${_SHORT_SHA}" "${target_tag}"
@@ -119,12 +123,12 @@ steps:
       "dev"|"test"|"sandbox"|"prod")
         if [ "${_DEPLOYMENT_ENV}" = "prod" ]; then
           # For production, create a dated backup tag if prod image exists
-          if [ -n "$(tag_exists prod)" ]; then
+          if tag_exists "prod"; then
             tag_image "prod" "prod-$(date +%F)"
           fi
         fi
 
-        if [ -z "${_DEPLOYMENT_ENV_FROM}" || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+        if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
           # Build new image for fresh deployment
           build_and_push_image "${_DEPLOYMENT_ENV}"
         else
@@ -174,7 +178,7 @@ steps:
       echo "DEPLOY_PROJECT_ID: $DEPLOY_PROJECT_ID"
       echo "JOB_NAME: $JOB_NAME"
 
-      if [ gcloud run jobs describe $JOB_NAME --project=${DEPLOY_PROJECT_ID} --region=${_REGION} 2> /dev/null ]; then
+      if gcloud run jobs describe $JOB_NAME --project=${DEPLOY_PROJECT_ID} --region=${_REGION} 2> /dev/null ; then
         gcloud run jobs execute "$JOB_NAME" \
           --region="${_REGION}" \
           --project="$DEPLOY_PROJECT_ID"

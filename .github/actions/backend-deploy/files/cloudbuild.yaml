@@ -103,7 +103,7 @@ steps:
       "dev"|"test"|"sandbox"|"prod")
         if [ "${_DEPLOYMENT_ENV}" = "prod" ]; then
           # For production, create a dated backup tag if prod image exists
-          if gcloud artifacts docker images describe "${IMAGE_PATH}:prod" --verbosity=none &>/dev/null; then
+          if gcloud artifacts docker images describe "${IMAGE_PATH}:prod" --verbosity=none; then
             tag_image "prod" "prod-$(date +%F)"
           fi
         fi
@@ -157,7 +157,14 @@ steps:
       DEPLOY_PROJECT_ID=$(cat /workspace/project_id.txt)
       JOB_NAME="${_APP_NAME}-db-migration-${_DEPLOYMENT_ENV}"
 
-      if gcloud run jobs describe "$JOB_NAME" --project="$DEPLOY_PROJECT_ID" --region="${_REGION}" &>/dev/null; then
+      echo "DEPLOY_PROJECT_ID: $DEPLOY_PROJECT_ID"
+      echo "JOB_NAME: $JOB_NAME"
+      echo "REGION: ${_REGION}"
+
+      # Check if the job exists
+      JOB_EXIST=$(gcloud run jobs describe $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION} || echo "NOT")
+
+      if [ "$JOB_EXIST" = "NOT" ]; then
         gcloud run jobs execute "$JOB_NAME" \
           --region="${_REGION}" \
           --project="$DEPLOY_PROJECT_ID"

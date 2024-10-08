@@ -1,118 +1,173 @@
 steps:
-# build image if not exists in artifact registry
-- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
-  script: |
-    #!/usr/bin/env bash
-    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA --verbosity=none` ]]
-    then
-      docker build \
-        -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest\
-        .
-      docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
 
-      gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest
-    else
-      echo 'image tag exists'
-    fi
-
-# prepare/setup service and cloud deploy manifest files
+# Step 1: Prepare and setup service and cloud deploy manifest files
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
   secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   script: |
     #!/usr/bin/env bash
+    set -euo pipefail
 
-    PROJECT_ID=$(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID)
-    echo $PROJECT_ID > /workspace/project_id.txt
-    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
+    # Fetch project ID from 1Password and set up project variables
+    PROJECT_ID=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/DEPLOY_PROJECT_ID")
+    echo "$PROJECT_ID" > /workspace/project_id.txt
+    PROJECT_NAME=$(echo "$PROJECT_ID" | cut -d'-' -f 1)
 
-    targets=(${_DEPLOY_TARGETS})
-    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
-      # update the pipeline name
-      export PIPELINE_NAME=${_DEPLOY_PIPELINE}
-      yq e -i '.metadata.name = env(PIPELINE_NAME)' ./devops/gcp/clouddeploy.yaml
+    # Function to generate service manifest for each environment
+    generate_service_manifest() {
+      local env_name=$1
+      export APP_ENV=${env_name}
+      # Inject environment-specific variables
+      op inject -f -i ./devops/vaults.gcp.env -o "./devops/vaults.${env_name}"
 
-      for env_name in "${targets[@]}"; do
-        export APP_ENV=${env_name}
-        op inject  -f -i ./devops/vaults.gcp.env -o ./devops/vaults.${env_name}
+      # Extract VPC connector and environment variables
+      export VPC_CONNECTOR=$(awk -F '=' '/^VPC_CONNECTOR/ {print $2}' "./devops/vaults.${env_name}")
+      export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}" | sed 's/"/"/g')
 
-        export VPC_CONNECTOR=$(awk -F '=' '/^VPC_CONNECTOR/ {print $2}' ./devops/vaults.${env_name})
-        export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' ./devops/vaults.${env_name} | sed 's/\"/\"/g')
+      # Generate service manifest with or without VPC connector
+      if [ -n "$VPC_CONNECTOR" ]; then
+        # Add VPC connector annotations and generate manifest
+        yq e '.spec.template.metadata.annotations["run.googleapis.com/vpc-access-egress"] = "private-ranges-only" |
+              .spec.template.metadata.annotations["run.googleapis.com/vpc-access-connector"] = env(VPC_CONNECTOR)' \
+              ./devops/gcp/k8s/service.template.yaml > "./devops/gcp/k8s/temp-service.${env_name}.yaml"
 
-        if [ "$VPC_CONNECTOR" ]; then
-          yq e '.spec.template.metadata.annotations["run.googleapis.com/vpc-access-egress"] = "private-ranges-only" |
-                .spec.template.metadata.annotations["run.googleapis.com/vpc-access-connector"] = env(VPC_CONNECTOR)' \
-                ./devops/gcp/k8s/service.template.yaml > ./devops/gcp/k8s/temp-service.${env_name}.yaml
+        yq e '.spec.template.spec.containers[0].env += env(VAL)' "./devops/gcp/k8s/temp-service.${env_name}.yaml" > "./devops/gcp/k8s/service.${env_name}.yaml"
+      else
+        # Generate manifest without VPC connector
+        yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/service.template.yaml > "./devops/gcp/k8s/service.${env_name}.yaml"
+      fi
+    }
 
-          # generate manifest for each environment
-          yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/temp-service.${env_name}.yaml > ./devops/gcp/k8s/service.${env_name}.yaml
-        else
-          # generate manifest for each environment
-          yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/service.template.yaml > ./devops/gcp/k8s/service.${env_name}.yaml
-        fi
+    # Function to remove unused targets from Cloud Deploy manifest
+    remove_unused_deployment() {
+      targets_full=(${_DEPLOY_FULL_DEPLOYMENT_ENVS})
 
-
-      done
-
-      targets_full=(${_DEPLOY_FULL_TARGETS})
-
-      # find difference of targets compare with full targets
+      # Find difference between full targets and current targets
       envs_diff=($(echo ${targets_full[@]} ${targets[@]} | tr ' ' '\n' | sort | uniq -u))
       for env_name in "${envs_diff[@]}"; do
-        # remove the target from cloud deploy manifest
-        export TARGET_ENV=${PROJECT_NAME}-${env_name}
-        yq -i 'del(.serialPipeline.stages[] | select(.targetId == env(TARGET_ENV)))' ./devops/gcp/clouddeploy.yaml
+        export TARGET=${PROJECT_NAME}-${env_name}
+        yq -i 'del(.serialPipeline.stages[] | select(.targetId == env(TARGET)))' "./devops/gcp/clouddeploy.yaml"
       done
+    }
+
+    targets=(${_DEPLOYMENT_ENVS})
+    if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${targets[0]}" ]; then
+      # Update Cloud Deploy manifest and generate service manifests
+      yq e -i '.metadata.name = env(_DEPLOYMENT_PIPELINE)' "./devops/gcp/clouddeploy.yaml"
+
+      for env_name in "${targets[@]}"; do
+        generate_service_manifest "$env_name"
+      done
+
+      remove_unused_deployment
     fi
 
-    # Apply Cloud Deploy deployment
-    gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
-      --region=${_REGION} \
-      --project=${_DEPLOY_RUNNING_PROJECT_ID}
+    cat "./devops/gcp/k8s/service.test.yaml"
 
-# deploy
+    # Apply Cloud Deploy configuration
+    gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
+      --region="${_REGION}" \
+      --project="${_BUILD_PROJECT}"
+
+# Step 2: Build and deploy the application
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  script: |
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Set up environment variables
+    PROJECT_ID=$(cat /workspace/project_id.txt)
+    PROJECT_NAME=$(echo "$PROJECT_ID" | cut -d'-' -f 1)
+    TARGET="${PROJECT_NAME}-${_DEPLOYMENT_ENV}"
+    TARGET_FROM="${PROJECT_NAME}-${_DEPLOYMENT_ENV_FROM}"
+    IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}"
+    RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
+
+    # Function to build and push Docker image
+    build_and_push_image() {
+      docker build \
+        -t "${IMAGE_PATH}:${_SHORT_SHA}" \
+        --cache-from "${IMAGE_PATH}:latest" \
+        .
+      docker push "${IMAGE_PATH}:${_SHORT_SHA}"
+    }
+
+    # Function to tag Docker image
+    tag_image() {
+      local source_tag="$1"
+      local target_tag="$2"
+      gcloud artifacts docker tags add \
+        "${IMAGE_PATH}:${source_tag}" \
+        "${IMAGE_PATH}:${target_tag}"
+    }
+
+    # Handle image building and tagging based on deployment target
+    case ${_DEPLOYMENT_ENV} in
+      "dev"|"test"|"sandbox"|"prod")
+        if [ "${_DEPLOYMENT_ENV}" = "prod" ]; then
+          # For production, create a dated backup tag if prod image exists
+          if gcloud artifacts docker images describe "${IMAGE_PATH}:prod" --verbosity=none &>/dev/null; then
+            tag_image "prod" "prod-$(date +%F)"
+          fi
+        fi
+
+        if [ -z "${_DEPLOYMENT_ENV_FROM}" || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+          # Build new image for fresh deployment
+          build_and_push_image
+          tag_image "${_SHORT_SHA}" "latest"
+          tag_image "${_SHORT_SHA}" "${_DEPLOYMENT_ENV}"
+        else
+          # Tag existing image for promotion
+          tag_image "${_DEPLOYMENT_ENV_FROM}" "${_DEPLOYMENT_ENV}"
+        fi
+        ;;
+      *)
+        echo "Error: Invalid environment '${_DEPLOYMENT_ENV}'. Allowed values are test, sandbox, dev, or prod." >&2
+        exit 1
+        ;;
+    esac
+
+    # Create new release or promote existing release
+    if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+      gcloud deploy releases create "v-${_APP_NAME}-${_SHORT_SHA}-${RELEASE_TIMESTAMP}" \
+        --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+        --region="${_REGION}" \
+        --to-target="${TARGET}" \
+        --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
+    else
+      LATEST_RELEASE_NAME=$(gcloud deploy targets describe "${TARGET_FROM}" \
+            --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+            --region="${_REGION}" \
+            --format="value('Latest release')")
+
+      gcloud deploy releases promote --release="${LATEST_RELEASE_NAME}" \
+        --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+        --region="${_REGION}" \
+        --to-target="${TARGET}"
+    fi
+
+# Step 3: Trigger database migration job (if applicable)
 - name: 'gcr.io/cloud-builders/gcloud'
   script: |
     #!/usr/bin/env bash
+    set -euo pipefail
 
-    PROJECT_ID=$(cat /workspace/project_id.txt)
-    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
-    TARGE_ENV=${PROJECT_NAME}-${_DEPLOY_TARGET}
+    # Check if migrations directory exists and execute migration job
+    if [ -d "migrations" ]; then
+      DEPLOY_PROJECT_ID=$(cat /workspace/project_id.txt)
+      JOB_NAME="${_APP_NAME}-db-migration-${_DEPLOYMENT_ENV}"
 
-    # tag image
-    gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
-
-    cd ./devops/gcp/
-
-    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${_DEPLOY_TARGET} ]; then
-      RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
-
-      gcloud deploy releases create v-${_APP_NAME}-${_SHORT_SHA}-${RELEASE_TIMESTAMP} \
-        --delivery-pipeline=${_DEPLOY_PIPELINE} \
-        --region=${_REGION} \
-        --to-target=${TARGE_ENV} \
-        --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
+      if gcloud run jobs describe "$JOB_NAME" --project="$DEPLOY_PROJECT_ID" --region="${_REGION}" &>/dev/null; then
+        gcloud run jobs execute "$JOB_NAME" \
+          --region="${_REGION}" \
+          --project="$DEPLOY_PROJECT_ID"
+      else
+        echo "Migration job $JOB_NAME does not exist. Skipping migration." >&2
+      fi
     else
-      # prompt the existing release
-      gcloud artifacts docker tags add \
-        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET_FROM} \
-        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
-
-      LATEST_RELEASE_NAME=$(gcloud deploy targets describe ${_DEPLOY_TARGET_FROM} \
-            --delivery-pipeline=${_DEPLOY_PIPELINE} \
-            --region=${_REGION} \
-            --format="value('Latest release')")
-
-      gcloud deploy releases promote --release=${LATEST_RELEASE_NAME} \
-        --delivery-pipeline=${_DEPLOY_PIPELINE}\
-        --region=${_REGION} \
-        --to-target=${TARGE_ENV}
+      echo "Migrations folder does not exist. Skipping migration." >&2
     fi
 
+# Secret management
 availableSecrets:
   secretManager:
   - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
@@ -120,21 +175,23 @@ availableSecrets:
   - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
     env: 'OP_CONNECT_TOKEN'
 
+# Build options and substitutions
 options:
   automapSubstitutions: true
   substitutionOption: 'ALLOW_LOOSE'
 substitutions:
-  _APP_NAME:
-  _SHORT_SHA:
-  _DB_UPGRADE: 'no'
-  _DEPLOY_FULL_TARGETS: dev test sandbox prod
-  _DEPLOY_TARGETS: dev test prod
-  _DEPLOY_TARGET: dev
-  _DEPLOY_TARGET_FROM:
-  _DEPLOY_PIPELINE:
-  _DEPLOY_RUNNING_PROJECT_ID: c4hnrd-tools
-  _REGION: northamerica-northeast1
+  _APP_NAME: ${_APP_NAME}
+  _SHORT_SHA: ${_SHORT_SHA}
+  _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test sandbox prod"
+  _DEPLOYMENT_ENVS: "dev test prod"
+  _DEPLOYMENT_ENV: "dev"
+  _DEPLOYMENT_ENV_FROM: "dev"
+  _DEPLOYMENT_PIPELINE: ${_DEPLOYMENT_PIPELINE}
+  _BUILD_PROJECT: "c4hnrd-tools"
+  _REGION: "northamerica-northeast1"
 
+# Logs storage
 logsBucket: 'gs://github-actions-cloudbuild/history'
 
+# Build timeout
 timeout: 3600s

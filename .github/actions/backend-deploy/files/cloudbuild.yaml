@@ -162,7 +162,7 @@ steps:
       echo "REGION: ${_REGION}"
 
       # Check if the job exists
-      JOB_EXIST=$(gcloud run jobs describe $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION} || echo "NOT")
+      JOB_EXIST=$(gcloud run jobs describe $JOB_NAME --project=${DEPLOY_PROJECT_ID} --region=${_REGION} || echo "NOT")
 
       if [ "$JOB_EXIST" = "NOT" ]; then
         gcloud run jobs execute "$JOB_NAME" \

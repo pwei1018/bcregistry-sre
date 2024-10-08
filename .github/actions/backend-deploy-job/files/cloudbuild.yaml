@@ -149,7 +149,7 @@ steps:
 
           if [ "$res" = "NOT_EXIST" ]; then
             echo "Creating your job..."
-            gcloud run jobs create $JOB_NAME
+            gcloud run jobs create $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION}469
           fi
 
           # replace the yaml

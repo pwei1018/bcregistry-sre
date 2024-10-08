@@ -80,13 +80,10 @@ steps:
     IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}"
     RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
 
-    # Function to build and push Docker image
-    build_and_push_image() {
-      docker build \
-        -t "${IMAGE_PATH}:${_SHORT_SHA}" \
-        --cache-from "${IMAGE_PATH}:latest" \
-        .
-      docker push "${IMAGE_PATH}:${_SHORT_SHA}"
+    # Function to check if tag exists in Google Artifact Registry
+    tag_exists() {
+      local tag="$1"
+      gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null
     }
 
     # Function to tag Docker image
@@ -98,21 +95,38 @@ steps:
         "${IMAGE_PATH}:${target_tag}"
     }
 
+    # Function to build and push Docker image
+    build_and_push_image() {
+      local target_tag="$1"
+
+      # If the tag does not exist, build and push the image
+      if [ -z "$(tag_exists ${_SHORT_SHA})" ]; then
+        docker build \
+          -t "${IMAGE_PATH}:${_SHORT_SHA}" \
+          --cache-from "${IMAGE_PATH}:latest" \
+          .
+
+        docker push "${IMAGE_PATH}:${_SHORT_SHA}"
+
+        tag_image "${_SHORT_SHA}" "latest"
+      fi
+
+      tag_image "${_SHORT_SHA}" "${target_tag}"
+    }
+
     # Handle image building and tagging based on deployment target
     case ${_DEPLOYMENT_ENV} in
       "dev"|"test"|"sandbox"|"prod")
         if [ "${_DEPLOYMENT_ENV}" = "prod" ]; then
           # For production, create a dated backup tag if prod image exists
-          if gcloud artifacts docker images describe "${IMAGE_PATH}:prod" --verbosity=none; then
+          if [ -n "$(tag_exists prod)" ]; then
             tag_image "prod" "prod-$(date +%F)"
           fi
         fi
 
         if [ -z "${_DEPLOYMENT_ENV_FROM}" || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
           # Build new image for fresh deployment
-          build_and_push_image
-          tag_image "${_SHORT_SHA}" "latest"
-          tag_image "${_SHORT_SHA}" "${_DEPLOYMENT_ENV}"
+          build_and_push_image "${_DEPLOYMENT_ENV}"
         else
           # Tag existing image for promotion
           tag_image "${_DEPLOYMENT_ENV_FROM}" "${_DEPLOYMENT_ENV}"
@@ -159,12 +173,8 @@ steps:
 
       echo "DEPLOY_PROJECT_ID: $DEPLOY_PROJECT_ID"
       echo "JOB_NAME: $JOB_NAME"
-      echo "REGION: ${_REGION}"
 
-      # Check if the job exists
-      JOB_EXIST=$(gcloud run jobs describe $JOB_NAME --project=${DEPLOY_PROJECT_ID} --region=${_REGION} || echo "NOT")
-
-      if [ "$JOB_EXIST" = "NOT" ]; then
+      if [ gcloud run jobs describe $JOB_NAME --project=${DEPLOY_PROJECT_ID} --region=${_REGION} 2> /dev/null ]; then
         gcloud run jobs execute "$JOB_NAME" \
           --region="${_REGION}" \
           --project="$DEPLOY_PROJECT_ID"

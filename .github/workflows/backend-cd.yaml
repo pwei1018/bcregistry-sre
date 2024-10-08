@@ -108,7 +108,13 @@ jobs:
 
           echo "SHORT_SHA: $SHORT_SHA"
 
+          if [ -z ${{ needs.setup.outputs.TARGET_FROM }}]; then
+            TARGET_FROM="${{ needs.setup.outputs.TARGET }}"
+          else
+            TARGET_FROM="${{ needs.setup.outputs.TARGET_FROM }}"
+          fi
+
           gcloud builds submit \
             --region=northamerica-northeast1 \
-            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVS="${{ needs.setup.outputs.TARGETS }}",_DEPLOYMENT_ENV="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_ENV_FROM="${{ needs.setup.outputs.TARGET_FROM }}",_DEPLOYMENT_PIPELINE="${{ needs.setup.outputs.PIPELINE }}" \
+            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVS="${{ needs.setup.outputs.TARGETS }}",_DEPLOYMENT_ENV="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_ENV_FROM="$TARGET_FROM",_DEPLOYMENT_PIPELINE="${{ needs.setup.outputs.PIPELINE }}" \
             --config devops/gcp/cloudbuild.yaml

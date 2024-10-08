@@ -83,7 +83,12 @@ steps:
     # Function to check if tag exists in Google Artifact Registry
     tag_exists() {
       local tag="$1"
-      gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null
+      res=$(gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null)
+      if [ -n "$res" ]; then
+        return 0  # Tag exists
+      else
+        return 1  # Tag does not exist
+      fi
     }
 
     # Function to tag Docker image

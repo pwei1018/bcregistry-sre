@@ -61,8 +61,6 @@ steps:
       remove_unused_deployment
     fi
 
-    cat "./devops/gcp/k8s/service.test.yaml"
-
     # Apply Cloud Deploy configuration
     gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
       --region="${_REGION}" \
@@ -125,6 +123,9 @@ steps:
         exit 1
         ;;
     esac
+
+    # Change to the devops/gcp directory, create a new release need the files in this directory
+    cd ./devops/gcp
 
     # Create new release or promote existing release
     if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then

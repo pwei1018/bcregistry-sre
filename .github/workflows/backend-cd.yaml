@@ -108,11 +108,13 @@ jobs:
 
           echo "SHORT_SHA: $SHORT_SHA"
 
+          TARGET_FROM="${{ needs.setup.outputs.TARGET_FROM }}"
+          
           if [ -z ${{ needs.setup.outputs.TARGET_FROM }}]; then
             TARGET_FROM="${{ needs.setup.outputs.TARGET }}"
-          else
-            TARGET_FROM="${{ needs.setup.outputs.TARGET_FROM }}"
           fi
+
+          echo "TARGET_FROM: $TARGET_FROM"
 
           gcloud builds submit \
             --region=northamerica-northeast1 \

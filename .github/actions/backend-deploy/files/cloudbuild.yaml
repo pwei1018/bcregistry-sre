@@ -245,16 +245,16 @@ steps:
 
     echo "Step 3: Trigger database migration job (if applicable) and update traffic to 100% for the new revision"
 
+    PROJECT_ID=$(cat /workspace/project_id.txt)
+    JOB_NAME="${_APP_NAME}-db-migration-${_DEPLOYMENT_ENV}"
+    DEPLOYED_REVISION=$(cat /workspace/deployed_revision.txt)
+
+    echo "DEPLOY_PROJECT_ID: $PROJECT_ID"
+    echo "JOB_NAME: $JOB_NAME"
+    echo "DEPLOYED_REVISION: $DEPLOYED_REVISION"
+
     # Check if migrations directory exists and execute migration job
     if [ -d "migrations" ]; then
-      PROJECT_ID=$(cat /workspace/project_id.txt)
-      JOB_NAME="${_APP_NAME}-db-migration-${_DEPLOYMENT_ENV}"
-      DEPLOYED_REVISION=$(cat /workspace/deployed_revision.txt)
-
-      echo "DEPLOY_PROJECT_ID: $PROJECT_ID"
-      echo "JOB_NAME: $JOB_NAME"
-      echo "DEPLOYED_REVISION: $DEPLOYED_REVISION"
-
       if gcloud run jobs describe $JOB_NAME --project=$PROJECT_ID --region=${_REGION} --format="value(metadata.name)" 2> /dev/null ; then
         # Run the job and capture the output
         JOB_OUTPUT=$(gcloud run jobs execute "$JOB_NAME" \

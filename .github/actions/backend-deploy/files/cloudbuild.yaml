@@ -271,7 +271,6 @@ steps:
         fi
       else
         echo "Migration job $JOB_NAME does not exist. Skipping migration." >&2
-        exit 1
       fi
     else
       echo "Migrations folder does not exist. Skipping migration." >&2

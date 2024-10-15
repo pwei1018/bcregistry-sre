@@ -255,7 +255,7 @@ steps:
       echo "JOB_NAME: $JOB_NAME"
       echo "DEPLOYED_REVISION: $DEPLOYED_REVISION"
 
-      if gcloud run jobs describe $JOB_NAME --project=$PROJECT_ID --region=${_REGION} 2> /dev/null ; then
+      if gcloud run jobs describe $JOB_NAME --project=$PROJECT_ID --region=${_REGION} --format="value(metadata.name)" 2> /dev/null ; then
         # Run the job and capture the output
         JOB_OUTPUT=$(gcloud run jobs execute "$JOB_NAME" \
             --region="${_REGION}" \

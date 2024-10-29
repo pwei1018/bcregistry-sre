@@ -37,23 +37,57 @@ jobs:
         with:
           python-version-file: ${{ inputs.working_directory }}/pyproject.toml
           cache: poetry
-          #ache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
-      - name: Install dependencies
+          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
+      - id: poetry_installs
+        name: Install dependencies
         run: |
           poetry update
           poetry install
+
+          # Function to check if a library is installed
+          check_library_installed() {
+            if poetry show "$1" > /dev/null 2>&1; then
+              echo "true"
+            else
+              echo "false"
+            fi
+          }
+
+          echo "ruff_installed=$(check_library_installed ruff)" >> "$GITHUB_OUTPUT"
+          echo "isort_installed=$(check_library_installed isort)" >> "$GITHUB_OUTPUT"
+          echo "black_installed=$(check_library_installed black)" >> "$GITHUB_OUTPUT"
+          echo "pylint_installed=$(check_library_installed pylint)" >> "$GITHUB_OUTPUT"
+          echo "flake8_installed=$(check_library_installed flake8)" >> "$GITHUB_OUTPUT"
+
+      - name: Run Ruff
+        if: |
+          steps.poetry_installs.outputs.ruff_installed == 'true'
+        run: |
+          poetry run ruff check
       - name: Run isort
-        if: ${{ inputs.skip_isort == 'false' }}
+        if: |
+          steps.poetry_installs.outputs.ruff_installed == 'false' &&
+          steps.poetry_installs.outputs.isort_installed == 'true' &&
+          inputs.skip_isort == 'false'
         run: |
           poetry run isort . --check -v
       - name: Run black
-        if: ${{ inputs.skip_black == 'false' }}
+        if: |
+          steps.poetry_installs.outputs.ruff_installed == 'false' &&
+          steps.poetry_installs.outputs.black_installed == 'true' &&
+          inputs.skip_black == 'false'
         run: |
           poetry run black . --check
       - name: Run pylint
+        if: |
+          steps.poetry_installs.outputs.ruff_installed == 'false' &&
+          steps.poetry_installs.outputs.pylint_installed == 'true'
         run: |
           poetry run pylint .
       - name: Run flake8
+        if: |
+          steps.poetry_installs.outputs.ruff_installed == 'false' &&
+          steps.poetry_installs.outputs.flake8_installed == 'true'
         run: |
           poetry run flake8 .
 

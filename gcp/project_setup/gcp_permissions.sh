@@ -10,11 +10,11 @@ SHARED_VPC_NAME="${SHARED_VPC_NAME}-${TAG}"
 
 gcloud config set project $TARGET_PROJECT_ID
 
-PROJECT_NUMBER=$(gcloud projects describe "${TARGET_PROJECT_ID}-${ENV}" --format="get(projectNumber)")
+PROJECT_NUMBER=$(gcloud projects describe "${TARGET_PROJECT_ID}" --format="get(projectNumber)")
 TARGET_PROJECT_CLOUD_RUN_SERVICE_AGENT="service-${PROJECT_NUMBER}@serverless-robot-prod.iam.gserviceaccount.com"
 
 # attach project to VPC
-gcloud compute $SHARED_VPC_NAME associated-projects add $TARGET_PROJECT_ID \
+gcloud compute shared-vpc associated-projects add $TARGET_PROJECT_ID \
     --host-project=$HOST_PROJECT_ID
 
 # enable attached Service APIs

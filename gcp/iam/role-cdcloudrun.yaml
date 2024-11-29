@@ -1,5 +1,5 @@
 title: "CD Cloud Run"
-description: "Role for cloud run CD flow."
+description: "Role for cloud run CD flow (new)."
 stage: "GA"
 includedPermissions:
 - resourcemanager.projects.get
@@ -29,3 +29,7 @@ includedPermissions:
 - run.routes.invoke
 - cloudsql.instances.connect
 - cloudsql.instances.get
+- cloudscheduler.jobs.create
+- cloudscheduler.jobs.delete
+- cloudscheduler.jobs.get
+- cloudscheduler.jobs.list

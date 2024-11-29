@@ -1,167 +1,234 @@
 steps:
-# build image if not exists in artifact registry
-- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
-  script: |
-    #!/usr/bin/env bash
-    if [[ -z `gcloud artifacts docker images describe ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA --verbosity=none` ]]
-    then
-      docker build \
-        -t ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-        --cache-from ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest\
-        .
-
-      docker push ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
-
-      gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:latest
-    else
-      echo 'image tag exists'
-    fi
-
-# prepare/setup service and cloud deploy manifest files
+# Step 0: Prepare and setup job and cloud deploy manifest files
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
   secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   script: |
     #!/usr/bin/env bash
+    set -euo pipefail
 
-    PROJECT_ID=$(op read -n op://CD/${_DEPLOY_TARGET}/${_APP_NAME}/DEPLOY_PROJECT_ID)
-    echo $PROJECT_ID > /workspace/project_id.txt
-    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
+    echo "Step 0: Prepare and setup job and cloud deploy manifest files"
 
-    targets=(${_DEPLOY_TARGETS})
-    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${targets[0]} ]; then
-      # update the pipeline name
-      export PIPELINE_NAME=${_DEPLOY_PIPELINE}
-      yq e -i '.metadata.name = env(PIPELINE_NAME)' ./devops/gcp/clouddeploy.yaml
+    PROJECT_ID=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/DEPLOY_PROJECT_ID")
+    echo "$PROJECT_ID" > /workspace/project_id.txt
+    PROJECT_NAME="${PROJECT_ID%%-*}"
 
-      for env_name in "${targets[@]}"; do
-        export APP_ENV=${env_name}
+    generate_job_manifest() {
+      local env_name=$1
+      export APP_ENV=${env_name}
 
-        if [[ -z "$(op inject -f -i ./devops/vaults.gcp.env -o ./devops/vaults.${env_name})" ]]; then
-           echo "Error: failed to generate secrets via 1password vault." >&2
-           exit 1
-        fi
+      if [[ -z "$(op inject -f -i ./devops/vaults.gcp.env -o ./devops/vaults.${env_name})" ]]; then
+         echo "Error: failed to generate secrets via 1password vault." >&2
+         exit 1
+      fi
 
-        export VPC_CONNECTOR=$(awk -F '=' '/^VPC_CONNECTOR/ {print $2}' ./devops/vaults.${env_name})
-        export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' ./devops/vaults.${env_name} | sed 's/\"/\"/g')
+      export VPC_CONNECTOR=$(awk -F '=' '/^VPC_CONNECTOR/ {print $2}' "./devops/vaults.${env_name}")
+      export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}" | sed 's/"/"/g')
 
-        if [ "$VPC_CONNECTOR" ]; then
-          yq e '.spec.template.metadata.annotations["run.googleapis.com/vpc-access-egress"] = "private-ranges-only" |
-                .spec.template.metadata.annotations["run.googleapis.com/vpc-access-connector"] = env(VPC_CONNECTOR)' \
-                ./devops/gcp/k8s/service.template.yaml > ./devops/gcp/k8s/temp-service.${env_name}.yaml
-          # generate manifest for each environment
-          yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/temp-service.${env_name}.yaml > ./devops/gcp/k8s/service.${env_name}.yaml
-        else
-          # generate manifest for each environment
-          yq e '.spec.template.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/job.template.yaml > ./devops/gcp/k8s/job.${env_name}.yaml
-        fi
-      done
+      if [ -n "$VPC_CONNECTOR" ]; then
+        yq e '.spec.template.metadata.annotations["run.googleapis.com/vpc-access-egress"] = "private-ranges-only" |
+              .spec.template.metadata.annotations["run.googleapis.com/vpc-access-connector"] = env(VPC_CONNECTOR)' \
+              ./devops/gcp/k8s/job.template.yaml > "./devops/gcp/k8s/temp-job.${env_name}.yaml"
+        yq e '.spec.template.spec.template.spec.containers[0].env += env(VAL)' "./devops/gcp/k8s/temp-job.${env_name}.yaml" > "./devops/gcp/k8s/job.${env_name}.yaml"
+      else
+        yq e '.spec.template.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/job.template.yaml > "./devops/gcp/k8s/job.${env_name}.yaml"
+      fi
+    }
 
-      targets_full=(${_DEPLOY_FULL_TARGETS})
-
-      # find difference of targets compare with full targets
+    remove_unused_deployment() {
+      targets_full=(${_DEPLOY_FULL_DEPLOYMENT_ENVS})
       envs_diff=($(echo ${targets_full[@]} ${targets[@]} | tr ' ' '\n' | sort | uniq -u))
       for env_name in "${envs_diff[@]}"; do
-        # remove the target from cloud deploy manifest
-        export TARGET_ENV=${PROJECT_NAME}-${env_name}
-        yq -i 'del(.serialPipeline.stages[] | select(.targetId == env(TARGET_ENV)))' ./devops/gcp/clouddeploy.yaml
+        export TARGET=${PROJECT_NAME}-${env_name}
+        yq -i 'del(.serialPipeline.stages[] | select(.targetId == env(TARGET)))' "./devops/gcp/clouddeploy.yaml"
       done
+    }
+
+    targets=(${_DEPLOYMENT_ENVS})
+    if [[ -z "${_DEPLOYMENT_ENV_FROM}" || "${_DEPLOYMENT_ENV}" == "${targets[0]}" ]]; then
+      yq e -i '.metadata.name = env(_DEPLOYMENT_PIPELINE)' "./devops/gcp/clouddeploy.yaml"
+      for env_name in "${targets[@]}"; do
+        generate_job_manifest "$env_name"
+      done
+      remove_unused_deployment
     fi
 
-    # Apply Cloud Deploy deployment
     gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
-      --region=${_REGION} \
-      --project=${_DEPLOY_RUNNING_PROJECT_ID}
+      --region="${_REGION}" \
+      --project="${_BUILD_PROJECT}"
 
-# deploy
+# Step 1: Build and deploy the job
 - name: 'gcr.io/cloud-builders/gcloud'
   script: |
     #!/usr/bin/env bash
+    set -euo pipefail
+
+    echo "Step 1: Build and deploy the job"
 
     PROJECT_ID=$(cat /workspace/project_id.txt)
-    PROJECT_NAME=$(echo $PROJECT_ID | cut -d'-' -f 1)
-    TARGE_ENV=${PROJECT_NAME}-${_DEPLOY_TARGET}
+    PROJECT_NAME="${PROJECT_ID%%-*}"
+    TARGET="${PROJECT_NAME}-${_DEPLOYMENT_ENV}"
+    TARGET_FROM="${PROJECT_NAME}-${_DEPLOYMENT_ENV_FROM}"
+    IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}"
 
-    # tag image
-    gcloud artifacts docker tags add \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA \
-          ${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
+    tag_exists() {
+      local tag="$1"
+      gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null | grep -q .
+    }
 
-    cd ./devops/gcp/
+    tag_image() {
+      local source_tag="$1"
+      local target_tag="$2"
+      echo "Tagging: ${source_tag} -> ${target_tag}"
+      gcloud artifacts docker tags add "${IMAGE_PATH}:${source_tag}" "${IMAGE_PATH}:${target_tag}"
+    }
 
-    if [ -z ${_DEPLOY_TARGET_FROM} ] || [ ${_DEPLOY_TARGET_FROM} = ${_DEPLOY_TARGET} ]; then
-      RELEASE_TIMESTAMP=$(date '+%Y%m%d%H%M')
+    build_and_push_image() {
+      local target_tag="$1"
+      if ! tag_exists "${_SHORT_SHA}"; then
+        docker build -t "${IMAGE_PATH}:${_SHORT_SHA}" --cache-from "${IMAGE_PATH}:latest" .
+        docker push "${IMAGE_PATH}:${_SHORT_SHA}"
+        tag_image "${_SHORT_SHA}" "latest"
+      else
+        echo "Image ${IMAGE_PATH}:${_SHORT_SHA} already exists. Skipping build." >&2
+      fi
+      tag_image "${_SHORT_SHA}" "${target_tag}"
+    }
 
-      gcloud deploy releases create v-$_SHORT_SHA-${RELEASE_TIMESTAMP} \
-        --delivery-pipeline=${_DEPLOY_PIPELINE} \
-        --region=${_REGION} \
-        --to-target=${TARGE_ENV} \
-        --images=image-placeholder=${_REGION}-docker.pkg.dev/${_DEPLOY_RUNNING_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:$_SHORT_SHA
+    case ${_DEPLOYMENT_ENV} in
+      "dev"|"test"|"sandbox"|"prod")
+        if [ "${_DEPLOYMENT_ENV}" = "prod" ] && tag_exists "prod"; then
+          tag_image "prod" "prod-$(date +%F)"
+        fi
+        if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+          build_and_push_image "${_DEPLOYMENT_ENV}"
+        else
+          tag_image "${_DEPLOYMENT_ENV_FROM}" "${_DEPLOYMENT_ENV}"
+        fi
+        ;;
+      *)
+        echo "Error: Invalid environment '${_DEPLOYMENT_ENV}'. Allowed values are test, sandbox, dev, or prod." >&2
+        exit 1
+        ;;
+    esac
+
+    cd ./devops/gcp
+    RELEASE_NAME="v-${_APP_NAME}-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
+
+    if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+      gcloud deploy releases create "${RELEASE_NAME}" \
+        --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+        --region="${_REGION}" \
+        --to-target="${TARGET}" \
+        --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
     else
-      # prompt the existing release
-      gcloud artifacts docker tags add \
-        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET_FROM} \
-        ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/cloud-run-repo/${_APP_NAME}:${_DEPLOY_TARGET}
-
-      LATEST_RELEASE_NAME=$(gcloud deploy targets describe ${_DEPLOY_TARGET_FROM} \
-            --delivery-pipeline=${_DEPLOY_PIPELINE} \
-            --region=${_REGION} \
+      RELEASE_NAME=$(gcloud deploy targets describe "${TARGET_FROM}" \
+            --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+            --region="${_REGION}" \
             --format="value('Latest release')")
-
-      gcloud deploy releases promote --release=${LATEST_RELEASE_NAME} \
-        --delivery-pipeline=${_DEPLOY_PIPELINE}\
-        --region=${_REGION} \
-        --to-target=${TARGE_ENV}
+      gcloud deploy releases promote --release="${RELEASE_NAME}" \
+        --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+        --region="${_REGION}" \
+        --to-target="${TARGET}"
     fi
 
-# handle multiple jobs
+    RELEASE_NAME="${RELEASE_NAME##*/}"
+    echo "Release name: $PROJECT_ID $RELEASE_NAME"
+
+    MAX_RETRIES=10
+    RETRY_INTERVAL=30
+    RETRY_COUNT=0
+
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+      if gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --region="${_REGION}" --project="$PROJECT_ID" --format="value(metadata.name)" 2> /dev/null ; then
+        DEPLOY_RELEASE_NAME=$(gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --region="${_REGION}" --project="$PROJECT_ID" --format="value(metadata.labels.release-id)" 2> /dev/null)
+        echo "Deploy Release name: $DEPLOY_RELEASE_NAME"
+        if [ "${DEPLOY_RELEASE_NAME}" = "${RELEASE_NAME}" ]; then
+          echo "Release ${RELEASE_NAME} completed successfully."
+          break
+        fi
+      fi
+      echo "Release ${RELEASE_NAME} is still in progress."
+      RETRY_COUNT=$((RETRY_COUNT + 1))
+      sleep $RETRY_INTERVAL
+    done
+
+# Step 2: handle multiple jobs and scheduler(s)
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre'
   script: |
     #!/usr/bin/env bash
+    set -euo pipefail
 
-    res=$((ls run_*.sh  >> /dev/null 2>&1 && echo "EXIST") || echo "NOT_EXIST")
+    echo "Step 2: handle multiple jobs and scheduler(s)"
 
-    if [ "$res" = "EXIST" ]; then
+    PROJECT_ID=$(< /workspace/project_id.txt)
 
-      JOB_NAMESPACE=$(cat /workspace/project_id.txt)
+    validate_cron_expression() {
+      local cron_expression="$1"
+      local regex='^(((([0-9]+,)+[0-9]+|([0-9]+(/[0-9]+|-|#)[0-9]+)|[0-9]+L?|\*(/[0-9]+)?|L(-[0-9]+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every ([0-9]+(ns|us|µs|ms|s|m|h))+)$'
+      [[ "$cron_expression" =~ $regex ]]
+    }
 
-      # fetch the mother job's yaml
-      gcloud run jobs describe ${_APP_NAME}-${_DEPLOY_TARGET} --format=yaml --project=${JOB_NAMESPACE} --region=${_REGION} > ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+    create_schedulers() {
+      local cronfile_name="$1"
+      local job_name="$2"
+      local job_project="$3"
 
-      # remove unique metadata
-      yq -i 'del(.status)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.generation)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.creationTimestamp)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.namespace)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.resourceVersion)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.selfLink)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
-      yq -i 'del(.metadata.uid)' ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml
+      if [[ -d ./schedules && (-f ./schedules/${cronfile_name}.cron || -f ./schedules/${cronfile_name}.${_DEPLOYMENT_ENV}.cron) ]]; then
+        CRON_FILE="./schedules/${cronfile_name}.${_DEPLOYMENT_ENV}.cron"
+        [[ ! -f "$CRON_FILE" ]] && CRON_FILE="./schedules/${cronfile_name}.cron"
 
-      for file in run_*sh;
-      do
-          JOB_SCRIPT_NAME=$(echo "${file##*/}")
-          export JOB_NAME=$(echo ${_APP_NAME}-${_DEPLOY_TARGET}-${JOB_SCRIPT_NAME} | cut  -d'.' -f 1 | tr "_" "-")
-          export COMMAND="./${JOB_SCRIPT_NAME}"
+        for scheduler in $(gcloud scheduler jobs list --project="${job_project}" --location "${_REGION}" --format="value(name)" | grep "${job_name}-scheduler"); do
+          gcloud scheduler jobs delete "$scheduler" --quiet --project="${job_project}" --location "${_REGION}" || echo "Failed to delete $scheduler"
+        done
 
-          # replace job and
-          yq e '.metadata.name = env(JOB_NAME) | .spec.template.spec.template.spec.containers[0].command = env(COMMAND)' \
-            ./devops/gcp/k8s/job.${_DEPLOY_TARGET}.yaml > ./devops/gcp/k8s/${JOB_NAME}.yaml
-
-          # create job if not exist
-          res=$(gcloud run jobs describe $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION} || echo "NOT_EXIST")
-
-          if [ "$res" = "NOT_EXIST" ]; then
-            echo "Creating your job..."
-            gcloud run jobs create $JOB_NAME --project=${JOB_NAMESPACE} --region=${_REGION}
+        mapfile -t cron_lines < "$CRON_FILE"
+        local schedule_id=0
+        for line in "${cron_lines[@]}"; do
+          if validate_cron_expression "$line"; then
+            echo "Valid cron expression: $line"
+            gcloud scheduler jobs create http ${job_name}-scheduler-trigger-$((++schedule_id)) \
+              --project="${job_project}" \
+              --location "${_REGION}" \
+              --time-zone="PST" \
+              --schedule="${line}" \
+              --uri="https://${_REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${job_project}/jobs/${job_name}:run" \
+              --http-method POST \
+              --oauth-service-account-email sa-job@${job_project}.iam.gserviceaccount.com
           fi
+        done
+      fi
+    }
 
-          # replace the yaml
-          gcloud run jobs replace ./devops/gcp/k8s/${JOB_NAME}.yaml --project=${JOB_NAMESPACE} --region=${_REGION}
+    if [[ -n "$(ls run_*.sh 2> /dev/null)" ]]; then
+      gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --format=yaml --project="${PROJECT_ID}" --region="${_REGION}" > ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml
+      yq -i 'del(.status, .metadata.generation, .metadata.creationTimestamp, .metadata.namespace, .metadata.resourceVersion, .metadata.selfLink, .metadata.uid)' ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml
 
+      for file in run_*sh; do
+        JOB_SCRIPT_NAME="${file##*/}"
+        echo "Job ${JOB_SCRIPT_NAME}"
+
+        export JOB_NAME=$(echo ${_APP_NAME}-${_DEPLOYMENT_ENV}-${JOB_SCRIPT_NAME} | cut -d'.' -f 1 | tr "_" "-")
+        export COMMAND="./${JOB_SCRIPT_NAME}"
+
+        yq e '.metadata.name = env(JOB_NAME) | .spec.template.spec.template.spec.containers[0].command = env(COMMAND)' \
+          ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml > ./devops/gcp/k8s/${JOB_NAME}.yaml
+
+        if ! gcloud run jobs describe "${JOB_NAME}" --project="${PROJECT_ID}" --region="${_REGION}" &>/dev/null; then
+          echo "Creating your job..."
+          IMAGE="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}:${_DEPLOYMENT_ENV}"
+          gcloud run jobs create "${JOB_NAME}" --project="${PROJECT_ID}" --region="${_REGION}" --image="${IMAGE}"
+        fi
+
+        gcloud run jobs replace ./devops/gcp/k8s/${JOB_NAME}.yaml --project="${PROJECT_ID}" --region="${_REGION}"
+        create_schedulers "$(echo ${JOB_SCRIPT_NAME} | cut -d'.' -f 1 | tr "_" "-")" "${JOB_NAME}" "${PROJECT_ID}"
       done
     fi
 
+    if [[ -n "$(ls run.sh 2> /dev/null)" ]]; then
+      create_schedulers "run" "${_APP_NAME}-${_DEPLOYMENT_ENV}" "${PROJECT_ID}"
+    fi
+
+# Secret management
 availableSecrets:
   secretManager:
   - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
@@ -169,20 +236,20 @@ availableSecrets:
   - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
     env: 'OP_CONNECT_TOKEN'
 
+# Build options and substitutions
 options:
   automapSubstitutions: true
   substitutionOption: 'ALLOW_LOOSE'
 substitutions:
-  _APP_NAME:
-  _SHORT_SHA:
-  _DB_UPGRADE: 'no'
-  _DEPLOY_FULL_TARGETS: dev test sandbox prod
-  _DEPLOY_TARGETS: dev test prod
-  _DEPLOY_TARGET: dev
-  _DEPLOY_TARGET_FROM:
-  _DEPLOY_PIPELINE:
-  _DEPLOY_RUNNING_PROJECT_ID: c4hnrd-tools
-  _REGION: northamerica-northeast1
+  _APP_NAME: ${_APP_NAME}
+  _SHORT_SHA: ${_SHORT_SHA}
+  _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test sandbox prod"
+  _DEPLOYMENT_ENVS: "dev test prod"
+  _DEPLOYMENT_ENV: "dev"
+  _DEPLOYMENT_ENV_FROM: "dev"
+  _DEPLOYMENT_PIPELINE: ${_DEPLOYMENT_PIPELINE}
+  _BUILD_PROJECT: "c4hnrd-tools"
+  _REGION: "northamerica-northeast1"
 
 logsBucket: 'gs://github-actions-cloudbuild/history'
 

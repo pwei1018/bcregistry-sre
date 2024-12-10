@@ -14,6 +14,9 @@ steps:
     echo "$PROJECT_ID" > /workspace/project_id.txt
     PROJECT_NAME=$(echo "$PROJECT_ID" | cut -d'-' -f 1)
 
+    pwd
+    ls -la
+
     # Function to generate service manifest for each environment
     generate_service_manifest() {
       local env_name=$1

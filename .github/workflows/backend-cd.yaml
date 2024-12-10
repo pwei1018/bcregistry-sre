@@ -117,7 +117,7 @@ jobs:
           echo "TARGET_FROM: $TARGET_FROM"
 
           pwd
-          list -la
+          ls -la
           
           gcloud builds submit \
             --region=northamerica-northeast1 \

@@ -116,6 +116,9 @@ jobs:
 
           echo "TARGET_FROM: $TARGET_FROM"
 
+          pwd
+          list -la
+          
           gcloud builds submit \
             --region=northamerica-northeast1 \
             --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVS="${{ needs.setup.outputs.TARGETS }}",_DEPLOYMENT_ENV="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_ENV_FROM="$TARGET_FROM",_DEPLOYMENT_PIPELINE="${{ needs.setup.outputs.PIPELINE }}" \

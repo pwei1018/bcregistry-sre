@@ -72,6 +72,8 @@ steps:
       remove_unused_deployment
     fi
 
+    cat ./devops/gcp/k8s/service.dev.yaml
+
     # Apply Cloud Deploy configuration
     gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \
       --region="${_REGION}" \

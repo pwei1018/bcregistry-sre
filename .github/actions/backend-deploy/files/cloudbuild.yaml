@@ -15,7 +15,7 @@ steps:
     PROJECT_NAME=$(echo "$PROJECT_ID" | cut -d'-' -f 1)
 
     pwd
-    ls -la
+    ls -la ./devops/gcp/k8s
 
     # Function to generate service manifest for each environment
     generate_service_manifest() {

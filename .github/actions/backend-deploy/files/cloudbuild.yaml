@@ -14,9 +14,6 @@ steps:
     echo "$PROJECT_ID" > /workspace/project_id.txt
     PROJECT_NAME=$(echo "$PROJECT_ID" | cut -d'-' -f 1)
 
-    pwd
-    ls -la ./devops/gcp/k8s
-
     # Function to generate service manifest for each environment
     generate_service_manifest() {
       local env_name=$1
@@ -45,6 +42,8 @@ steps:
         # Generate manifest without VPC connector
         yq e '.spec.template.spec.containers[0].env += env(VAL)' ./devops/gcp/k8s/service.template.yaml > "./devops/gcp/k8s/service.${env_name}.yaml"
       fi
+
+      cat ./devops/gcp/k8s/service.${env_name}.yaml
     }
 
     # Function to remove unused targets from Cloud Deploy manifest
@@ -71,8 +70,6 @@ steps:
 
       remove_unused_deployment
     fi
-
-    cat ./devops/gcp/k8s/service.dev.yaml
 
     # Apply Cloud Deploy configuration
     gcloud deploy apply --file=./devops/gcp/clouddeploy.yaml  \

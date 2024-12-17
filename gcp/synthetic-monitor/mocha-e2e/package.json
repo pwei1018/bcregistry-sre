@@ -1,0 +1,21 @@
+{
+  "name": "mocha-url-ok",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "functions-framework --target=SyntheticMochaSuite",
+    "gcp-build": "node node_modules/puppeteer/install.mjs"
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.1.2",
+    "@google-cloud/synthetics-sdk-mocha": "^0.1.1",
+    "chai": "^4.3.0",
+    "dotenv": "^16.4.5",
+    "mocha-url-ok": "file:",
+    "node-fetch": "^2.6.0",
+    "puppeteer": "^22.8.2"
+  },
+  "author": "Google Inc.",
+  "license": "Apache-2.0"
+}

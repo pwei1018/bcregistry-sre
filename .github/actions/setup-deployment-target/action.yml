@@ -27,17 +27,17 @@ runs:
 
           case ${{ github.ref_name }} in
           main)
-              echo DEPLOY_PIPELINE="$2-pipeline" >> $GITHUB_ENV
+              echo DEPLOY_PIPELINE="${{ github.app_name }}-pipeline" >> $GITHUB_ENV
               ;;
           feature*)
-              echo DEPLOY_PIPELINE="$2-pipeline" >> $GITHUB_ENV
+              echo DEPLOY_PIPELINE="${{ github.app_name }}-feature-pipeline" >> $GITHUB_ENV
               ;;
           hotfix*)
-              echo DEPLOY_PIPELINE="$2-hotfix-pipeline" >> $GITHUB_ENV
+              echo DEPLOY_PIPELINE="${{ github.app_name }}-hotfix-pipeline" >> $GITHUB_ENV
               targets="test prod"
               ;;
           release*)
-              echo DEPLOY_PIPELINE="$2-release-pipeline" >> $GITHUB_ENV
+              echo DEPLOY_PIPELINE="${{ github.app_name }}-release-pipeline" >> $GITHUB_ENV
               targets="prod"
               ;;
           *)

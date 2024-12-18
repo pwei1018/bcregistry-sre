@@ -175,7 +175,7 @@ steps:
     RELEASE_NAME="v-${_APP_NAME}-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
 
     # Create new release or promote existing release
-    if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+    if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" == "sandbox"]; then
       gcloud deploy releases create "${RELEASE_NAME}" \
         --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
         --region="${_REGION}" \

@@ -6,7 +6,7 @@ steps:
     #!/usr/bin/env bash
     set -euo pipefail  # Added for better error handling
 
-    echo "Step 1: Building and tagging the image and creating build content."
+    echo "Step 0: Building and tagging the image and creating build content."
 
     # Common variables to reduce repetition
     IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/firebase-repo/${_APP_NAME}"
@@ -96,7 +96,7 @@ steps:
     #!/usr/bin/env bash
     set -euo pipefail  # Added for stricter error handling
 
-    echo "Step 2: Prepare build environment."
+    echo "Step 1: Prepare build environment."
 
     # Consolidate environment variable retrieval
     APP_HOST_NAME=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/FIREBASE_HOST_NAME")
@@ -144,7 +144,7 @@ steps:
     #!/usr/bin/env sh
     set -euo pipefail  # Added for stricter error handling
 
-    echo "Step 3: Build application."
+    echo "Step 2: Build application."
 
     BUILD_FOLDER=$(cat /workspace/build_folder.txt)
     echo "Building in folder: $BUILD_FOLDER"
@@ -184,7 +184,7 @@ steps:
     #!/usr/bin/env bash
     set -euo pipefail  # Added for robust error handling
 
-    echo "Step 4: Deploy application to firebase."
+    echo "Step 3: Deploy application to firebase."
 
     RUNNING_PROJECT=$(cat /workspace/project_id.txt)
     CONFIG_FILE="firebase-${_DEPLOYMENT_ENV}.json"

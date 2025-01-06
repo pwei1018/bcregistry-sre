@@ -94,7 +94,7 @@ steps:
       tag_image "${_SHORT_SHA}" "${target_tag}"
     }
 
-    if [ "${_REDEPLOY}" == "false" ]; then
+    if [ "${_REDEPLOY}" == "" ] || [ "${_REDEPLOY}" == "false" ]; then
       case ${_DEPLOYMENT_ENV} in
         "dev"|"test"|"sandbox"|"prod")
           if [ "${_DEPLOYMENT_ENV}" = "prod" ] && tag_exists "prod"; then

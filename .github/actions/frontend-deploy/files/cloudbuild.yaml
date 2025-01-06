@@ -58,7 +58,7 @@ steps:
     }
 
     # Handle image building and tagging based on deployment target
-    if [ "${_REDEPLOY}" == "false" ]; then
+    if [ "${_REDEPLOY}" == "" ] || [ "${_REDEPLOY}" == "false" ]; then
       case ${_DEPLOYMENT_ENV} in
         "dev"|"test"|"sandbox"|"prod")
           if [ "${_DEPLOYMENT_ENV}" = "prod" ]; then

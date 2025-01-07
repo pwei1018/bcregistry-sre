@@ -13,20 +13,29 @@ project_number = os.environ['PROJECT_NUMBER']
 def remove_iam_binding(project_id, role, email):
     client = resourcemanager_v3.ProjectsClient()
     project_name = f"projects/{project_id}"
+
     def modify_policy_remove_member(policy):
         """Callback to remove a member from a specific role."""
         for binding in policy.bindings:
-            if role in binding.role and f"user:{email}" in binding.members and binding.condition:
-                binding.members.remove(f"user:{email}")
-                if not binding.members:
-                    policy.bindings.remove(binding)
+            if role in binding.role:
+                # Find the exact member using a case-insensitive comparison
+                members_lower_map = {member.lower(): member for member in binding.members}
+                email_lower = email.lower()
 
+                if f"user:{email_lower}" in members_lower_map and binding.condition:
+                    # Remove the exact matching member
+                    exact_member = members_lower_map[f"user:{email_lower}"]
+                    binding.members.remove(exact_member)
+
+                    # If no members remain, remove the entire binding
+                    if not binding.members:
+                        policy.bindings.remove(binding)
         return policy
 
     try:
         policy_request = {
-                "resource": project_name,
-                "options": {"requested_policy_version": 3},
+            "resource": project_name,
+            "options": {"requested_policy_version": 3},
         }
 
         policy = client.get_iam_policy(request=policy_request)
@@ -38,6 +47,7 @@ def remove_iam_binding(project_id, role, email):
     except Exception as e:
         logging.error(f"Error removing IAM binding: {str(e)}")
         raise
+
 
 
 def remove_scheduler_job(full_job_name):
@@ -62,6 +72,7 @@ def remove_iam_user(project_id, instance_name, iam_user_email):
     logging.info(f"IAM user {iam_user_email} removed successfully!")
     return response
 
+
 def pam_event_handler(event, context):
     try:
         logging.info(f"Received event: {event}")
@@ -71,29 +82,38 @@ def pam_event_handler(event, context):
         request_json = json.loads(pubsub_message)
 
         email = request_json.get('user', {})
-
         if not email:
             logging.warning("Email not found in the event")
             return "Email not found in the Pub/Sub message payload", 400
 
-        remove_iam_user(project_number, instance_connection_name, email)
+        try:
+            remove_iam_user(project_number, instance_connection_name, email)
+            logging.info(f"Successfully removed IAM user: {email}")
+        except Exception as e:
+            logging.error(f"Failed to remove IAM user {email}: {str(e)}")
 
         grant = request_json.get('grant', {})
-
         if not grant:
             logging.warning("Role grant not found in the event")
             return "Role not found in the Pub/Sub message payload", 400
 
         robot = request_json.get('robot', {})
-
         if robot:
-            remove_iam_binding(project_number, grant, email)
+            try:
+                remove_iam_binding(project_number, grant, email)
+                logging.info(f"Successfully removed IAM binding for {email} with role {grant}")
+            except Exception as e:
+                logging.error(f"Failed to remove IAM binding for {email} with role {grant}: {str(e)}")
 
         job_name = request_json.get('job_name', {})
+        if job_name:
+            try:
+                remove_scheduler_job(job_name)
+                logging.info(f"Successfully removed scheduler job: {job_name}")
+            except Exception as e:
+                logging.error(f"Failed to remove scheduler job {job_name}: {str(e)}")
 
-        remove_scheduler_job(job_name)
-
-        return f"Successfully processed the event for {email}", 200
+        return f"Processed the event for {email} with possible errors; check logs for details.", 200
 
     except KeyError as e:
         logging.error(f"Missing payload key: {str(e)}")

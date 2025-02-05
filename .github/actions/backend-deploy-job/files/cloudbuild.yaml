@@ -123,7 +123,7 @@ steps:
         --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
         --region="${_REGION}" \
         --to-target="${TARGET}" \
-        --images="image-placeholder=${IMAGE_PATH}:${_DEPLOYMENT_ENV}"
+        --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
     else
       RELEASE_NAME=$(gcloud deploy targets describe "${TARGET_FROM}" \
             --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \

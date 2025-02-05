@@ -149,10 +149,15 @@ steps:
     BUILD_FOLDER=$(cat /workspace/build_folder.txt)
     echo "Building in folder: $BUILD_FOLDER"
 
+    echo "Node version: $(node --version)"
+
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
       # PNPM-specific build process
       npm install --global pnpm@latest-9
+
+      echo "PNPM version: $(pnpm --version)"
+      
       pnpm install --frozen-lockfile --prefer-offline
 
       # Conditional build with improved path handling

@@ -152,7 +152,7 @@ steps:
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
       # PNPM-specific build process
-      npm install --global pnpm@latest
+      npm install --global pnpm@latest-9
       pnpm install --frozen-lockfile --prefer-offline
 
       # Conditional build with improved path handling

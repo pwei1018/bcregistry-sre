@@ -150,19 +150,21 @@ steps:
     echo "Building in folder: $BUILD_FOLDER"
 
     echo "Node version: $(node --version)"
-    echo "corepack version: $(corepack --version)"
 
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
 
-      COREPACK_INTEGRITY_KEYS=0
+      echo "Before: corepack version => $(corepack --version || echo 'not installed')"
+      npm install -g corepack@latest
+      echo "After : corepack version => $(corepack --version)"
+      corepack enable
       
       # PNPM-specific build process
       npm install --global pnpm@latest-9
 
       echo "PNPM version: $(pnpm --version)"
       
-      pnpm install --frozen-lockfile --prefer-offline
+      pnpm install 
 
       # Conditional build with improved path handling
       if [ -n "$BUILD_FOLDER" ] && [ "$BUILD_FOLDER" != "." ]; then

@@ -158,13 +158,10 @@ steps:
       npm install --global pnpm@latest-9
 
       echo "Before: corepack version => $(corepack --version || echo 'not installed')"
-      npm install -g corepack@latest
-      echo "After : corepack version => $(corepack --version)"
-      corepack enable
 
       echo "PNPM version: $(pnpm --version)"
       
-      pnpm install 
+      pnpm install --frozen-lockfile --prefer-offline
 
       # Conditional build with improved path handling
       if [ -n "$BUILD_FOLDER" ] && [ "$BUILD_FOLDER" != "." ]; then

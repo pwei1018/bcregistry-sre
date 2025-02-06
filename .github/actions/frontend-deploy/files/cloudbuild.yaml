@@ -153,14 +153,14 @@ steps:
 
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
+    
+      # PNPM-specific build process
+      npm install --global pnpm@latest-9
 
       echo "Before: corepack version => $(corepack --version || echo 'not installed')"
       npm install -g corepack@latest
       echo "After : corepack version => $(corepack --version)"
       corepack enable
-      
-      # PNPM-specific build process
-      npm install --global pnpm@latest-9
 
       echo "PNPM version: $(pnpm --version)"
       

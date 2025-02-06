@@ -153,14 +153,22 @@ steps:
 
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
-    
+
       # PNPM-specific build process
-      npm install --global pnpm@latest-9
+      # Install pnpm using the specified version or default to "latest-9" if _PNPM_VERSION is not set.
+      npm install --global pnpm@${_PNPM_VERSION:-latest-9}
 
-      echo "Before: corepack version => $(corepack --version || echo 'not installed')"
+      PNPM_VER=$(pnpm --version)
+      echo "PNPM version: ${PNPM_VER}"
 
-      echo "PNPM version: $(pnpm --version)"
-      
+      # Temporary fix for a known corepack issue:
+      # Activate corepack preparation if PNPM version is 10.0.0 or newer.
+      MIN_PNPM_VER="10.0.0"
+      if [ "$(printf '%s\n%s' "${MIN_PNPM_VER}" "${PNPM_VER}" | sort -V | head -n1)" = "${MIN_PNPM_VER}" ]; then
+        corepack prepare pnpm@10.0.0 --activate
+        echo "corepack version: $(corepack --version || echo 'not installed')"
+      fi
+
       pnpm install --frozen-lockfile --prefer-offline
 
       # Conditional build with improved path handling
@@ -230,6 +238,7 @@ options:
   substitutionOption: "ALLOW_LOOSE"
 substitutions:
   _NODE_VERSION: ${_NODE_VERSION}
+  _PNPM_VERSION: ${_PNPM_VERSION}
   _APP_NAME: ${_APP_NAME}
   _BUILD_PROJECT: "c4hnrd-tools"
   _REDEPLOY: "false"

@@ -150,9 +150,13 @@ steps:
     echo "Building in folder: $BUILD_FOLDER"
 
     echo "Node version: $(node --version)"
+    echo "corepack version: $(corepack --version)"
 
     # Unified package management and build process
     if [ -f "pnpm-lock.yaml" ]; then
+
+      COREPACK_INTEGRITY_KEYS=0
+      
       # PNPM-specific build process
       npm install --global pnpm@latest-9
 

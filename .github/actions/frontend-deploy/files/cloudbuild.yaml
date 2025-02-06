@@ -157,8 +157,6 @@ steps:
       npm install --global pnpm@latest-9
 
       echo "PNPM version: $(pnpm --version)"
-
-      npm install -g corepack
       
       pnpm install --frozen-lockfile --prefer-offline
 

@@ -65,7 +65,19 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          PNPM_VER=$(pnpm --version)
+          echo "PNPM version: ${PNPM_VER}"
+
+          # Temporary fix for a known corepack issue:
+          # Activate corepack preparation if PNPM version is 10.0.0 or newer.
+          MIN_PNPM_VER="10.0.0"
+          if [ "$(printf '%s\n%s' "${MIN_PNPM_VER}" "${PNPM_VER}" | sort -V | head -n1)" = "${MIN_PNPM_VER}" ]; then
+            corepack prepare pnpm@10.0.0 --activate
+            echo "corepack version: $(corepack --version || echo 'not installed')"
+          fi
+
+          pnpm install
       - name: Linting
         run: |
           pnpm run lint
@@ -104,9 +116,21 @@ jobs:
           cp .env.example .env 2>/dev/null || :
           cp .env.sample .env 2>/dev/null || :
           cp env.example .env 2>/dev/null || :
-          cp env.sample .env 2>/dev/null || :        
+          cp env.sample .env 2>/dev/null || :
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          PNPM_VER=$(pnpm --version)
+          echo "PNPM version: ${PNPM_VER}"
+
+          # Temporary fix for a known corepack issue:
+          # Activate corepack preparation if PNPM version is 10.0.0 or newer.
+          MIN_PNPM_VER="10.0.0"
+          if [ "$(printf '%s\n%s' "${MIN_PNPM_VER}" "${PNPM_VER}" | sort -V | head -n1)" = "${MIN_PNPM_VER}" ]; then
+            corepack prepare pnpm@10.0.0 --activate
+            echo "corepack version: $(corepack --version || echo 'not installed')"
+          fi
+
+          pnpm install
       - name: Testing
         run: |
           pnpm run test
@@ -159,7 +183,19 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
       - name: Install dependencies
-        run: pnpm install
+        run: |
+          PNPM_VER=$(pnpm --version)
+          echo "PNPM version: ${PNPM_VER}"
+
+          # Temporary fix for a known corepack issue:
+          # Activate corepack preparation if PNPM version is 10.0.0 or newer.
+          MIN_PNPM_VER="10.0.0"
+          if [ "$(printf '%s\n%s' "${MIN_PNPM_VER}" "${PNPM_VER}" | sort -V | head -n1)" = "${MIN_PNPM_VER}" ]; then
+            corepack prepare pnpm@10.0.0 --activate
+            echo "corepack version: $(corepack --version || echo 'not installed')"
+          fi
+
+          pnpm install
       - name: Verify build
         run: |
           pnpm run build-check
@@ -219,7 +255,7 @@ jobs:
           cp .env.example .env 2>/dev/null || :
           cp .env.sample .env 2>/dev/null || :
           cp env.example .env 2>/dev/null || :
-          cp env.sample .env 2>/dev/null || :         
+          cp env.sample .env 2>/dev/null || :
       - name: Install dependencies
         run: |
           npm ci

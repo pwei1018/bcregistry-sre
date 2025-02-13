@@ -1,0 +1,5 @@
+<VerifyAPIKey name="VerifyAPIKey">
+    <DisplayName>VerifyAPIKey</DisplayName>
+    <Properties/>
+    <APIKey ref="request.header.X-API-Key"/>
+</VerifyAPIKey>

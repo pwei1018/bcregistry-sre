@@ -16,6 +16,7 @@ steps:
             echo "❌ Error: Failed to retrieve project ID." >&2
             exit 1
         }
+        echo "$PROJECT_ID" > /workspace/project_id.txt
 
         # Set environment variable
         export APP_ENV="${_DEPLOYMENT_ENV}"
@@ -98,7 +99,7 @@ steps:
             yq e '.spec.template.metadata.annotations += {"run.googleapis.com/vpc-access-egress": "private-ranges-only", "run.googleapis.com/vpc-access-connector": env(VPC_CONNECTOR)}' -i "$temp_file"
         fi
 
-        yq e '.spec.template.spec.containers[0].env += env(VAL)' -i "$temp_file"
+        yq e '.spec.template.spec.template.spec.containers[0].env += env(VAL)' -i "$temp_file"
         mv "$temp_file" "$output_file"
       }
 
@@ -125,7 +126,7 @@ steps:
           yq e '.metadata.name = env(_DEPLOYMENT_PIPELINE)' -i "./devops/gcp/clouddeploy.yaml"
 
           for env_name in "${targets[@]}"; do
-              generate_service_manifest "$env_name"
+              generate_job_manifest "$env_name"
           done
 
           remove_unused_deployments
@@ -147,20 +148,20 @@ steps:
     if [[ "${_REDEPLOY:-false}" != "true" ]]; then
       echo "🚀 Step 2: Build and deploy the job"
 
-      # 🛠️ Set up environment variables
+      # Set up environment variables
       PROJECT_ID=$(cat /workspace/project_id.txt)
       PROJECT_NAME="${PROJECT_ID%%-*}"
       TARGET="${PROJECT_NAME}-${_DEPLOYMENT_ENV}"
       TARGET_FROM="${PROJECT_NAME}-${_DEPLOYMENT_ENV_FROM}"
       IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}"
 
-      # 🧩 Function to check if a Docker tag exists
+      # Function to check if a Docker tag exists
       tag_exists() {
         local tag="$1"
         gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null | grep -q .
       }
 
-      # 🔖 Function to tag a Docker image
+      # Function to tag a Docker image
       tag_image() {
         local source_tag="$1" target_tag="$2"
         echo "🏷️ Tagging image: ${source_tag} → ${target_tag}"
@@ -181,7 +182,7 @@ steps:
         tag_image "${_SHORT_SHA}" "${target_tag}"
       }
 
-      # 🔍 Handle image building and tagging based on environment
+      # Handle image building and tagging based on environment
       case ${_DEPLOYMENT_ENV} in
         "dev"|"test"|"sandbox"|"prod")
           if [ "${_DEPLOYMENT_ENV}" = "prod" ] && tag_exists "prod"; then
@@ -199,13 +200,13 @@ steps:
           ;;
       esac
 
-      # 🌐 Navigate to deployment directory
+      # Navigate to deployment directory
       cd ./devops/gcp
 
-      # 📦 Prepare new release
+      # Prepare new release
       RELEASE_NAME="v-${_APP_NAME}-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
 
-      # 🚀 Create or promote release
+      # Create or promote release
       if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox" ]; then
         echo "🚀 Create a new release."
 
@@ -258,17 +259,17 @@ steps:
 
     echo "🚀 Step 3: handle multiple jobs and scheduler(s)"
 
-    # 🛠️ Set environment variables
+    # Set environment variables
     PROJECT_ID=$(< /workspace/project_id.txt)
 
-    # 🔄 Function to validate cron expression
+    # Function to validate cron expression
     validate_cron_expression() {
       local cron_expression="$1"
       local regex='^(((([0-9]+,)+[0-9]+|([0-9]+(/[0-9]+|-|#)[0-9]+)|[0-9]+L?|\*(/[0-9]+)?|L(-[0-9]+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every ([0-9]+(ns|us|µs|ms|s|m|h))+)$'
       [[ "$cron_expression" =~ $regex ]]
     }
 
-    # 🔄 Create or update Cloud Schedulers
+    # Create or update Cloud Schedulers
     create_schedulers() {
       local cronfile_name="$1" job_name="$2" job_project="$3"
       local cron_file="./schedules/${cronfile_name}.${_DEPLOYMENT_ENV}.cron"
@@ -290,13 +291,11 @@ steps:
             --project="${job_project}" --location="${_REGION}" --time-zone="PST" --schedule="${line}" \
             --uri="https://${_REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${job_project}/jobs/${job_name}:run" \
             --http-method POST --oauth-service-account-email "sa-job@${job_project}.iam.gserviceaccount.com"
-        else
-          echo "⚠️ Invalid cron: $line"
         fi
       done < "$cron_file"
     }
 
-    # 🚀 Handle multiple jobs
+    # Handle multiple jobs
     if [[ -n "$(ls run_*.sh 2> /dev/null)" ]]; then
       # Extract job configuration
       gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --format=yaml --project="${PROJECT_ID}" --region="${_REGION}" > ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml
@@ -326,7 +325,7 @@ steps:
       done
     fi
 
-    # 🚀 Handle main scheduler
+    # Handle main scheduler
     if [[ -n "$(ls run.sh 2> /dev/null)" ]]; then
       create_schedulers "run" "${_APP_NAME}-${_DEPLOYMENT_ENV}" "${PROJECT_ID}"
     fi

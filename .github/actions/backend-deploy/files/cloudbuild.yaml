@@ -189,7 +189,7 @@ steps:
 
       # 🔍 Handle image building and tagging based on environment
       case ${_DEPLOYMENT_ENV} in
-        dev|test|sandbox|prod)
+        dev|test|uat|sandbox|prod)
           [[ "${_DEPLOYMENT_ENV}" == "prod" && $(tag_exists "prod") ]] && tag_image "prod" "prod-$(date +%F)"
 
           if [[ -z "${_DEPLOYMENT_ENV_FROM}" || "${_DEPLOYMENT_ENV_FROM}" == "${_DEPLOYMENT_ENV}" ]]; then
@@ -199,7 +199,7 @@ steps:
           fi
           ;;
         *)
-          echo "❌ Invalid environment: '${_DEPLOYMENT_ENV}'. Allowed: dev, test, sandbox, prod." >&2
+          echo "❌ Invalid environment: '${_DEPLOYMENT_ENV}'. Allowed: dev, test, uat, sandbox, prod." >&2
           exit 1
           ;;
       esac
@@ -221,7 +221,7 @@ steps:
       RELEASE_NAME="v-${_APP_NAME}-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
 
       # 🚀 Create or promote release
-      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox" ]; then
+      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox" ]; then
         echo "🚀 Create a new release."
 
         gcloud deploy releases create "${RELEASE_NAME}" \
@@ -363,7 +363,7 @@ options:
 substitutions:
   _APP_NAME: ${_APP_NAME}
   _SHORT_SHA: ${_SHORT_SHA}
-  _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test sandbox prod"
+  _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test uat sandbox prod"
   _DEPLOYMENT_ENVS: "dev test prod"
   _DEPLOYMENT_ENV: "dev"
   _DEPLOYMENT_ENV_FROM: "dev"

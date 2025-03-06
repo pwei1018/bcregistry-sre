@@ -174,6 +174,30 @@ projects = {
       sa-lear-db-standby = {
         roles       = ["roles/cloudsql.client", "roles/cloudsql.viewer"]
         description = "Service account used to backup business db in OpenShift Gold Cluster, as part of disaster recovery plan."
+      },
+      sa-db-migrate = {
+        roles       = ["projects/a083gt-prod/roles/roleapi"]
+        description = "Service Account for migrating db from openshift"
+        resource_roles = [
+            { resource = "projects/698952081000/secrets/OC_TOKEN_f2b77c-prod"
+              roles    = ["roles/secretmanager.secretAccessor"]
+              resource_type = "secret_manager"
+            },
+            { resource = "projects/698952081000/secrets/OC_TOKEN_f2b77c-prod"
+              roles    = ["roles/secretmanager.secretAccessor"]
+              resource_type = "secret_manager"
+            },
+            {
+              resource = "namex-db-dump-prod"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "lear-db-dump-prod"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            }
+          ]
       }
     }
   }
@@ -561,8 +585,17 @@ projects = {
               roles    = ["roles/secretmanager.secretAccessor"]
               resource_type = "secret_manager"
             },
+            { resource = "projects/457237769279/secrets/OC_TOKEN_cc892f-test"
+              roles    = ["roles/secretmanager.secretAccessor"]
+              resource_type = "secret_manager"
+            },
             {
               resource = "namex-db-dump-test"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "lear-db-dump-test"
               roles    = ["roles/storage.admin"]
               resource_type = "storage_bucket"
             }

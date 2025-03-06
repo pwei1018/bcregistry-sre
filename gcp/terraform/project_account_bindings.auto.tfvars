@@ -578,7 +578,7 @@ projects = {
         description = ""
       },
       sa-db-migrate = {
-        roles       = ["projects/a083gt-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
+        roles       = ["projects/a083gt-test/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
         description = "Service Account for migrating db from openshift"
         resource_roles = [
             { resource = "projects/457237769279/secrets/OC_TOKEN_f2b77c-test"

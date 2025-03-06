@@ -176,7 +176,7 @@ projects = {
         description = "Service account used to backup business db in OpenShift Gold Cluster, as part of disaster recovery plan."
       },
       sa-db-migrate = {
-        roles       = ["projects/a083gt-prod/roles/roleapi"]
+        roles       = ["projects/a083gt-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
         description = "Service Account for migrating db from openshift"
         resource_roles = [
             { resource = "projects/698952081000/secrets/OC_TOKEN_cc892f-prod"

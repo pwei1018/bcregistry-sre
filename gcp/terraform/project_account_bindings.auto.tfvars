@@ -179,7 +179,7 @@ projects = {
         roles       = ["projects/a083gt-prod/roles/roleapi"]
         description = "Service Account for migrating db from openshift"
         resource_roles = [
-            { resource = "projects/698952081000/secrets/OC_TOKEN_f2b77c-prod"
+            { resource = "projects/698952081000/secrets/OC_TOKEN_cc892f-prod"
               roles    = ["roles/secretmanager.secretAccessor"]
               resource_type = "secret_manager"
             },

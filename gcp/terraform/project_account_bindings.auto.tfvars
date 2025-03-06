@@ -504,6 +504,13 @@ projects = {
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
+        resource_roles = [
+            {
+              resource = "projects/a083gt-test/locations/northamerica-northeast1/services/namex-pay-test"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            }
+          ]
       },
       sa-job = {
         roles       = ["projects/gtksf3-test/roles/rolejob"]

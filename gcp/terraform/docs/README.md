@@ -33,9 +33,9 @@ Before updating Terraform configuration, ensure you have the following:
         project_id          # Project where the roles are granted
 
       resource_roles        # List of resource specific roles, where each entry has
-        resource            # Specific resource (e.g., bucket, topic) the role applies to
+        resource            # Specific resource URI (e.g., bucket, topic) the role applies to
         roles               # List of roles assigned to the resource
-        resource_type       # Type of resource (e.g., storage bucket, pubsub_topic, arifact_registry, sa_iam_member)
+        resource_type       # Type of resource (e.g., storage_bucket, pubsub_topic, arifact_registry, sa_iam_member)
 
     custom_roles     = ...  # List of custom roles in the project
       title                 # Name of the custom IAM role
@@ -47,7 +47,7 @@ For example, if you want to grant sa-pubsub service account in Connect Dev an in
 
 `environment_custom_roles.auto.tfvars`
 
-  2) environments - a list of environments with theier corresponding environment_custom_roles
+  2) environments - a list of environments with their corresponding environment_custom_roles
 
     environment_custom_roles   # List of custom roles shared across all projects in the environment
       title                    # Name of the custom IAM role

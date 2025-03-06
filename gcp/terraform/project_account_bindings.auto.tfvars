@@ -552,7 +552,22 @@ projects = {
       sa-lear-db-standby = {
         roles       = ["roles/cloudsql.client", "roles/cloudsql.viewer"]
         description = ""
-      }
+      },
+      sa-db-migrate = {
+        roles       = ["projects/a083gt-test/roles/roleapi"]
+        description = "Service Account for migrating db from openshift"
+        resource_roles = [
+            { resource = "projects/457237769279/secrets/OC_TOKEN_f2b77c-test"
+              roles    = ["roles/secretmanager.secretAccessor"]
+              resource_type = "secret_manager"
+            },
+            {
+              resource = "namex-db-dump-test"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            }
+          ]
+      },
 
     }
   }

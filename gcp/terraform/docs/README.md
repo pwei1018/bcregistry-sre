@@ -18,26 +18,26 @@ Before updating Terraform configuration, ensure you have the following:
 
 `project_account_bindings.auto.tfvars`
 
-  1) projects -  a list of GCP projects, where each project consists of:
+  1) projects -  a map of GCP projects, where each project value consists of:
 
 
     project_id       = ...  # Unique ID for the project
     env              = ...  # Environment (e.g., dev, prod)
 
-    service_accounts = ...  # List of service accounts, where each account has
+    service_accounts = ...  # Optional list of service accounts, where each account has
       roles                 # List of IAM roles assigned to the service account
       description           # Description of the service account
 
-      external_roles        # List of roles in other projects (i.e. not the current project), where each entry has
+      external_roles        # Optional list of roles in other projects (i.e. not the current project), where each entry has
         roles               # List of roles granted on an external project
         project_id          # Project where the roles are granted
 
-      resource_roles        # List of resource specific roles, where each entry has
+      resource_roles        # Optional list of resource specific roles, where each entry has
         resource            # Specific resource URI (e.g., bucket, topic) the role applies to
         roles               # List of roles assigned to the resource
-        resource_type       # Type of resource (e.g., storage_bucket, pubsub_topic, arifact_registry, sa_iam_member)
+        resource_type       # Type of resource (e.g., storage_bucket, pubsub_topic, artifact_registry, sa_iam_member)
 
-    custom_roles     = ...  # List of custom roles in the project
+    custom_roles     = ...  # Optional list of custom roles in the project
       title                 # Name of the custom IAM role
       permissions           # List of permissions assigned to the role
       description           # Description of the custom role
@@ -47,7 +47,7 @@ For example, if you want to grant sa-pubsub service account in Connect Dev an in
 
 `environment_custom_roles.auto.tfvars`
 
-  2) environments - a list of environments with their corresponding environment_custom_roles
+  2) environments - a map of environments with their corresponding environment_custom_roles
 
     environment_custom_roles   # List of custom roles shared across all projects in the environment
       title                    # Name of the custom IAM role
@@ -56,7 +56,7 @@ For example, if you want to grant sa-pubsub service account in Connect Dev an in
 
 `global_custom_roles.auto.tfvars`
 
-  3) global_custom_roles -  a list of global custom roles shared across all projects
+  3) global_custom_roles -  a map of global custom roles shared across all projects
 
     title                 # Name of the custom IAM role
     permissions           # List of permissions assigned to the role

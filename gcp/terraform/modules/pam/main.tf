@@ -7,7 +7,7 @@ locals {
 
 locals {
   pam_bindings_map = {
-    for idx, binding in local.combined_pam_bindings : "binding-${idx}" => {
+    for binding in local.combined_pam_bindings : "binding-${binding.role}" => {
       entitlement_requesters = binding.principals
       role_bindings = [
         {
@@ -15,7 +15,7 @@ locals {
           principals = binding.principals
         }
       ]
-      entitlement_id              = "entitlement-${idx}"
+      entitlement_id              = replace("entitlement-${binding.role}", "/", "-")
       parent_type                 = "project"
       max_request_duration_hours  = 8
     }

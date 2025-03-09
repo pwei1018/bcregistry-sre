@@ -227,7 +227,7 @@ environments = {
     }
     pam_bindings = [
      {
-       role       = "roles/itops"
+       role       = "roleitops"
        principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type  = "custom"
      }

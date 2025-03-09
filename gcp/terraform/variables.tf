@@ -14,9 +14,8 @@ variable "TFC_GCP_WORKLOAD_PROVIDER_NAME" {
 }
 
 variable "region" {
-    default = "northamerica-northeast1"
+  default = "northamerica-northeast1"
 }
-
 
 variable "projects" {
   type = map(object({
@@ -41,6 +40,12 @@ variable "projects" {
       permissions  = list(string)
       description  = optional(string, "Custom role managed by Terraform")
     })), {})
+
+    pam_bindings = optional(list(object({
+      role       = string
+      principals = list(string)
+      approvers  = optional(list(string), [])
+    })), [])
   }))
 }
 
@@ -60,6 +65,11 @@ variable "environments" {
       permissions  = list(string)
       description  = optional(string, "Custom role managed by Terraform")
     })), {})
+    pam_bindings = optional(list(object({
+      role       = string
+      principals = list(string)
+      role_type  = optional(string)
+    })), [])
   }))
   default = {}
 }

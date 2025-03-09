@@ -225,13 +225,13 @@ environments = {
         ]
       }
     }
-    pam_bindings = [
-     {
-       role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
-       role_type  = "custom"
-     }
-   ]
+   #  pam_bindings = [
+   #   {
+   #     role       = "roleitops"
+   #     principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+   #     role_type  = "custom"
+   #   }
+   # ]
   }
   "test" = {
     environment_custom_roles = {

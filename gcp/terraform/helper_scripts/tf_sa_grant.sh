@@ -51,6 +51,11 @@ for ev in "${environments[@]}"; do
                 --member="serviceAccount:terraform-sa@c4hnrd-tools.iam.gserviceaccount.com" \
                 --role="roles/artifactregistry.admin"
 
+            gcloud projects add-iam-policy-binding $PROJECT_ID \
+                --member="serviceAccount:terraform-sa@c4hnrd-tools.iam.gserviceaccount.com" \
+                --role="roles/privilegedaccessmanager.admin"
+
+
             echo "----------------------------------------"
         else
             echo "Project $PROJECT_ID not found or inaccessible."

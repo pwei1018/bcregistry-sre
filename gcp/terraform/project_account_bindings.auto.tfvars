@@ -54,7 +54,7 @@ projects = {
      pam_bindings = [
       {
         role       = "roleitops"
-        principals = ["user:brett.cassidy@gov.bc.ca", "user:andriy.bolyachevets@gov.bc.ca", "user:david.draker@gov.bc.ca", "user:harshiv.bagha@gov.bc.ca", "user:jay.sharp@gov.bc.ca", "user:jordan.merrick@gov.bc.ca", "user:tyson.graham@gov.bc.ca"]
+        principals = ["user:Brett.cassidy@gov.bc.ca", "user:andriy.bolyachevets@gov.bc.ca", "user:david.draker@gov.bc.ca", "user:harshiv.bagha@gov.bc.ca", "user:jay.sharp@gov.bc.ca", "user:jordan.merrick@gov.bc.ca", "user:tyson.graham@gov.bc.ca"]
         role_type = "custom"
       }
     ]

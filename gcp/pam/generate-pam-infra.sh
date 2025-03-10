@@ -3,7 +3,7 @@
 # 1. Create secret with db user password
 # 2. Update projects array - only add a single project id for the db if adding a single new db
 # 3. Set up PAM for the project via console
-# 4. Update list of users in PAM entitlement
+# 4. Update list of users in PAM entitlement via Terraform
 # 5. Enable IAM authentication in db
 # 6. Update apigee endpoint - need to include new URLs to the policy
 # 7. Update audit flags - will cause database restart

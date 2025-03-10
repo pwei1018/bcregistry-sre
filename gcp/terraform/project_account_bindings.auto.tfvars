@@ -51,6 +51,13 @@ projects = {
         description = ""
       }
     }
+     pam_bindings = [
+      {
+        role       = "roleitops"
+        principals = ["user:brett.cassidy@gov.bc.ca", "user:andriy.bolyachevets@gov.bc.ca", "user:david.draker@gov.bc.ca", "user:harshiv.bagha@gov.bc.ca", "user:jay.sharp@gov.bc.ca", "user:jordan.merrick@gov.bc.ca", "user:tyson.graham@gov.bc.ca"]
+        role_type = "custom"
+      }
+    ]
   }
   "common-prod" = {
     project_id = "c4hnrd-prod"
@@ -811,13 +818,6 @@ projects = {
         description = "Service Account for running queue services"
       }
     }
-    pam_bindings = [
-     {
-       role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
-       role_type = "custom"
-     }
-   ]
   }
   "common-dev" = {
     project_id = "c4hnrd-dev"

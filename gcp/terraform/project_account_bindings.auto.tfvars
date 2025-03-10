@@ -815,7 +815,7 @@ projects = {
      {
        role       = "roleitops"
        principals = ["user:andriy.bolyachevets@gov.bc.ca"]
-       role_type  = "custom"
+       role_type = "custom"
      }
    ]
   }

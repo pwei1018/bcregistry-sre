@@ -1,8 +1,11 @@
 locals {
-  combined_pam_bindings = concat(
-    var.pam_bindings,
-    var.env.pam_bindings
-  )
+  combined_pam_bindings = [
+    for binding in concat(var.pam_bindings, var.env.pam_bindings) : {
+      role       = binding.role
+      principals = binding.principals
+      role_type  = binding.role_type
+    }
+  ]
 }
 
 locals {
@@ -11,7 +14,7 @@ locals {
       entitlement_requesters = binding.principals
       role_bindings = [
         {
-          role        = binding.role_type == "custom" ? "projects/${var.parent_id}/roles/${binding.role}" : binding.role
+          role = binding.role_type == "custom" ? "projects/${var.parent_id}/roles/${binding.role}" : binding.role
           principals = binding.principals
         }
       ]

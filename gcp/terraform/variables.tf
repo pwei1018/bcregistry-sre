@@ -44,7 +44,7 @@ variable "projects" {
     pam_bindings = optional(list(object({
       role       = string
       principals = list(string)
-      approvers  = optional(list(string), [])
+      role_type  = optional(string)
     })), [])
   }))
 }

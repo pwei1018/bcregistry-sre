@@ -105,6 +105,13 @@ projects = {
         ]
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type = "custom"
+     }
+   ]
   }
   "connect-prod" = {
     project_id = "gtksf3-prod"
@@ -135,6 +142,13 @@ projects = {
         description = "Service account used to backup auth db in OpenShift Gold Cluster, as part of disaster recovery plan."
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type = "custom"
+     }
+   ]
   }
   "bor-prod" = {
     project_id = "yfjq17-prod"
@@ -207,6 +221,13 @@ projects = {
           ]
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type = "custom"
+     }
+   ]
   }
   "business-number-hub-prod" = {
     project_id = "keee67-prod"
@@ -296,6 +317,13 @@ projects = {
         description = ""
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type = "custom"
+     }
+   ]
   }
   "search-prod" = {
     project_id = "k973yf-prod"
@@ -333,6 +361,13 @@ projects = {
         ]
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type = "custom"
+     }
+   ]
   }
   "web-presence-prod" = {
     project_id = "yfthig-prod"

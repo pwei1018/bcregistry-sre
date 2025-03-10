@@ -42,17 +42,28 @@ Before updating Terraform configuration, ensure you have the following:
       permissions           # List of permissions assigned to the role
       description           # Description of the custom role
 
+    pam_bindings     = ...  # Optional list of PAM (privileged access management) entitlements
+        role                # Custom role name in the enetitlement
+        principals          # List of principals that can be granted the role
+        role_type           # Optional value, when set to 'custom' ensures custom role URI is properply generated
+
 For example, if you want to grant sa-pubsub service account in Connect Dev an invoker role for Cloud Run in Business Dev:
 ![invoker-grant](./images/cloud-run-invoker-role.png)
 
 `environment_custom_roles.auto.tfvars`
 
-  2) environments - a map of environments with their corresponding environment_custom_roles
+  2) environments - a map of environments with their corresponding environment_custom_roles and pam_bindings
 
     environment_custom_roles   # List of custom roles shared across all projects in the environment
       title                    # Name of the custom IAM role
       permissions              # List of permissions assigned to the role
       description              # Description of the custom role
+
+    pam_bindings              # Optional list of PAM (privileged access management) entitlements
+        role                  # Custom role name in the enetitlement
+        principals            # List of principals that can be granted the role
+        role_type             # Optional value, when set to 'custom' ensures custom role URI is properply generated
+
 
 `global_custom_roles.auto.tfvars`
 

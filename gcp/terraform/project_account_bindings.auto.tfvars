@@ -811,6 +811,13 @@ projects = {
         description = "Service Account for running queue services"
       }
     }
+    pam_bindings = [
+     {
+       role       = "roleitops"
+       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+       role_type  = "custom"
+     }
+   ]
   }
   "common-dev" = {
     project_id = "c4hnrd-dev"

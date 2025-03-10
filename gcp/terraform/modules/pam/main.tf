@@ -35,6 +35,6 @@ module "pam" {
   entitlement_id        = each.value.entitlement_id
   parent_type           = each.value.parent_type
   max_request_duration_hours = each.value.max_request_duration_hours
-  entitlement_approval_notification_recipients = ["user:bcregistry-sre@gov.bc.ca"]
+  entitlement_approval_notification_recipients = ["bcregistry-sre@gov.bc.ca"]
   auto_approve_entitlement = true
 }

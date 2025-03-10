@@ -18,7 +18,7 @@ locals {
           principals = binding.principals
         }
       ]
-      entitlement_id              = replace("entitlement-${binding.role}", "/", "-")
+      entitlement_id              = replace("${binding.role}", "/", "-")
       parent_type                 = "project"
       max_request_duration_hours  = 8
     }

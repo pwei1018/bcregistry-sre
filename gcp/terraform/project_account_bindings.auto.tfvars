@@ -1,3 +1,5 @@
+default_principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+
 projects = {
   "analytics-int-prod" = {
     project_id = "mvnjri-prod"
@@ -108,7 +110,6 @@ projects = {
     pam_bindings = [
      {
        role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type = "custom"
      }
    ]
@@ -145,7 +146,6 @@ projects = {
     pam_bindings = [
      {
        role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type = "custom"
      }
    ]
@@ -224,7 +224,6 @@ projects = {
     pam_bindings = [
      {
        role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type = "custom"
      }
    ]
@@ -320,7 +319,6 @@ projects = {
     pam_bindings = [
      {
        role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type = "custom"
      }
    ]
@@ -364,7 +362,6 @@ projects = {
     pam_bindings = [
      {
        role       = "roleitops"
-       principals = ["user:andriy.bolyachevets@gov.bc.ca"]
        role_type = "custom"
      }
    ]

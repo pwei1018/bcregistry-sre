@@ -3,6 +3,12 @@ variable "parent_id" {
   description = "The ID of the parent resource (e.g., project or folder)."
 }
 
+variable "principals" {
+  type        = list(string)
+  description = "List of principals for PAM entitlements"
+  default     = []
+}
+
 variable "organization_id" {
   type        = string
   description = "The ID of the organization."

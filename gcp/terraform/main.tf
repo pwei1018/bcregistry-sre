@@ -45,5 +45,6 @@ module "pam" {
   parent_id             = each.value.project_id
   organization_id       = data.tfe_organization.current.id
   pam_bindings          = each.value.pam_bindings
+  principals            = var.default_principals
   env                   = lookup(var.environments, each.value.env, local.default_environment)
 }

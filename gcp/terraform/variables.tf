@@ -17,6 +17,12 @@ variable "region" {
   default = "northamerica-northeast1"
 }
 
+variable "default_principals" {
+  type        = list(string)
+  description = "List of IT OPS principals for PAM entitlements"
+  default     = []
+}
+
 variable "projects" {
   type = map(object({
     project_id       = string
@@ -43,7 +49,7 @@ variable "projects" {
 
     pam_bindings = optional(list(object({
       role       = string
-      principals = list(string)
+      principals = optional(list(string))
       role_type  = optional(string)
     })), [])
   }))
@@ -67,7 +73,7 @@ variable "environments" {
     })), {})
     pam_bindings = optional(list(object({
       role       = string
-      principals = list(string)
+      principals = optional(list(string))
       role_type  = optional(string)
     })), [])
   }))

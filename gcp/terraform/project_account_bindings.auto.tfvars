@@ -1436,7 +1436,7 @@ projects = {
               resource_type = "secret_manager"
             },
             {
-              resource = "lear-db-dump-prod"
+              resource = "lear-db-dump-sandbox"
               roles    = ["roles/storage.admin"]
               resource_type = "storage_bucket"
             }

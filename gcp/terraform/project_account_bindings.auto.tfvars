@@ -1435,10 +1435,6 @@ projects = {
               roles    = ["roles/secretmanager.secretAccessor"]
               resource_type = "secret_manager"
             },
-            { resource = "projects/358864940488/secrets/OC_TOKEN_cc892f-sandbox"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
             {
               resource = "lear-db-dump-prod"
               roles    = ["roles/storage.admin"]

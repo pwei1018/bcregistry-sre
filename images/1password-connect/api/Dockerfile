@@ -21,6 +21,9 @@ RUN mkdir -p ${APP_ROOT}/.op && \
     mkdir -p ${APP_ROOT}/.op/data && \
     chmod -R g=u ${APP_ROOT} /etc/passwd
 
+# Should get rid of this. Copy the 1Password Connect API credentials file.
+COPY 1password-credentials.json ${APP_ROOT}/.op
+
 # Important - Reset to the base image's user account.
 USER 10001
 

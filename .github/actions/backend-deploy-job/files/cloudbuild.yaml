@@ -85,7 +85,7 @@ steps:
 
         # Extract VPC connector and environment variables
         export VPC_CONNECTOR=$(awk -F '=' '/^VPC_CONNECTOR/ {print $2}' "./devops/vaults.${env_name}")
-        export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}" | sed 's/"/"/g')
+        export VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}")
 
         # Generate manifest with or without VPC connector
         local template_file="./devops/gcp/k8s/job.template.yaml"
@@ -230,7 +230,7 @@ steps:
       fi
 
       RELEASE_NAME="${RELEASE_NAME##*/}"
-      echo "Release name: $PROJECT_ID $RELEASE_NAME"
+      echo "🚀 Release name: $PROJECT_ID $RELEASE_NAME"
 
       MAX_RETRIES=10
       RETRY_INTERVAL=30
@@ -239,7 +239,7 @@ steps:
       while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
         if gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --region="${_REGION}" --project="$PROJECT_ID" --format="value(metadata.name)" 2> /dev/null ; then
           DEPLOY_RELEASE_NAME=$(gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --region="${_REGION}" --project="$PROJECT_ID" --format="value(metadata.labels.release-id)" 2> /dev/null)
-          echo "Deploy Release name: $DEPLOY_RELEASE_NAME"
+          echo "🚀 Deploy Release name: $DEPLOY_RELEASE_NAME"
           if [ "${DEPLOY_RELEASE_NAME}" = "${RELEASE_NAME}" ]; then
             echo "✅ Release ${RELEASE_NAME} completed successfully."
             break
@@ -314,7 +314,7 @@ steps:
 
         # Create job if it doesn't exist
         if ! gcloud run jobs describe "${JOB_NAME}" --project="${PROJECT_ID}" --region="${_REGION}" &>/dev/null; then
-          echo "Creating your job..."
+          echo "🚀 Creating your job..."
           IMAGE="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}:${_DEPLOYMENT_ENV}"
           gcloud run jobs create "${JOB_NAME}" --project="${PROJECT_ID}" --region="${_REGION}" --image="${IMAGE}"
         fi

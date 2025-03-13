@@ -219,6 +219,10 @@ projects = {
               resource_type = "storage_bucket"
             }
           ]
+          external_roles = [{
+            roles        = ["roles/cloudsql.client", "roles/cloudsql.admin"]
+            project_id  = "a083gt-integration"
+          }]
       }
     }
     pam_bindings = [

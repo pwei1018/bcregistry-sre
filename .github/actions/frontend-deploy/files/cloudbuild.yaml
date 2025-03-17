@@ -77,7 +77,7 @@ steps:
           fi
           ;;
         *)
-          echo "Error: Invalid environment '${_DEPLOYMENT_ENV}'. Allowed values are test, uat, sandbox, dev, or prod." >&2
+          echo "❌ Error: Invalid environment '${_DEPLOYMENT_ENV}'. Allowed values are test, uat, sandbox, dev, or prod." >&2
           exit 1
           ;;
       esac
@@ -88,6 +88,9 @@ steps:
     # Copy contents from the image (simplified)
     docker create --name "${_APP_NAME}" "${IMAGE_PATH}:${_DEPLOYMENT_ENV}"
     docker cp "${_APP_NAME}:/app/." /workspace/app
+
+    # Copy Firebase config to base image content
+    cp firebase-*.json /workspace/app
 
 - name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre"
   secretEnv: ["OP_CONNECT_HOST", "OP_CONNECT_TOKEN"]
@@ -101,11 +104,11 @@ steps:
     # Consolidate environment variable retrieval
     APP_HOST_NAME=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/FIREBASE_HOST_NAME")
     DEPLOY_PROJECT_ID=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/DEPLOY_PROJECT_ID")
-    BUILD_FOLDER=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/BUILD_FOLDER" || echo ".")
+    BUILD_FOLDER=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/BUILD_FOLDER" 2>/dev/null || echo ".")
 
     # Validate critical variables
-    [[ -z "$APP_HOST_NAME" ]] && { echo "Error: APP_HOST_NAME is empty"; exit 1; }
-    [[ -z "$DEPLOY_PROJECT_ID" ]] && { echo "Error: DEPLOY_PROJECT_ID is empty"; exit 1; }
+    [[ -z "$APP_HOST_NAME" ]] && { echo "❌ Error: APP_HOST_NAME is empty"; exit 1; }
+    [[ -z "$DEPLOY_PROJECT_ID" ]] && { echo "❌ Error: DEPLOY_PROJECT_ID is empty"; exit 1; }
 
     # Simplified firebase config update
     jq --arg site "$APP_HOST_NAME" '.hosting.site = $site' "firebase-${_DEPLOYMENT_ENV}.json" > "firebase-${_DEPLOYMENT_ENV}.tmp.json" &&
@@ -117,7 +120,7 @@ steps:
 
     # Prepare environment with error checking
     export APP_ENV="${_DEPLOYMENT_ENV}"
-    [[ -f "./devops/vaults.env" ]] || { echo "Error: vaults.env not found"; exit 1; }
+    [[ -f "./devops/vaults.env" ]] || { echo "❌ Error: vaults.env not found"; exit 1; }
     op inject -i ./devops/vaults.env -o "${BUILD_FOLDER}/.env" -f
 
     # Conditional secret loading with improved error handling
@@ -186,7 +189,7 @@ steps:
       npm ci --prefer-offline
       npm run build
     else
-      echo "No lockfile found. Unable to build project."
+      echo "❌ No lockfile found. Unable to build project."
       exit 1
     fi
 
@@ -206,8 +209,8 @@ steps:
     CONFIG_FILE="firebase-${_DEPLOYMENT_ENV}.json"
 
     # Validate project and config file exist
-    [[ -z "$RUNNING_PROJECT" ]] && { echo "Error: Project ID is empty"; exit 1; }
-    [[ ! -f "$CONFIG_FILE" ]] && { echo "Error: Firebase config file $CONFIG_FILE not found"; exit 1; }
+    [[ -z "$RUNNING_PROJECT" ]] && { echo "❌ Error: Project ID is empty"; exit 1; }
+    [[ ! -f "$CONFIG_FILE" ]] && { echo "❌ Error: Firebase config file $CONFIG_FILE not found"; exit 1; }
 
     # Verbose deployment with error checking
     firebase deploy \

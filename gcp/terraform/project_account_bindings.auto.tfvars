@@ -5,6 +5,17 @@ projects = {
     project_id = "mvnjri-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/mvnjri-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/560428767344/secrets/DATA_WAREHOUSE_PAY_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
@@ -65,6 +76,22 @@ projects = {
     project_id = "c4hnrd-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/c4hnrd-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/185633972304/secrets/NOTIFY_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/185633972304/secrets/USER4CA_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["projects/c4hnrd-prod/roles/rolequeue", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -118,6 +145,17 @@ projects = {
     project_id = "gtksf3-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/gtksf3-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/758264625079/secrets/AUTH_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -154,6 +192,17 @@ projects = {
     project_id = "yfjq17-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/yfjq17-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/291970782611/secrets/BOR_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
@@ -176,6 +225,22 @@ projects = {
     project_id = "a083gt-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/a083gt-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/698952081000/secrets/BUSINESS_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/698952081000/secrets/BUSINESS_AR_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -236,6 +301,22 @@ projects = {
     project_id = "keee67-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/keee67-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/747107125812/secrets/BNI_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/747107125812/secrets/VANS_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       bn-tasks-run-invoker-prod = {
         roles       = ["roles/editor", "roles/iam.serviceAccountUser"]
         description = ""
@@ -264,6 +345,17 @@ projects = {
     project_id = "eogruh-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/eogruh-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/1060957300107/secrets/PPR_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
@@ -331,6 +423,17 @@ projects = {
     project_id = "k973yf-prod"
     env = "prod"
     service_accounts = {
+      sa-pam-function = {
+        roles       = ["projects/k973yf-prod/roles/rolepam"]
+        description = "Service Account for running PAM entitlement grant and revoke cloud functions"
+        resource_roles = [
+          {
+            resource = "projects/357033077029/secrets/SEARCH_USER_PASSWORD"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"

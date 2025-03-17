@@ -3,10 +3,11 @@
 # 1. Create secret with db user password
 # 2. Update projects array - only add a single project id for the db if adding a single new db
 # 3. Set up PAM for the project via console
-# 4. Update list of users in PAM entitlement via Terraform
-# 5. Enable IAM authentication in db
-# 6. Update apigee endpoint - need to include new URLs to the policy
-# 7. Update audit flags - will cause database restart
+# 4. Add pam-enabler role via Terraform if necessary
+# 5. Update list of users in PAM entitlement via Terraform
+# 6. Enable IAM authentication in db
+# 7. Update apigee endpoint - need to include new URLs to the policy
+# 8. Update audit flags - will cause database restart
 
 
 REGION="northamerica-northeast1"
@@ -116,20 +117,6 @@ do
             # gcloud sql instances patch INSTANCE_NAME \
             #   --database-flags=cloudsql_iam_authentication=on
 
-            roles=(
-            "roles/cloudsql.admin"
-            "roles/iam.serviceAccountAdmin"
-            "roles/cloudfunctions.invoker"
-            "roles/resourcemanager.projectIamAdmin"
-            "roles/cloudbuild.builds.builder"
-            )
-
-            for role in "${roles[@]}"; do
-                gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-                    --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-                    --role="$role" || echo "Failed to assign $role for $PROJECT_ID"
-            done
-
             ./generate-entitlements.sh "${projects[@]}"
 
 
@@ -172,10 +159,6 @@ do
                     fi
                 done
 
-                gcloud secrets add-iam-policy-binding $DB_PASSWORD_SECRET_ID \
-                --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
-                --role="roles/secretmanager.secretAccessor"
-
                 gcloud pubsub topics create "pam-revoke-topic-${FUNCTION_SUFFIX}"
 
                 gcloud functions deploy "pam-grant-revoke-${FUNCTION_SUFFIX}" \
@@ -185,6 +168,7 @@ do
                     --source cloud-functions/pam-grant-revoke \
                     --set-env-vars DB_INSTANCE_CONNECTION_NAME=${DB_INSTANCE_CONNECTION_NAME},PROJECT_NUMBER=${PROJECT_NUMBER} \
                     --region $REGION \
+                    --service-account "sa-pam-enabler@${PROJECT_ID}.iam.gserviceaccount.com" \
                     --retry
 
                 gcloud functions deploy "pam-request-grant-create-${FUNCTION_SUFFIX}" \
@@ -194,6 +178,7 @@ do
                     --source cloud-functions/pam-request-grant-create \
                     --set-env-vars DB_USER=${DB_USER},DB_NAME=${DB_NAME},DB_INSTANCE_CONNECTION_NAME=${DB_INSTANCE_CONNECTION_NAME},PROJECT_NUMBER=${PROJECT_NUMBER},PROJECT_ID=${PROJECT_ID},SECRET_ID=${DB_PASSWORD_SECRET_ID},PUBSUB_TOPIC="pam-revoke-topic-${FUNCTION_SUFFIX}" \
                     --region $REGION \
+                    --service-account "sa-pam-enabler@${PROJECT_ID}.iam.gserviceaccount.com" \
                     --no-allow-unauthenticated
 
                 gcloud functions add-invoker-policy-binding "pam-request-grant-create-${FUNCTION_SUFFIX}" --member="serviceAccount:${APIGEE_SA}" --region=$REGION --project=${PROJECT_ID}

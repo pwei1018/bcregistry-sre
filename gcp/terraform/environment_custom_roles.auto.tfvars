@@ -355,6 +355,29 @@ environments = {
           "cloudsql.backupRuns.list"
         ]
       },
+      rolepam = {
+        title = "Role PAM"
+        description = "Role for PAM entitlement grants and revocations."
+        permissions = [
+            "resourcemanager.projects.getIamPolicy",
+            "resourcemanager.projects.setIamPolicy",
+            "cloudscheduler.jobs.create",
+            "cloudscheduler.jobs.get",
+            "cloudscheduler.jobs.delete",
+            "cloudscheduler.locations.list",
+            "cloudscheduler.locations.get",
+            "cloudsql.instances.get",
+            "cloudsql.users.create",
+            "cloudsql.users.delete",
+            "cloudsql.instances.connect",
+            "privilegedaccessmanager.entitlements.list",
+            "iam.roles.get",
+            "iam.serviceAccounts.actAs",
+            "serviceusage.services.get",
+            "serviceusage.services.list",
+            "pubsub.subscriptions.consume"
+        ]
+      },
       roleitops = {
         title = "Role IT Ops"
         description = "Role for IT Ops."

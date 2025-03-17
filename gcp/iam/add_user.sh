@@ -1,9 +1,9 @@
 
 #!/bin/bash
 
-declare -a users=("bcregistry.sre@gov.bc.ca")
+declare -a users=("meng.dong@gov.bc.ca")
 
-declare -a projects=("a083gt" "bcrbk9" "c4hnrd" "eogruh" "gtksf3" "k973yf" "keee67" "okagqp" "sbgmug" "yfjq17" "yfthig")
+declare -a projects=("a083gt" "bcrbk9" "c4hnrd" "eogruh" "gtksf3" "yfjq17" "yfthig")
 
 declare -a environments=("dev" "test" "tools" "prod" "integration" "sandbox")
 declare -a roles=("developer")

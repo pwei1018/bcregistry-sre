@@ -163,6 +163,13 @@ projects = {
       sa-job = {
         roles       = ["projects/gtksf3-prod/roles/rolejob"]
         description = "Service Account for running job services"
+        resource_roles = [
+            {
+              resource = "ftp-poller-prod"
+              roles    = ["roles/storage.legacyBucketWriter"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client"]
@@ -661,6 +668,13 @@ projects = {
       sa-job = {
         roles       = ["projects/gtksf3-test/roles/rolejob"]
         description = "Service Account for running job services"
+        resource_roles = [
+            {
+              resource = "ftp-poller-test"
+              roles    = ["roles/storage.legacyBucketWriter"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client"]
@@ -1072,6 +1086,13 @@ projects = {
       sa-job = {
         roles       = ["projects/gtksf3-dev/roles/rolejob"]
         description = "Service Account for running job services"
+        resource_roles = [
+            {
+              resource = "ftp-poller-dev"
+              roles    = ["roles/storage.legacyBucketWriter"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-dev/roles/roleapi"]

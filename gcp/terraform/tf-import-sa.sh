@@ -60,12 +60,16 @@ for ev in "${environments[@]}"; do
     done
 done
 
+# terraform import \
+#   "module.iam[\"connect-dev\"].google_storage_bucket_iam_member.resource_iam_members[\"sa-job-roles/storage.legacyBucketWriter-ftp-poller-dev\"]" \
+#   "ftp-poller-dev roles/storage.legacyBucketWriter serviceAccount:sa-job@gtksf3-dev.iam.gserviceaccount.com"
+#
 
-# terraform import -var="GOOGLE_CREDENTIALS=$(cat ./c4hnrd-prod-0ee4a8451a88.json)" \
+# terraform import \
 #   "module.iam[\"common-test\"].google_service_account.sa[\"doc-test-sa\"]" \
 #     "projects/c4hnrd-test/serviceAccounts/doc-test-sa@c4hnrd-test.iam.gserviceaccount.com"
 
-# terraform import -var="GOOGLE_CREDENTIALS=$(cat ./c4hnrd-prod-0ee4a8451a88.json)" \
+# terraform import  \
 #   "module.iam[\"search-test\"].google_project_iam_member.external_iam_members[\"k973yf-dev-gha-wif-roles/compute.imageUser\"]" \
 #   "projects/k973yf-dev roles/compute.imageUser serviceAccount:gha-wif@k973yf-test.iam.gserviceaccount.com"
 

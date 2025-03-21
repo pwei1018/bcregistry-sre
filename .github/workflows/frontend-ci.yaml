@@ -134,15 +134,11 @@ jobs:
       - name: Testing
         run: |
           pnpm run test
-      - name: 'Report Coverage'
-        # Set if: always() to also generate the report if tests are failing
-        # Only works if you set `reportOnFailure: true` in your vite config as specified above
-        if: always()
-        uses:  davelosert/vitest-coverage-report-action@v2
+      - name: "Upload Coverage"
+        uses: actions/upload-artifact@v4
         with:
-          json-summary-path: 'tests/coverage/coverage-summary.json'
-          json-final-path: 'tests/coverage/coverage-finaljson'
-
+          name: coveragefile
+          path: tests/coverage
 
   code-coverage:
     needs: unit-testing-pnpm
@@ -152,33 +148,8 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: coveragefile
-    - name: Produce the coverage report
-      uses: insightsengineering/coverage-action@v2
-      with:
-          # Path to the Cobertura XML report.
-          path: coverage.xml
-          # Minimum total coverage, if you want to the
-          # workflow to enforce it as a standard.
-          # This has no effect if the `fail` arg is set to `false`.
-          threshold: 80
-          # Fail the workflow if the minimum code coverage
-          # reuqirements are not satisfied.
-          fail: true
-          # Publish the rendered output as a PR comment
-          publish: true
-          # Create a coverage diff report.
-          diff: true
-          # Branch to diff against.
-          # Compare the current coverage to the coverage
-          # determined on this branch.
-          diff-branch: main
-          # This is where the coverage reports for the
-          # `diff-branch` are stored.
-          # Branch is created if it doesn't already exist'.
-          diff-storage: _xml_coverage_reports
-          # A custom title that can be added to the code
-          # coverage summary in the PR comment.
-          coverage-summary-title: "Code Coverage Summary"
+    - name: "Report Coverage"
+      uses: davelosert/vitest-coverage-report-action@v2
 
   verify-build:
     needs: linting-pnpm

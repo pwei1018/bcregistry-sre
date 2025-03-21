@@ -134,28 +134,12 @@ jobs:
       - name: Testing
         run: |
           pnpm run test
-      - uses: actions/upload-artifact@v4
+      - name: "Upload Coverage"
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: coveragefile
-          path: ${{ inputs.working_directory }}/coverage.xml
-          retention-days: 1
-
-  code-coverage:
-    needs: unit-testing-pnpm
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: coveragefile
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        file: coverage.xml
-        flags: ${{ inputs.codecov_flag }}
-        name: codecov-${{ inputs.app_name }}
-        token: ${{ vars.CODECOV_TOKEN }}
-        fail_ci_if_error: false
+          path: tests/coverage
 
   verify-build:
     needs: linting-pnpm
@@ -262,28 +246,12 @@ jobs:
       - name: Testing
         run: |
           npm run test
-      - uses: actions/upload-artifact@v4
+      - name: "Upload Coverage"
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
         with:
           name: coveragefile
-          path: ${{ inputs.working_directory }}/coverage.xml
-          retention-days: 1
-
-  code-coverage-npm:
-    needs: unit-testing-npm
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: coveragefile
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        file: coverage.xml
-        flags: ${{ inputs.codecov_flag }}
-        name: codecov-${{ inputs.app_name }}
-        token: ${{ vars.CODECOV_TOKEN }}
-        fail_ci_if_error: false
+          path: tests/coverage
 
   verify-build-npm:
     needs: linting-npm

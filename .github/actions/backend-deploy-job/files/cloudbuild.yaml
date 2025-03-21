@@ -151,17 +151,37 @@ steps:
       # Set up environment variables
       PROJECT_ID=$(cat /workspace/project_id.txt)
       PROJECT_NAME="${PROJECT_ID%%-*}"
+      TAG_SHA="${_SHORT_SHA}"
       TARGET="${PROJECT_NAME}-${_DEPLOYMENT_ENV}"
       TARGET_FROM="${PROJECT_NAME}-${_DEPLOYMENT_ENV_FROM}"
       IMAGE_PATH="${_REGION}-docker.pkg.dev/${_BUILD_PROJECT}/cloud-run-repo/${_APP_NAME}"
+      IMAGE_PACKAGE_PATH="projects/${_BUILD_PROJECT}/locations/${_REGION}/repositories/cloud-run-repo/packages/${_APP_NAME}"
 
-      # Function to check if a Docker tag exists
+      # 🧩 Function to check if a Docker tag exists
       tag_exists() {
         local tag="$1"
-        gcloud artifacts docker tags list "${IMAGE_PATH}" --filter="tag:${tag}" --format="value(tag)" 2> /dev/null | grep -q .
+        gcloud artifacts docker tags list "${IMAGE_PATH}" \
+          --filter="tag=${IMAGE_PACKAGE_PATH}/tags/${tag}" \
+          --format="value(tag)" 2>/dev/null
       }
 
-      # Function to tag a Docker image
+      # 🧩 Function to get SHA tag associated with an environment tag
+      tag_sha() {
+        local tag="$1"
+
+        # Get the version corresponding to the given tag
+        local version
+        version=$(gcloud artifacts docker tags list "${IMAGE_PATH}" \
+          --filter="tag=${IMAGE_PACKAGE_PATH}/tags/${tag}" \
+          --format="value(version)" 2>/dev/null)
+
+        # Get sha tag associated with the version, excluding environment tags and latest tag
+        gcloud artifacts docker tags list "${IMAGE_PATH}" \
+          --filter="version=${IMAGE_PACKAGE_PATH}/versions/${version} AND -tag:(latest ${_DEPLOY_FULL_DEPLOYMENT_ENVS})" \
+          --format="value(tag)" 2>/dev/null
+      }
+
+      # 🔖 Function to tag a Docker image
       tag_image() {
         local source_tag="$1" target_tag="$2"
         echo "🏷️ Tagging image: ${source_tag} → ${target_tag}"
@@ -171,28 +191,31 @@ steps:
       # 🛠️ Function to build and push Docker image
       build_and_push_image() {
         local target_tag="$1"
-        if ! tag_exists "${_SHORT_SHA}"; then
-          echo "🔨 Building and pushing Docker image: ${_SHORT_SHA}"
-          docker build -t "${IMAGE_PATH}:${_SHORT_SHA}" --cache-from "${IMAGE_PATH}:latest" .
-          docker push "${IMAGE_PATH}:${_SHORT_SHA}"
-          tag_image "${_SHORT_SHA}" "latest"
+        local short_sha="$2"
+        if ! tag_exists "${short_sha}"; then
+          echo "🔨 Building and pushing Docker image: ${short_sha}"
+          docker build -t "${IMAGE_PATH}:${short_sha}" --cache-from "${IMAGE_PATH}:latest" .
+          docker push "${IMAGE_PATH}:${short_sha}"
+          tag_image "${short_sha}" "latest"
         else
-          echo "✅ Image ${IMAGE_PATH}:${_SHORT_SHA} already exists. Skipping build." >&2
+          echo "✅ Image ${IMAGE_PATH}:${short_sha} already exists. Skipping build." >&2
         fi
-        tag_image "${_SHORT_SHA}" "${target_tag}"
+        tag_image "${short_sha}" "${target_tag}"
       }
 
-      # Handle image building and tagging based on environment
+      # 🔍 Handle image building and tagging based on environment
       case ${_DEPLOYMENT_ENV} in
         "dev"|"test"|"uat"|"sandbox"|"prod")
-          if [ "${_DEPLOYMENT_ENV}" = "prod" ] && tag_exists "prod"; then
-            tag_image "prod" "prod-$(date +%F)"
-          fi
+          [[ "${_DEPLOYMENT_ENV}" == "prod" && $(tag_exists "prod") ]] && tag_image "prod" "prod-$(date +%F)"
+
           if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
-            build_and_push_image "${_DEPLOYMENT_ENV}"
+            build_and_push_image "${_DEPLOYMENT_ENV}" "${_SHORT_SHA}"
           else
             tag_image "${_DEPLOYMENT_ENV_FROM}" "${_DEPLOYMENT_ENV}"
           fi
+
+          # Get the SHA tag associated with the environment tag
+          TAG_SHA=$(tag_sha "${_DEPLOYMENT_ENV}")
           ;;
         *)
           echo "❌ Invalid environment '${_DEPLOYMENT_ENV}'. Allowed: dev, test, uat, sandbox, prod." >&2
@@ -200,21 +223,26 @@ steps:
           ;;
       esac
 
-      # Navigate to deployment directory
+      echo "🔍 Image sha tag: ${TAG_SHA}"
+
+      # 🌐 Navigate to deployment directory
       cd ./devops/gcp
 
-      # Prepare new release
-      RELEASE_NAME="v-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
+      # 📦 Prepare new release
+      RELEASE_NAME="v-${TAG_SHA}-$(date '+%Y%m%d%H%M')"
 
-      # Create or promote release
-      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox" ]; then
+      # 🚀 Create or promote release
+      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [[ "${_DEPLOYMENT_ENV}" =~ ^(uat|sandbox)$ ]]; then
         echo "🚀 Create a new release."
+
+        IMAGE_TAG="${TAG_SHA}"
+        [[ "${_DEPLOYMENT_ENV}" =~ ^(uat|sandbox)$ ]] && IMAGE_TAG="${_DEPLOYMENT_ENV}"
 
         gcloud deploy releases create "${RELEASE_NAME}" \
           --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
           --region="${_REGION}" \
           --to-target="${TARGET}" \
-          --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
+          --images="image-placeholder=${IMAGE_PATH}:${IMAGE_TAG}"
       else
         RELEASE_NAME=$(gcloud deploy targets describe "${TARGET_FROM}" \
               --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \

@@ -149,6 +149,10 @@ jobs:
       with:
         name: coveragefile
         path: coverage
+    - name: show files
+      run: |
+        pwd
+        ls -ls
     - name: "Report Coverage"
       uses: davelosert/vitest-coverage-report-action@v2
 

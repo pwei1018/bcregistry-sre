@@ -168,6 +168,11 @@ projects = {
               resource = "ftp-poller-prod"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-account-mailer-prod"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
             }
         ]
       },
@@ -673,6 +678,11 @@ projects = {
               resource = "ftp-poller-test"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-account-mailer-test"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
             }
         ]
       },
@@ -1091,6 +1101,11 @@ projects = {
               resource = "ftp-poller-dev"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-account-mailer-dev"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
             }
         ]
       },
@@ -1383,6 +1398,14 @@ projects = {
       sa-job = {
         roles       = ["projects/gtksf3-tools/roles/rolejob"]
         description = "Service Account for running job services"
+        resource_roles = [
+            {
+              resource = "auth-account-mailer-sandbox"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
+            }
+        ]
+
       },
       sa-api = {
         roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client"]

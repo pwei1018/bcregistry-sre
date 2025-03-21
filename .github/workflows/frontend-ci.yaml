@@ -151,6 +151,8 @@ jobs:
         path: coverage-main
     - name: "Report Coverage"
       uses: davelosert/vitest-coverage-report-action@v2
+      with:
+        json-summary-compare-path: coverage-main/coverage-summary.json
 
   verify-build:
     needs: linting-pnpm

@@ -1432,7 +1432,7 @@ projects = {
             },
             {
               resource = "auth-accounts-sandbox"
-              roles    = ["projects/gtksf3-sandbox/roles/rolestore"]
+              roles    = ["projects/gtksf3-tools/roles/rolestore"]
               resource_type = "storage_bucket"
             }
         ]

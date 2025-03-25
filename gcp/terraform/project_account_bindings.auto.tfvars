@@ -168,17 +168,24 @@ projects = {
               resource = "ftp-poller-prod"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
-            },
-            {
-              resource = "auth-account-mailer-prod"
-              roles    = ["roles/storage.objectViewer"]
-              resource_type = "storage_bucket"
             }
         ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client"]
         description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "auth-account-mailer-prod"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-accounts-prod"
+              roles    = ["projects/gtksf3-prod/roles/rolestore"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-queue = {
         roles       = ["projects/gtksf3-prod/roles/rolequeue"]
@@ -678,17 +685,24 @@ projects = {
               resource = "ftp-poller-test"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
-            },
-            {
-              resource = "auth-account-mailer-test"
-              roles    = ["roles/storage.objectViewer"]
-              resource_type = "storage_bucket"
             }
         ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client"]
         description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "auth-account-mailer-test"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-accounts-test"
+              roles    = ["projects/gtksf3-test/roles/rolestore"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-queue = {
         roles       = ["projects/gtksf3-test/roles/rolequeue"]
@@ -1101,17 +1115,24 @@ projects = {
               resource = "ftp-poller-dev"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
-            },
-            {
-              resource = "auth-account-mailer-dev"
-              roles    = ["roles/storage.objectViewer"]
-              resource_type = "storage_bucket"
             }
         ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-dev/roles/roleapi"]
         description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "auth-account-mailer-dev"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-accounts-dev"
+              roles    = ["projects/gtksf3-dev/roles/rolestore"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-queue = {
         roles       = ["projects/gtksf3-dev/roles/rolequeue"]
@@ -1398,18 +1419,23 @@ projects = {
       sa-job = {
         roles       = ["projects/gtksf3-tools/roles/rolejob"]
         description = "Service Account for running job services"
-        resource_roles = [
-            {
-              resource = "auth-account-mailer-sandbox"
-              roles    = ["roles/storage.objectViewer"]
-              resource_type = "storage_bucket"
-            }
-        ]
 
       },
       sa-api = {
         roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client"]
         description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "auth-account-mailer-sandbox"
+              roles    = ["roles/storage.objectViewer"]
+              resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-accounts-sandbox"
+              roles    = ["projects/gtksf3-sandbox/roles/rolestore"]
+              resource_type = "storage_bucket"
+            }
+        ]
       },
       sa-queue = {
         roles       = ["projects/gtksf3-tools/roles/rolequeue"]

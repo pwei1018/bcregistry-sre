@@ -1,4 +1,15 @@
 global_custom_roles = {
+  rolestore = {
+    title = "Role Store"
+    description = "Role for Cloud Store services - can read/write and create signed URLs."
+    permissions = [
+      "storage.objects.get",
+      "storage.objects.create",
+      "storage.objects.update",
+      "storage.objects.delete",
+      "iam.serviceAccounts.signBlob"
+    ]
+  },
   rolequeue = {
     title = "Role Queue"
     description = "Role for Queue services."

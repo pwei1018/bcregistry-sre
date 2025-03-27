@@ -180,11 +180,16 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: coverage.xml
+        files: coverage.xml
         flags: ${{ inputs.codecov_flag }}
         name: codecov-${{ inputs.app_name }}
-        token: ${{ vars.CODECOV_TOKEN }}
         fail_ci_if_error: false
+
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        fail_ci_if_error: true
 
   verify-build:
     needs: linting

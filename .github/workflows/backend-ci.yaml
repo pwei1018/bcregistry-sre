@@ -185,11 +185,6 @@ jobs:
         name: codecov-${{ inputs.app_name }}
         fail_ci_if_error: false
 
-    - name: Upload test results to Codecov
-      if: ${{ !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        fail_ci_if_error: true
 
   verify-build:
     needs: linting

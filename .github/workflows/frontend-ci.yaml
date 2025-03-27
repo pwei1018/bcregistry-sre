@@ -134,27 +134,11 @@ jobs:
       - name: Testing
         run: |
           pnpm run test:unit:cov
-      - uses: actions/upload-artifact@v4
+      - name: "Upload Coverage"
+        uses: actions/upload-artifact@v4
         with:
           name: coveragefile
-          path: ${{ inputs.working_directory }}/tests/coverage/clover.xml
-          retention-days: 1
-
-  code-coverage:
-    needs: unit-testing-pnpm
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: coveragefile
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: clover.xml
-        flags: ${{ inputs.codecov_flag }}
-        name: codecov-${{ inputs.app_name }}
-        fail_ci_if_error: false
+          path: tests/coverage
 
   verify-build:
     needs: linting-pnpm

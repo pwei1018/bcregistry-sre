@@ -15,10 +15,10 @@
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
- name: $PROJECT-dev
+ name: eogruh-dev
 description: Dev Environment
 run:
- location: projects/$PROJECT-dev/locations/northamerica-northeast1
+ location: projects/eogruh-dev/locations/northamerica-northeast1
 executionConfigs:
 - usages: [DEPLOY, RENDER]
   artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
@@ -27,10 +27,10 @@ executionConfigs:
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
- name: $PROJECT-test
+ name: eogruh-test
 description: Test Environment
 run:
- location: projects/$PROJECT-test/locations/northamerica-northeast1
+ location: projects/eogruh-test/locations/northamerica-northeast1
 executionConfigs:
 - usages: [DEPLOY, RENDER]
   artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
@@ -39,11 +39,11 @@ executionConfigs:
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
- name: $PROJECT-uat
+ name: eogruh-uat
 description: Uat Environment
 requireApproval: false
 run:
- location: projects/$PROJECT-UAT/locations/northamerica-northeast1
+ location: projects/eogruh-test/locations/northamerica-northeast1
 executionConfigs:
 - usages: [DEPLOY, RENDER]
   artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
@@ -52,11 +52,11 @@ executionConfigs:
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
- name: $PROJECT-sandbox
+ name: eogruh-sandbox
 description: Sandbox Environment
 requireApproval: false
 run:
- location: projects/$PROJECT-SANDBOX/locations/northamerica-northeast1
+ location: projects/eogruh-SANDBOX/locations/northamerica-northeast1
 executionConfigs:
 - usages: [DEPLOY, RENDER]
   artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'
@@ -65,11 +65,11 @@ executionConfigs:
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
- name: $PROJECT-prod
+ name: eogruh-prod
 description: Production Environment
 requireApproval: false
 run:
- location: projects/$PROJECT-prod/locations/northamerica-northeast1
+ location: projects/eogruh-prod/locations/northamerica-northeast1
 executionConfigs:
 - usages: [DEPLOY, RENDER]
   artifactStorage: 'gs://c4hnrd-tools_clouddeploy/history'

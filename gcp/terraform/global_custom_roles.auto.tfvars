@@ -6,8 +6,7 @@ global_custom_roles = {
       "storage.objects.get",
       "storage.objects.create",
       "storage.objects.update",
-      "storage.objects.delete",
-      "iam.serviceAccounts.signBlob"
+      "storage.objects.delete"
     ]
   },
   rolequeue = {

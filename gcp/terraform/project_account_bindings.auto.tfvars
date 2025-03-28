@@ -172,7 +172,7 @@ projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client"]
+        roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
         description = "Service Account for running api services"
         resource_roles = [
             {
@@ -689,7 +689,7 @@ projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client"]
+        roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
         description = "Service Account for running api services"
         resource_roles = [
             {
@@ -1119,7 +1119,7 @@ projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-dev/roles/roleapi"]
+        roles       = ["projects/gtksf3-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator"]
         description = "Service Account for running api services"
         resource_roles = [
             {
@@ -1422,7 +1422,7 @@ projects = {
 
       },
       sa-api = {
-        roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client"]
+        roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
         description = "Service Account for running api services"
         resource_roles = [
             {

@@ -109,8 +109,8 @@ jobs:
 
       - name: Restart search-solr-updater
         run: |
-          oc scale --replicas=0 dc/search-solr-updater-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/search-solr-updater-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
+          oc scale --replicas=0 dc/search-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
+          oc scale --replicas=1 dc/search-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
 
       - name: Restart solr-names-updater
         run: |

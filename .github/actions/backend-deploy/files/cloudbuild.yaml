@@ -220,7 +220,7 @@ steps:
       RELEASE_NAME="v-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
 
       # 🚀 Create or promote release
-      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
+      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox"]; then
         echo "🚀 Create a new release."
 
         if [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox"]; then

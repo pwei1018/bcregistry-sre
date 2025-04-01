@@ -117,7 +117,6 @@ resource "google_pubsub_topic_iam_member" "resource_iam_members" {
   }
 
   topic  = each.value.resource
-  project = var.project_id
   role   = each.value.role
   member = "serviceAccount:${google_service_account.sa[each.value.sa_name].email}"
 }

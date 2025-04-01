@@ -186,7 +186,7 @@ projects = {
               resource_type = "storage_bucket"
             },
             {
-              resource = "auth-event-prod"
+              resource = "projects/gtksf3-prod/topics/auth-event-prod"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }
@@ -708,7 +708,7 @@ projects = {
               resource_type = "storage_bucket"
             },
             {
-              resource = "auth-event-test"
+              resource = "projects/gtksf3-test/topics/auth-event-test"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }
@@ -1143,7 +1143,7 @@ projects = {
               resource_type = "storage_bucket"
             },
             {
-              resource = "auth-event-dev"
+              resource = "projects/gtksf3-dev/topics/auth-event-dev"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }
@@ -1451,7 +1451,7 @@ projects = {
               resource_type = "storage_bucket"
             },
             {
-              resource = "auth-event-sandbox"
+              resource = "projects/gtksf3-tools/topics/auth-event-sandbox"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }

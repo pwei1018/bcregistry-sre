@@ -220,14 +220,22 @@ steps:
       RELEASE_NAME="v-${_SHORT_SHA}-$(date '+%Y%m%d%H%M')"
 
       # 🚀 Create or promote release
-      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ] || [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox" ]; then
+      if [ -z "${_DEPLOYMENT_ENV_FROM}" ] || [ "${_DEPLOYMENT_ENV_FROM}" = "${_DEPLOYMENT_ENV}" ]; then
         echo "🚀 Create a new release."
 
-        gcloud deploy releases create "${RELEASE_NAME}" \
-          --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
-          --region="${_REGION}" \
-          --to-target="${TARGET}" \
-          --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
+        if [ "${_DEPLOYMENT_ENV}" = "uat" ] || [ "${_DEPLOYMENT_ENV}" = "sandbox"]; then
+          gcloud deploy releases create "${RELEASE_NAME}" \
+            --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+            --region="${_REGION}" \
+            --to-target="${TARGET}" \
+            --images="image-placeholder=${IMAGE_PATH}:${_DEPLOYMENT_ENV}"
+        else
+          gcloud deploy releases create "${RELEASE_NAME}" \
+            --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \
+            --region="${_REGION}" \
+            --to-target="${TARGET}" \
+            --images="image-placeholder=${IMAGE_PATH}:${_SHORT_SHA}"
+        fi
       else
         RELEASE_NAME=$(gcloud deploy targets describe "${TARGET_FROM}" \
           --delivery-pipeline="${_DEPLOYMENT_PIPELINE}" \

@@ -184,6 +184,11 @@ projects = {
               resource = "auth-accounts-prod"
               roles    = ["projects/gtksf3-prod/roles/rolestore"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-event-prod"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },
@@ -701,6 +706,11 @@ projects = {
               resource = "auth-accounts-test"
               roles    = ["projects/gtksf3-test/roles/rolestore"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-event-test"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },
@@ -1131,6 +1141,11 @@ projects = {
               resource = "auth-accounts-dev"
               roles    = ["projects/gtksf3-dev/roles/rolestore"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-event-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },
@@ -1434,6 +1449,11 @@ projects = {
               resource = "auth-accounts-sandbox"
               roles    = ["projects/gtksf3-tools/roles/rolestore"]
               resource_type = "storage_bucket"
+            },
+            {
+              resource = "auth-event-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },

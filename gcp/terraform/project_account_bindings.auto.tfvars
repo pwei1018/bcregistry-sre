@@ -159,6 +159,13 @@ projects = {
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
+        resource_roles = [
+            {
+              resource = "projects/a083gt-prod/locations/northamerica-northeast1/services/namex-pay-prod"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            }
+          ]
       },
       sa-job = {
         roles       = ["projects/gtksf3-prod/roles/rolejob"]
@@ -187,6 +194,11 @@ projects = {
             },
             {
               resource = "projects/gtksf3-prod/topics/auth-event-prod"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-prod/topics/account-mailer-prod"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }
@@ -711,6 +723,11 @@ projects = {
               resource = "projects/gtksf3-test/topics/auth-event-test"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-test/topics/account-mailer-test"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },
@@ -1146,6 +1163,11 @@ projects = {
               resource = "projects/gtksf3-dev/topics/auth-event-dev"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-dev/topics/account-mailer-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
         ]
       },
@@ -1452,6 +1474,11 @@ projects = {
             },
             {
               resource = "projects/gtksf3-tools/topics/auth-event-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-tools/topics/account-mailer-sandbox"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             }

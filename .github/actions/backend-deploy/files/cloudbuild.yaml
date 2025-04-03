@@ -166,7 +166,7 @@ steps:
         local tag="$1"
         gcloud artifacts docker tags list "${IMAGE_PATH}" \
           --filter="tag=${IMAGE_PACKAGE_PATH}/tags/${tag}" \
-          --format="value(tag)" 2>/dev/null
+          --format="value(tag)" 2>/dev/null | grep -q .
       }
 
       # 🧩 Function to get SHA tag associated with an environment tag

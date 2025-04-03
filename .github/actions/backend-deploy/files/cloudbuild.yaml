@@ -282,31 +282,31 @@ steps:
       echo "⏱️ Waiting for release: ${RELEASE_NAME}"
 
       for (( i=1; i<=MAX_RETRIES; i++ )); do
-        RELEASE_STATUS=$(gcloud run revisions list \
-          --service="${_APP_NAME}-${_DEPLOYMENT_ENV}" \
-          --region="${_REGION}" \
-          --project="$PROJECT_ID" \
-          --filter="metadata.labels.release-id:${RELEASE_NAME}" \
-          --format="json" | jq -r '
-            if length == 0 then
-              "NotFound"
-            else
-              (.[0].status.conditions // [])
-              | map(select(.type == "Ready")
-              | if length > 0 then
-                  .[0].status
+          RELEASE_STATUS=$(gcloud run revisions list \
+            --service="${_APP_NAME}-${_DEPLOYMENT_ENV}" \
+            --region="${_REGION}" \
+            --project="$PROJECT_ID" \
+            --filter="metadata.labels.release-id:${RELEASE_NAME}" \
+            --format="json" | jq -r '
+              if length == 0 then
+                "NotFound"
+              else
+                (.[0].status.conditions // []) as $conditions |
+                ($conditions | map(select(.type == "Ready"))) as $readyConditions |
+                if ($readyConditions | length) > 0 then
+                  $readyConditions[0].status
                 else
                   "Pending"
                 end
-            end
-          ')
-        case "$RELEASE_STATUS" in
-          "True")   echo "✅ Ready"; break ;;
-          "False")  echo "❌ Failed"; exit 1 ;;
-          "Pending") echo "🔄 Still deploying..."; sleep "$RETRY_INTERVAL" ;;
-          "NotFound") echo "🔍 Revision not created yet"; sleep "$RETRY_INTERVAL" ;;
-          *) echo "⚠️ Unexpected: $RELEASE_STATUS"; sleep "$RETRY_INTERVAL" ;;
-        esac
+              end
+            ')
+          case "$RELEASE_STATUS" in
+            "True")   echo "✅ Ready"; break ;;
+            "False")  echo "❌ Failed"; exit 1 ;;
+            "Pending") echo "🔄 Still deploying..."; sleep "$RETRY_INTERVAL" ;;
+            "NotFound") echo "🔍 Revision not created yet"; sleep "$RETRY_INTERVAL" ;;
+            *) echo "⚠️ Unexpected: $RELEASE_STATUS"; sleep "$RETRY_INTERVAL" ;;
+          esac
       done
 
       [[ $i -eq $((MAX_RETRIES + 1)) ]] && { echo "⚠️ Timeout waiting for release ${RELEASE_NAME}."; exit 1; }

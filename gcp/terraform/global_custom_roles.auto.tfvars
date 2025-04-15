@@ -1,3 +1,8 @@
+global_database_role_assignment = {
+  readonly = []
+  readwrite = []
+  admin = []
+}
 global_custom_roles = {
   rolestore = {
     title = "Role Store"

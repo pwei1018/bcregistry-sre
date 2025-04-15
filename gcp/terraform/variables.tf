@@ -6,6 +6,7 @@ variable "TFC_GCP_PROVIDER_AUTH" {
 variable "TFC_GCP_RUN_SERVICE_ACCOUNT_EMAIL" {
   description = "The service account email address that Terraform Cloud will use to authenticate to Google Cloud"
   type        = string
+  default     = "terraform-sa@c4hnrd-tools.iam.gserviceaccount.com"
 }
 
 variable "TFC_GCP_WORKLOAD_PROVIDER_NAME" {
@@ -27,6 +28,19 @@ variable "projects" {
   type = map(object({
     project_id       = string
     env              = string
+    instances = optional(list(object({
+      instance = string
+      databases = list(object({
+        db_name    = string
+        roles      = list(string)
+        owner      = optional(string)
+        database_role_assignment = optional(object({
+          readonly  = optional(list(string), [])
+          readwrite = optional(list(string), [])
+          admin     = optional(list(string), [])
+        }), {})
+      }))
+    })), [])
     service_accounts = optional(map(object({
       roles        = optional(list(string), [])
       external_roles = optional(list(object({
@@ -64,8 +78,27 @@ variable "global_custom_roles" {
   default = {}
 }
 
+variable "global_database_role_assignment" {
+  description = "Global database role assignments applied to all instances"
+  type = object({
+    readonly  = optional(list(string), [])
+    readwrite = optional(list(string), [])
+    admin     = optional(list(string), [])
+  })
+  default = {
+    readonly  = []
+    readwrite = []
+    admin     = []
+  }
+}
+
 variable "environments" {
   type = map(object({
+    database_role_assignment = optional(object({
+      readonly  = optional(list(string), [])
+      readwrite = optional(list(string), [])
+      admin     = optional(list(string), [])
+    }), {})
     environment_custom_roles = optional(map(object({
       title = string
       permissions  = list(string)

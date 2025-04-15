@@ -1,19 +1,9 @@
-# terraform {
-#   cloud {
-#     organization = "BCRegistry"
-#     workspaces {
-#       name = "gcp-iam"
-#     }
-#   }
-# }
-
 terraform {
   backend "gcs" {
     bucket = "common-tools-terraform-state"
-    prefix = "tfstate"
+    prefix = "iam"
   }
 }
-
 
 provider "google" {
   project = null

@@ -4,18 +4,18 @@ projects = {
   "analytics-int-prod" = {
     project_id = "mvnjri-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "fin-warehouse-prod"
-    #     databases =  [
-    #           {
-    #             db_name    = "fin_warehouse"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "pay"
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "fin-warehouse-prod"
+        databases =  [
+              {
+                db_name    = "fin_warehouse"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "pay"
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/mvnjri-prod/roles/rolepam"]

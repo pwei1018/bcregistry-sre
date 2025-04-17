@@ -11,12 +11,10 @@ provider "google" {
   impersonate_service_account = local.service_account_email
 }
 
-provider "tfe" {
+variable "org_id" {
+  default = "168766599236"
 }
 
-data "tfe_organization" "current" {
-  name = "BCRegistry"
-}
 
 locals {
   default_environment = {
@@ -48,7 +46,8 @@ module "pam" {
   source   = "./modules/pam"
 
   parent_id             = each.value.project_id
-  organization_id       = data.tfe_organization.current.id
+  # organization_id = data.google_organization.current.id
+  organization_id = "organizations/${var.org_id}"
   pam_bindings          = each.value.pam_bindings
   principals            = var.default_principals
   env                   = lookup(var.environments, each.value.env, local.default_environment)
@@ -95,4 +94,6 @@ module "sql_iam_users" {
   global_assignments       = var.global_database_role_assignment
   environment_assignments  = try(lookup(var.environments, each.value.env, local.default_environment).database_role_assignment, {})
   instances               = try(each.value.instances, {})
+
+  depends_on = [module.db_role_management]
 }

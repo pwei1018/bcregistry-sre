@@ -208,6 +208,21 @@ projects = {
     #             owner      = "postgres"
     #           }
     #         ]
+    #   },
+    #   {
+    #     instance = "pay-db-prod"
+    #     databases =  [
+    #       {
+    #             db_name    = "pay-db"
+    #             roles      = ["readonly", "readwrite", "admin"]
+    #             owner      = "postgres"
+    #             database_role_assignment = {
+    #               readonly = []
+    #               readwrite = []
+    #               admin = []
+    #             }
+    #       }
+    #     ]
     #   }
     # ]
     service_accounts = {
@@ -899,6 +914,21 @@ projects = {
                 owner      = "postgres"
               }
             ]
+      },
+      {
+        instance = "pay-db-test"
+        databases =  [
+          {
+                db_name    = "pay-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+          }
+        ]
       }
     ]
     service_accounts = {
@@ -1507,6 +1537,21 @@ projects = {
                 owner      = "postgres"
               }
             ]
+      },
+      {
+        instance = "pay-db-dev"
+        databases =  [
+          {
+                db_name    = "pay-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+          }
+        ]
       }
     ]
     service_accounts = {
@@ -1986,6 +2031,21 @@ projects = {
                 owner      = "postgres"
               }
             ]
+      },
+      {
+        instance = "pay-db-sandbox"
+        databases =  [
+          {
+                db_name    = "pay-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+          }
+        ]
       }
     ]
     service_accounts = {

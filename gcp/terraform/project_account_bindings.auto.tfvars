@@ -107,28 +107,33 @@ projects = {
   "common-prod" = {
     project_id = "c4hnrd-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "common-db-prod"
-    #     databases =  [
-    #           {
-    #             db_name    = "docs"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "user4ca"
-    #           }
-    #         ]
-    #   },
-    #   {
-    #     instance = "notify-db-prod"
-    #     databases =  [
-    #           {
-    #             db_name    = "notify"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "notifyuser"
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "common-db-prod"
+        databases =  [
+              {
+                db_name    = "docs"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "user4ca"
+              }
+            ]
+      },
+      {
+        instance = "notify-db-prod"
+        databases =  [
+              {
+                db_name    = "notify"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "notifyuser"
+                database_role_assignment = {
+                  readonly = ["eve.deng@gov.bc.ca"]
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/c4hnrd-prod/roles/rolepam"]

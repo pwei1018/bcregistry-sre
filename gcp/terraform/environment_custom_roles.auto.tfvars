@@ -1,5 +1,10 @@
 environments = {
   "sandbox" = {
+    database_role_assignment = {
+      readonly = []
+      readwrite = ["eve.deng@gov.bc.ca"]
+      admin = []
+    }
     environment_custom_roles = {
       roledeveloper = {
         title = "Role Developer"
@@ -105,7 +110,7 @@ environments = {
   "dev" = {
     database_role_assignment = {
       readonly = []
-      readwrite = []
+      readwrite = ["eve.deng@gov.bc.ca"]
       admin = []
     }
     environment_custom_roles = {
@@ -241,6 +246,11 @@ environments = {
    # ]
   }
   "test" = {
+    database_role_assignment = {
+      readonly = []
+      readwrite = ["eve.deng@gov.bc.ca"]
+      admin = []
+    }
     environment_custom_roles = {
       roledeveloper = {
         title = "Role Developer"

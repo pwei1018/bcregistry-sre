@@ -852,7 +852,7 @@ projects = {
               {
                 db_name    = "notify"
                 roles      = ["readonly", "readwrite", "admin"]
-                owner      = "notifyuser"
+                owner      = "postgres"
               }
             ]
       }

@@ -18,21 +18,31 @@ locals {
     ]
   ]))
 
-  all_users = distinct(concat(local.global_env_users, local.db_users))
-
-  users_per_instance = {
-    for instance in var.instances : instance.instance => distinct(concat(
-      local.global_env_users,
-      flatten([
+  # Detect role conflicts
+  role_conflicts = {
+    for conflict in flatten([
+      for instance in var.instances : [
         for db in try(instance.databases, []) : [
-          for role_type in ["readonly", "readwrite", "admin"] :
-            try(db.database_role_assignment[role_type], [])
+          for user in distinct(concat(
+            try(db.database_role_assignment.readonly, []),
+            try(db.database_role_assignment.readwrite, []),
+            try(db.database_role_assignment.admin, [])
+          )) : {
+            key = "${instance.instance}-${db.db_name}-${user}"
+            msg = "User ${user} has multiple roles on ${db.db_name} (${instance.instance}) - Roles: ${join(", ", compact([
+              for role in ["readonly", "readwrite", "admin"] :
+              role if contains(try(db.database_role_assignment[role], []), user)
+            ]))}"
+          } if length(compact([
+            for role in ["readonly", "readwrite", "admin"] :
+            role if contains(try(db.database_role_assignment[role], []), user)
+          ])) > 1
         ]
-      ])
-    ))
+      ]
+    ]) : conflict.key => conflict.msg
   }
 
-  # Role Assignment Processing with Database-Specific Priority
+  # Role assignments with instance/database info
   role_assignments = {
     for assignment in flatten([
       for instance in var.instances : [
@@ -40,7 +50,6 @@ locals {
           for role_type in ["readonly", "readwrite", "admin"] : [
             for user in distinct(concat(
               try(db.database_role_assignment[role_type], []),
-              # Only include global/env users not specified at db level
               [for u in distinct(concat(
                 try(var.global_assignments[role_type], []),
                 try(var.environment_assignments[role_type], [])
@@ -59,23 +68,24 @@ locals {
   }
 }
 
-# IAM Users Creation
-resource "google_sql_user" "iam_account_users" {
-  for_each = {
-    for user_instance in flatten([
-      for instance_name, users in local.users_per_instance : [
-        for user in users : {
-          instance = instance_name
-          user     = user
-        }
-      ]
-    ]) : "${user_instance.instance}-${user_instance.user}" => user_instance
+# Validate no role conflicts exist
+resource "terraform_data" "validate_role_assignments" {
+  input = {
+    conflicts = local.role_conflicts
   }
 
-  project  = var.project_id
-  name     = each.value.user
-  instance = each.value.instance
-  type     = "CLOUD_IAM_USER"
+  lifecycle {
+    precondition {
+      condition     = length(local.role_conflicts) == 0
+      error_message = <<-EOT
+        Database role conflicts detected:
+        ${join("\n", [for msg in values(local.role_conflicts) : "  - ${msg}"])}
+
+        Users cannot have multiple roles on the same database.
+        Please fix these role assignments before applying.
+      EOT
+    }
+  }
 }
 
 data "google_service_account_id_token" "invoker" {
@@ -83,14 +93,40 @@ data "google_service_account_id_token" "invoker" {
   target_service_account = var.service_account_email
 }
 
-# Role Assignments
+resource "null_resource" "role_tracker" {
+  for_each = {
+    for assignment in local.role_assignments :
+    "${assignment.instance}-${assignment.db_name}-${assignment.user}-${assignment.role}" => assignment
+  }
+
+  depends_on = [terraform_data.validate_role_assignments]
+
+  triggers = {
+    role     = each.value.role
+    user     = each.value.user
+    instance = each.value.instance
+  }
+}
+
+resource "google_sql_user" "iam_account_users" {
+  for_each = null_resource.role_tracker
+
+  project  = var.project_id
+  name     = each.value.triggers.user
+  instance = each.value.triggers.instance
+  type     = "CLOUD_IAM_USER"
+
+  lifecycle {
+    replace_triggered_by = [null_resource.role_tracker[each.key].id]
+  }
+}
+
 resource "null_resource" "db_role_assignments" {
   for_each = local.role_assignments
 
   depends_on = [google_sql_user.iam_account_users]
 
   triggers = {
-    # Only trigger when the specific assignment changes
     assignment = sha256(jsonencode(each.value))
   }
 

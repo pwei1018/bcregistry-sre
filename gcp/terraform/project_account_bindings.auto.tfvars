@@ -151,6 +151,10 @@ projects = {
           }
         ]
       },
+      sa-db-migrate = {
+        roles       = ["projects/c4hnrd-prod/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["projects/c4hnrd-prod/roles/rolequeue", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -859,6 +863,11 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
                 agent      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
+                }
               }
             ]
       }
@@ -867,6 +876,10 @@ projects = {
       sa-pubsub = {
         roles       = ["projects/c4hnrd-test/roles/rolequeue", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
+      },
+      sa-db-migrate = {
+        roles       = ["projects/c4hnrd-test/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
       },
       sa-job = {
         roles       = ["projects/c4hnrd-test/roles/rolejob"]
@@ -1440,11 +1453,21 @@ projects = {
                 db_name    = "notify"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
+                agent      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
+                }
               }
             ]
       }
     ]
     service_accounts = {
+      sa-db-migrate = {
+        roles       = ["projects/c4hnrd-dev/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["projects/c4hnrd-dev/roles/rolequeue", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -1550,7 +1573,7 @@ projects = {
                 owner      = "auth"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["thayne.werdal@gov.bc.ca"]
+                  readonly = ["thayne.werdal@gov.bc.ca", "hrvoje.fekete@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -2014,17 +2037,22 @@ projects = {
               {
                 db_name    = "notify"
                 roles      = ["readonly", "readwrite", "admin"]
-                owner      = "sa-api@c4hnrd-sandbox.iam"
+                owner      = "notifyuser"
+                agent      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
-                  admin = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
       }
     ]
     service_accounts = {
+      sa-db-migrate = {
+        roles       = ["projects/c4hnrd-sandbox/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
@@ -2034,7 +2062,7 @@ projects = {
         description = "Service Account for running job services"
       },
       sa-api = {
-        roles       = ["projects/c4hnrd-sandbox/roles/roleapi"]
+        roles       = ["projects/c4hnrd-sandbox/roles/roleapi", "roles/cloudsql.instanceUser", "roles/run.serviceAgent"]
         description = "Service Account for running api services"
       },
       sa-queue = {

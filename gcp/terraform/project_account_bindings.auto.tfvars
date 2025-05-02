@@ -932,6 +932,11 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "auth"
                 agent      = "postgres"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = ["ken.li@gov.bc.ca"]
+                  admin = []
+                }
               }
             ]
       },
@@ -945,7 +950,7 @@ projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
+                  readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
           }
@@ -1574,7 +1579,7 @@ projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = ["thayne.werdal@gov.bc.ca", "hrvoje.fekete@gov.bc.ca"]
-                  readwrite = []
+                  readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -1590,7 +1595,7 @@ projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
+                  readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
           }
@@ -2099,7 +2104,7 @@ projects = {
                 owner      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
+                  readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -2114,7 +2119,7 @@ projects = {
                 owner      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
+                  readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
           }

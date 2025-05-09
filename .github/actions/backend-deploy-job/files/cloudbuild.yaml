@@ -311,20 +311,23 @@ steps:
         xargs -I {} gcloud scheduler jobs delete "{}" --quiet --project="${job_project}" --location "${_REGION}" || true
 
       # Create new schedulers
+      mapfile -t cron_lines < "$cron_file"
       local schedule_id=0
-      while IFS= read -r line; do
+      for line in "${cron_lines[@]}"; do
+        echo "🗓️ Processing cron line: $line"
         if validate_cron_expression "$line"; then
-          echo "✅ Valid cron: $line"
+          echo "✅ Valid cron expression: $line"
           gcloud scheduler jobs create http "${job_name}-scheduler-trigger-$((++schedule_id))" \
             --project="${job_project}" --location="${_REGION}" --time-zone="PST" --schedule="${line}" \
             --uri="https://${_REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${job_project}/jobs/${job_name}:run" \
             --http-method POST --oauth-service-account-email "sa-job@${job_project}.iam.gserviceaccount.com"
         fi
-      done < "$cron_file"
+      done
     }
 
     # Handle multiple jobs
     if [[ -n "$(ls run_*.sh 2> /dev/null)" ]]; then
+      echo "🚀 Multiple jobs detected. Processing each job..."
       # Extract job configuration
       gcloud run jobs describe "${_APP_NAME}-${_DEPLOYMENT_ENV}" --format=yaml --project="${PROJECT_ID}" --region="${_REGION}" > ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml
       yq -i 'del(.status, .metadata.generation, .metadata.creationTimestamp, .metadata.namespace, .metadata.resourceVersion, .metadata.selfLink, .metadata.uid)' ./devops/gcp/k8s/job.${_DEPLOYMENT_ENV}.yaml
@@ -355,6 +358,7 @@ steps:
 
     # Handle main scheduler
     if [[ -n "$(ls run.sh 2> /dev/null)" ]]; then
+      echo "🚀 Main job detected. Processing main job..."
       create_schedulers "run" "${_APP_NAME}-${_DEPLOYMENT_ENV}" "${PROJECT_ID}"
     fi
 

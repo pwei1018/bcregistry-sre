@@ -1334,6 +1334,29 @@ projects = {
               resource_type = "sa_iam_member"
             }
           ]
+      },
+      sa-pubsub = {
+        roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
+        description = "Service Account for running pubsub services"
+      },
+      sa-job = {
+        roles       = ["projects/k973yf-test/roles/rolejob"]
+        description = "Service Account for running job services"
+      },
+      sa-api = {
+        roles       = ["projects/k973yf-test/roles/roleapi"]
+        description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "projects/k973yf-test/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            }
+          ]
+      },
+      sa-queue = {
+        roles       = ["projects/k973yf-test/roles/rolequeue"]
+        description = "Service Account for running queue services"
       }
     }
   }
@@ -1963,6 +1986,29 @@ projects = {
             resource_type = "sa_iam_member"
           }
         ]
+      },
+      sa-pubsub = {
+        roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
+        description = "Service Account for running pubsub services"
+      },
+      sa-job = {
+        roles       = ["projects/k973yf-dev/roles/rolejob"]
+        description = "Service Account for running job services"
+      },
+      sa-api = {
+        roles       = ["projects/k973yf-dev/roles/roleapi"]
+        description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "projects/k973yf-dev/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            }
+          ]
+      },
+      sa-queue = {
+        roles       = ["projects/k973yf-dev/roles/rolequeue"]
+        description = "Service Account for running queue services"
       }
     }
   }
@@ -2274,7 +2320,7 @@ projects = {
     }
   }
   "search-sandbox" = {
-    project_id = "k973yf--tools"
+    project_id = "k973yf-tools"
     env = "sandbox"
     instances = [
       {
@@ -2293,6 +2339,46 @@ projects = {
             ]
       }
     ]
+    service_accounts = {
+      sa-pubsub = {
+        roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
+        description = "Service Account for running pubsub services"
+      },
+      sa-job = {
+        roles       = ["projects/k973yf-tools/roles/rolejob"]
+        description = "Service Account for running job services"
+      },
+      sa-api = {
+        roles       = ["projects/k973yf-tools/roles/roleapi"]
+        description = "Service Account for running api services"
+        resource_roles = [
+            {
+              resource = "projects/k973yf-tools/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            }
+          ]
+      },
+      sa-queue = {
+        roles       = ["projects/k973yf-tools/roles/rolequeue"]
+        description = "Service Account for running queue services"
+      },
+      gha-wif = {
+        roles       = ["roles/compute.admin"]
+        description = "Service account used by WIF POC"
+        external_roles = [{
+          roles        = ["roles/compute.imageUser"]
+          project_id  = "k973yf-dev"
+        }]
+        resource_roles = [
+          {
+            resource = "projects/k973yf-tools/serviceAccounts/854458797060-compute@developer.gserviceaccount.com"
+            roles    = ["roles/iam.serviceAccountUser"]
+            resource_type = "sa_iam_member"
+          }
+        ]
+      }
+    }
   }
   "web-presence-sandbox" = {
     project_id = "yfthig-tools"
@@ -2646,7 +2732,7 @@ projects = {
         },
         {
           roles      = ["roles/cloudsql.admin"]
-          project_id = "k973yf--tools"
+          project_id = "k973yf-tools"
         },
         {
           roles      = ["roles/cloudsql.admin"]

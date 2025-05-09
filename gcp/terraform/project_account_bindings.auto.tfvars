@@ -2362,6 +2362,21 @@ projects = {
       sa-queue = {
         roles       = ["projects/k973yf-tools/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      gha-wif = {
+        roles       = ["roles/compute.admin"]
+        description = "Service account used by WIF POC"
+        external_roles = [{
+          roles        = ["roles/compute.imageUser"]
+          project_id  = "k973yf-dev"
+        }]
+        resource_roles = [
+          {
+            resource = "projects/k973yf-tools/serviceAccounts/854458797060-compute@developer.gserviceaccount.com"
+            roles    = ["roles/iam.serviceAccountUser"]
+            resource_type = "sa_iam_member"
+          }
+        ]
       }
     }
   }

@@ -933,7 +933,7 @@ projects = {
                 owner      = "auth"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca"]
+                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
@@ -949,7 +949,7 @@ projects = {
                 owner      = "pay"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["felipe.moraes@gov.bc.ca"]
+                  readonly = ["felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
@@ -1400,8 +1400,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  # readonly = ["sergey.popov@gov.bc.ca"]
-                  readonly = []
+                  readonly = ["sergey.popov@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -1606,7 +1605,7 @@ projects = {
                 owner      = "auth"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["thayne.werdal@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca"]
+                  readonly = ["thayne.werdal@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
@@ -1622,7 +1621,7 @@ projects = {
                 owner      = "pay"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["felipe.moraes@gov.bc.ca"]
+                  readonly = ["felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca"]
                   admin = []
                 }
@@ -2057,8 +2056,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  # readonly = ["sergey.popov@gov.bc.ca"]
-                  readonly = []
+                  readonly = ["sergey.popov@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

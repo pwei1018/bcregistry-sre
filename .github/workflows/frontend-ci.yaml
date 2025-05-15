@@ -29,6 +29,12 @@ jobs:
       PNPM: ${{ steps.check.outputs.PNPM }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: "--path=. --verbose"
+
       - id: check
         name: Check PNPM package
         run: |

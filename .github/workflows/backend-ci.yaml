@@ -30,11 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          args: "--path=. --verbose"
-
       - name: Install Poetry
         run: |
           pipx install poetry

@@ -140,7 +140,7 @@ steps:
     fi
 
 # Step 2: Build and deploy the job
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:522.0.0'
   script: |
     #!/usr/bin/env bash
     set -euo pipefail

@@ -112,16 +112,16 @@ steps:
       cd ./devops/gcp
 
       # Get the current active revision
-         previous_revision=$(gcloud run revisions list \
+      previous_revision=$(gcloud run revisions list \
         --service="${_APP_NAME}-${_DEPLOYMENT_ENV}" \
         --filter="status.conditions.type=Active AND -status.conditions.status=False" \
         --format="value(metadata.name)" \
         --region="${_REGION}" \
-        --project="${project_id}") ||    previous_revision=""
+        --project="${project_id}") || previous_revision=""
 
       echo "🔎 Previous active revision: ${previous_revision}"
 
-      # 📦 Prepare new release
+      # Prepare new release
       release_name="v-${tag_sha}-$(date '+%Y%m%d%H%M')"
 
       # Create or promote release

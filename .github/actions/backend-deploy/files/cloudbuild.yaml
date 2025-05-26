@@ -18,7 +18,7 @@ steps:
     }
     project_name="${project_id%%-*}"
 
-    # Redeploy service if flag is set and vaule is true
+    # Redeploy service if flag is set and value is true
     if [[ "${_REDEPLOY:-false}" == "true" ]]; then
         echo "🔄 Redeploying service with updated environment variables..."
 

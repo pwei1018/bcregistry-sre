@@ -960,7 +960,7 @@ projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = ["felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca"]
+                  readwrite = ["ken.li@gov.bc.ca", "travis.semple@gov.bc.ca"]
                   admin = []
                 }
           }
@@ -1642,7 +1642,7 @@ projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = ["felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca"]
+                  readwrite = ["ken.li@gov.bc.ca", "travis.semple@gov.bc.ca"]
                   admin = []
                 }
           }

@@ -320,7 +320,7 @@ steps:
         if validate_cron_expression "$line"; then
           echo "✅ Valid cron expression: $line"
           gcloud scheduler jobs create http "${job_name}-scheduler-trigger-$((++schedule_id))" \
-            --project="${job_project}" --location="${_REGION}" --time-zone="PST" --schedule="${line}" \
+            --project="${job_project}" --location="${_REGION}" --time-zone="America/Vancouver" --schedule="${line}" \
             --uri="https://${_REGION}-run.googleapis.com/apis/run.googleapis.com/v1/namespaces/${job_project}/jobs/${job_name}:run" \
             --http-method POST --oauth-service-account-email "sa-job@${job_project}.iam.gserviceaccount.com"
         fi

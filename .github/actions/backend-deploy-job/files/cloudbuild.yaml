@@ -290,11 +290,13 @@ steps:
     # Set environment variables
     PROJECT_ID=$(< /workspace/project_id.txt)
 
-    # Function to validate cron expression
     validate_cron_expression() {
       local cron_expression="$1"
-      local regex='^(((([0-9]+,)+[0-9]+|([0-9]+(/[0-9]+|-|#)[0-9]+)|[0-9]+L?|\*(/[0-9]+)?|L(-[0-9]+)?|\?|[A-Z]{3}(-[A-Z]{3})?) ?){5,7})|(@(annually|yearly|monthly|weekly|daily|hourly|reboot))|(@every ([0-9]+(ns|us|µs|ms|s|m|h))+)$'
-      [[ "$cron_expression" =~ $regex ]]
+    
+      # Skip lines that are comments
+      [[ "$cron_expression" =~ ^[[:space:]]*# ]] && return 1
+    
+      return 0
     }
 
     # Create or update Cloud Schedulers

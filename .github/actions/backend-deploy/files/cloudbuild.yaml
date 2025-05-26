@@ -112,14 +112,14 @@ steps:
       cd ./devops/gcp
 
       # Get the current active revision
-      previouse_revision=$(gcloud run revisions list \
+         previous_revision=$(gcloud run revisions list \
         --service="${_APP_NAME}-${_DEPLOYMENT_ENV}" \
         --filter="status.conditions.type=Active AND -status.conditions.status=False" \
         --format="value(metadata.name)" \
         --region="${_REGION}" \
-        --project="${project_id}") || previouse_revision=""
+        --project="${project_id}") ||    previous_revision=""
 
-      echo "🔎 Previous active revision: ${previouse_revision}"
+      echo "🔎 Previous active revision: ${previous_revision}"
 
       # 📦 Prepare new release
       release_name="v-${tag_sha}-$(date '+%Y%m%d%H%M')"
@@ -202,12 +202,12 @@ steps:
 
       # Rollback traffic to the previous revision if available
       # Have to wait for migration job if available to finish before roll out
-      if [[ -n "${previouse_revision}" ]]; then
-        echo "🔙 Reverting traffic to the previous revision: ${previouse_revision}"
+      if [[ -n "${previous_revision}" ]]; then
+        echo "🔙 Reverting traffic to the previous revision: ${previous_revision}"
         gcloud run services update-traffic "${_APP_NAME}-${_DEPLOYMENT_ENV}" \
           --region="${_REGION}" \
           --project="${project_id}" \
-          --to-revisions="${previouse_revision}=100"
+          --to-revisions="${previous_revision}=100"
       fi
 
       echo "🔄 Trigger database migration and update traffic"

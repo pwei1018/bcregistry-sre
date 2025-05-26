@@ -12,7 +12,7 @@ Before updating Terraform configuration, ensure you have the following:
 
 1. Clone the Repository
 2. Create a New Branch
-3. Modify Terraform Configuration in `terraform.tfvars` file
+3. Modify Terraform Configuration in `.tfvars` files
 
 - There are three variable files that can be modified:
 
@@ -101,6 +101,6 @@ For example, if you want to grant sa-pubsub service account in Connect Dev an in
         admin                  # list of ...@gov.bc.ca emails to be granted db custom roles
 ```
 
-4. Merging the new branch into main will trigger 'terraform plan'
-5. Output of terraform plan can be reviewed in https://app.terraform.io/app/BCRegistry/workspaces/gcp-iam/runs
-6. If no errors are present, and if Terraform state changes are as expected, 'terraform apply' can be executed for the run in the UI (will either need permissions to access or ask SRE team to review)
+4. After merging the new branch into main you can manually run [Terraform-GCS](https://github.com/bcgov/bcregistry-sre/blob/main/.github/workflows/terraform-gcs.yaml) github action
+5. Output of terraform plan can be reviewed in https://github.com/bcgov/bcregistry-sre/actions/workflows/terraform-gcs.yaml
+6. Alternatively, you can run 'terraform plan', 'terraform apply' with your changes locally before pushing them to main. You would need to import .env file located in the Common Tools project's common-tools-terraform-state bucket (same location as Terraform's backend state file).

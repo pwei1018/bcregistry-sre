@@ -68,7 +68,7 @@ steps:
               generate_manifest "service" "${env_name}"
           done
 
-          remove_unused_deployments "${_DEPLOY_FULL_DEPLOYMENT_ENVS}" "${_DEPLOYMENT_ENV}" "${project_name}"
+          remove_unused_deployments "${_DEPLOY_FULL_DEPLOYMENT_ENVS}" "${_DEPLOYMENT_ENVS}" "${project_name}"
       fi
 
       # Apply Cloud Deploy configuration

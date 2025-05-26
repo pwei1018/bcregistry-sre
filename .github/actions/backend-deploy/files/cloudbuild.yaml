@@ -22,7 +22,7 @@ steps:
     if [[ "${_REDEPLOY:-false}" == "true" ]]; then
         echo "🔄 Redeploying service with updated environment variables..."
 
-        # Generate secrets base on vault mapping file
+        # Generate secrets based on vault mapping file
         # This file should contain the mapping of secrets to environment variables
         generate_secrets_file "${_DEPLOYMENT_ENV}" "./devops/vaults.gcp.env"
 

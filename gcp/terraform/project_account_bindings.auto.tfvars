@@ -429,6 +429,11 @@ projects = {
               resource_type = "cloud_run"
             },
             {
+              resource = "projects/a083gt-prod/locations/northamerica-northeast1/services/namex-api-prod"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            },
+            {
               resource = "projects/a083gt-prod/topics/namex-emailer-prod"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
@@ -1135,6 +1140,11 @@ projects = {
         resource_roles = [
             {
               resource = "projects/a083gt-test/locations/northamerica-northeast1/services/namex-solr-synonyms-api-test"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            },
+            {
+              resource = "projects/a083gt-test/locations/northamerica-northeast1/services/namex-api-test"
               roles    = ["roles/run.invoker"]
               resource_type = "cloud_run"
             },
@@ -1859,6 +1869,11 @@ projects = {
         resource_roles = [
             {
               resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            },
+            {
+              resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-api-dev"
               roles    = ["roles/run.invoker"]
               resource_type = "cloud_run"
             },

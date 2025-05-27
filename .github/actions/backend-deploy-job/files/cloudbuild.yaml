@@ -1,6 +1,6 @@
 steps:
 
-# Step 0: Redeploy the service with the updated environment variables.
+# Step 0: Redeploy the job with the updated environment variables.
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/sre-cd-runner:1.0.1'
   secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   script: |
@@ -18,9 +18,9 @@ steps:
     }
     project_name="${project_id%%-*}"
 
-    # Redeploy service if flag is set and value is true
+    # Redeploy job if flag is set and value is true
     if [[ "${_REDEPLOY:-false}" == "true" ]]; then
-        echo "🔄 Redeploying service with updated environment variables..."
+        echo "🔄 Redeploying job with updated environment variables..."
 
         # Generate secrets base on vault mapping file
         # This file should contain the mapping of secrets to environment variables

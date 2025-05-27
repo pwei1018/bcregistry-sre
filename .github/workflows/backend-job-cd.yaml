@@ -9,6 +9,9 @@ on:
       app_name:
         required: true
         type: string
+      cd_runner_version:
+        type: string
+        default: "1.0.1"
       working_directory:
         type: string
         default: "."
@@ -120,5 +123,5 @@ jobs:
           echo "TARGET_FROM: $TARGET_FROM"
           gcloud builds submit \
             --region=northamerica-northeast1 \
-            --substitutions _SHORT_SHA=$SHORT_SHA,_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVS="${{ needs.setup.outputs.TARGETS }}",_DEPLOYMENT_ENV="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_ENV_FROM="$TARGET_FROM",_DEPLOYMENT_PIPELINE="${{ needs.setup.outputs.PIPELINE }}",_REDEPLOY="${{ inputs.redeploy}}" \
+            --substitutions _SHORT_SHA=$SHORT_SHA,_CD_RUNNER_VERSION="${{ inputs.cd_runner_version }}",_APP_NAME="${{ inputs.app_name }}",_DEPLOYMENT_ENVS="${{ needs.setup.outputs.TARGETS }}",_DEPLOYMENT_ENV="${{ needs.setup.outputs.TARGET }}",_DEPLOYMENT_ENV_FROM="$TARGET_FROM",_DEPLOYMENT_PIPELINE="${{ needs.setup.outputs.PIPELINE }}",_REDEPLOY="${{ inputs.redeploy}}" \
             --config devops/gcp/cloudbuild.yaml

@@ -194,6 +194,8 @@ steps:
         local short_sha="$2"
         if ! tag_exists "${short_sha}"; then
           echo "🔨 Building and pushing Docker image: ${short_sha}"
+          gcloud --version
+          docker --version
           docker build -t "${IMAGE_PATH}:${short_sha}" --cache-from "${IMAGE_PATH}:latest" .
           docker push "${IMAGE_PATH}:${short_sha}"
           tag_image "${short_sha}" "latest"

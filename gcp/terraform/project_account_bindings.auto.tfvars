@@ -235,6 +235,21 @@ projects = {
     #   }
     # ]
     service_accounts = {
+      sa-ocp-db-migrate = {
+        roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
+        description = "Service Account for migrating db from openshift"
+        resource_roles = [
+            { resource = "projects/758264625079/secrets/OC_TOKEN_78c88a-prod"
+              roles    = ["roles/secretmanager.secretAccessor"]
+              resource_type = "secret_manager"
+            },
+            {
+              resource = "pay-db-dump-prod"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            }
+          ]
+      }
       sa-pam-function = {
         roles       = ["projects/gtksf3-prod/roles/rolepam"]
         description = "Service Account for running PAM entitlement grant and revoke cloud functions"

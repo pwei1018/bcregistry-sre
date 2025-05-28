@@ -210,6 +210,9 @@ steps:
           --to-revisions="${previous_revision}=100"
       fi
 
+      # Navigate to home directory
+      cd ~
+
       echo "🔄 Trigger database migration and update traffic"
 
       # Set environment variables

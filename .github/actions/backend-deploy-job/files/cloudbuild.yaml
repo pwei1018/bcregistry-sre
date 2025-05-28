@@ -158,7 +158,7 @@ steps:
         done
 
         # Navigate to home directory
-        cd ~
+        cd /workspace
 
         # Function to validate cron expressions
         validate_cron_expression() {

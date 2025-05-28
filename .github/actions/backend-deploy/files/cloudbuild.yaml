@@ -211,7 +211,7 @@ steps:
       fi
 
       # Navigate to home directory
-      cd ~
+      cd /workspace
 
       echo "🔄 Trigger database migration and update traffic"
 

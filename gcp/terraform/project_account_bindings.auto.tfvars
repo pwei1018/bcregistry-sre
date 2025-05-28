@@ -13,7 +13,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca"]
+                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -28,7 +28,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca"]
+                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

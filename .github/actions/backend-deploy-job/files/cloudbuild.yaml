@@ -157,6 +157,9 @@ steps:
             sleep $retry_interval
         done
 
+        # Navigate to home directory
+        cd ~
+
         # Function to validate cron expressions
         validate_cron_expression() {
             local cron_expression="$1"

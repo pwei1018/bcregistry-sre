@@ -1,7 +1,7 @@
 steps:
 
 # Step 0: Redeploy the service with the updated environment variables.
-- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/sre-cd-runner:1.0.1'
+- name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/sre-cd-runner:${_CD_RUNNER_VERSION}'
   secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   script: |
     #!/usr/bin/env bash
@@ -263,6 +263,7 @@ options:
   automapSubstitutions: true
   substitutionOption: 'ALLOW_LOOSE'
 substitutions:
+  _CD_RUNNER_VERSION: "1.0.1"
   _APP_NAME: ${_APP_NAME}
   _SHORT_SHA: ${_SHORT_SHA}
   _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test uat sandbox prod"

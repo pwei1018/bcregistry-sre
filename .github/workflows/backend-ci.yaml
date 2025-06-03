@@ -182,4 +182,9 @@ jobs:
       - name: build to check strictness
         id: build
         run: |
-          docker build --no-cache -t ${{ inputs.app_name }} .
+          if [ -f Dockerfile ]; then
+            docker build --no-cache -t ${{ inputs.app_name }} .
+          else
+            echo "Dockerfile does not exist."
+            exit 0
+          fi

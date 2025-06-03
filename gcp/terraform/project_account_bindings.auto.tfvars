@@ -2512,7 +2512,7 @@ projects = {
 
     instances = [
       {
-        instance = "business-integration"
+        instance = "businesses-db-integration"
         databases =  [
           {
                 db_name    = "businesses"

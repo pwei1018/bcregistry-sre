@@ -7,7 +7,7 @@
   "userLabels": {},
   "conditions": [
     {
-      "displayName": "Cloud Run Revision - Request Latency",
+      "displayName": "Cloud Run Revision - Request Latency for ${CLOUD_RUN_NAME}",
       "conditionPrometheusQueryLanguage": {
         "duration": "300s",
         "evaluationInterval": "30s",

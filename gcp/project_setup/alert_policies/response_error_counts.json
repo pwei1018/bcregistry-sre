@@ -7,7 +7,7 @@
   "userLabels": {},
   "conditions": [
     {
-      "displayName": "New condition",
+      "displayName": "Error Response Rate for ${CLOUD_RUN_NAME}",
       "conditionPrometheusQueryLanguage": {
         "duration": "0s",
         "evaluationInterval": "30s",

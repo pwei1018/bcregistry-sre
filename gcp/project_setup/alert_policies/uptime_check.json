@@ -1,0 +1,37 @@
+{
+  "displayName": "${CLOUD_RUN_NAME}-uptime-check-failure",
+  "documentation": {
+    "content": "${CLOUD_RUN_NAME} uptime check",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {},
+  "conditions": [
+    {
+      "displayName": "Cloud Run Revision - uptime Check passed",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_FRACTION_TRUE"
+          }
+        ],
+        "comparison": "COMPARISON_LT",
+        "duration": "0s",
+        "filter": "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"${CLOUD_RUN_NAME}\" AND metric.type = \"monitoring.googleapis.com/uptime_check/check_passed\"",
+        "thresholdValue": 1,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [],
+  "severity": "CRITICAL"
+}

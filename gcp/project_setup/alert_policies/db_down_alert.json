@@ -1,0 +1,37 @@
+{
+  "displayName": "${CLOUD_SQL_NAME}-db-down-alert",
+  "documentation": {
+    "content": "${CLOUD_SQL_NAME} database down",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {},
+  "conditions": [
+    {
+      "displayName": "Cloud SQL Database - Instance state",
+      "conditionThreshold": {
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_FRACTION_TRUE"
+          }
+        ],
+        "comparison": "COMPARISON_LT",
+        "duration": "0s",
+        "filter": "resource.type = \"cloudsql_database\" AND resource.labels.database_id = \"${TARGET_PROJECT_ID}:${CLOUD_SQL_NAME}\" AND metric.type = \"cloudsql.googleapis.com/database/instance_state\" AND metric.labels.state = \"RUNNING\"",
+        "thresholdValue": 1,
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "alertStrategy": {
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [],
+  "severity": "CRITICAL"
+}

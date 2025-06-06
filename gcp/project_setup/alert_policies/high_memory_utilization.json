@@ -1,0 +1,37 @@
+{
+  "displayName": "${CLOUD_RUN_NAME}-high-memory-utilization",
+  "documentation": {
+    "content": "Alerts when memory utilization for ${CLOUD_RUN_NAME} exceeds 85% for more than 5 minutes",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {},
+  "conditions": [
+    {
+      "displayName": "Cloud Run Revision - High Memory Utilization",
+      "conditionThreshold": {
+        "filter": "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"${CLOUD_RUN_NAME}\" AND metric.type = \"run.googleapis.com/container/memory/utilizations\"",
+        "aggregations": [
+          {
+            "alignmentPeriod": "60s",
+            "perSeriesAligner": "ALIGN_PERCENTILE_99"
+          }
+        ],
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0.85,
+        "duration": "300s",
+        "trigger": {
+          "count": 1
+        }
+      }
+    }
+  ],
+  "combiner": "OR",
+  "alertStrategy": {
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "enabled": true,
+  "notificationChannels": [],
+  "severity": "WARNING"
+}

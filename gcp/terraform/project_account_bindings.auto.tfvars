@@ -376,6 +376,10 @@ projects = {
       sa-queue = {
         roles       = ["projects/yfjq17-prod/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      sa-solr-importer = {
+       roles       = ["projects/yfjq17-prod/roles/rolesolrimporter"]
+       description = "Service Account for solr importer services"
       }
     }
   }
@@ -495,6 +499,10 @@ projects = {
             roles        = ["roles/cloudsql.client", "roles/cloudsql.admin"]
             project_id  = "a083gt-integration"
           }]
+      },
+      sa-solr-importer = {
+        roles       = ["projects/a083gt-prod/roles/rolesolrimporter"]
+        description = "Service Account for solr importer services"
       }
     }
     pam_bindings = [
@@ -1097,6 +1105,10 @@ projects = {
       sa-queue = {
         roles       = ["projects/yfjq17-test/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      sa-solr-importer = {
+        roles       = ["projects/yfjq17-test/roles/rolesolrimporter"]
+        description = "Service Account for solr importer services"
       }
     }
   }
@@ -1215,7 +1227,10 @@ projects = {
             }
           ]
       },
-
+      sa-solr-importer = {
+        roles       = ["projects/a083gt-test/roles/rolesolrimporter"]
+        description = "Service Account for solr importer services"
+      }
     }
   }
   "business-number-hub-test" = {
@@ -1807,122 +1822,130 @@ projects = {
         roles       = ["projects/yfjq17-dev/roles/rolequeue"]
         description = "Service Account for running queue services"
       }
+    },
+      sa-solr-importer = {
+      roles       = ["projects/yfjq17-dev/roles/rolesolrimporter"]
+      description = "Service Account for solr importer services"
     }
   }
   "bcr-businesses-dev" = {
-    project_id = "a083gt-dev"
-    env = "dev"
-    instances = [
-      {
-        instance = "businesses-db-dev"
-        databases =  [
-          {
-                db_name    = "business-ar"
-                roles      = ["readonly", "readwrite", "admin"]
-                owner      = "business-ar-api"
-                database_role_assignment = {
-                  readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
-                  readwrite = []
-                  admin = []
+      project_id = "a083gt-dev"
+      env = "dev"
+      instances = [
+        {
+          instance = "businesses-db-dev"
+          databases =  [
+            {
+                  db_name    = "business-ar"
+                  roles      = ["readonly", "readwrite", "admin"]
+                  owner      = "business-ar-api"
+                  database_role_assignment = {
+                    readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
+                    readwrite = []
+                    admin = []
+                  }
+                },
+                {
+                  db_name    = "legal-entities"
+                  roles      = ["readonly", "readwrite", "admin"]
+                  owner      = "business-api"
+                  database_role_assignment = {
+                    readonly = []
+                    readwrite = []
+                    admin = []
+                  }
                 }
+              ]
+        },
+        {
+          instance = "namex-db-dev"
+          databases =  [
+            {
+                  db_name    = "namex"
+                  roles      = ["readonly", "readwrite", "admin"]
+                  owner      = "userHQH"
+                  database_role_assignment = {
+                    readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
+                    readwrite = []
+                    admin = []
+                  }
+                }
+              ]
+        }
+      ]
+      service_accounts = {
+        sa-db-migrate = {
+          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
+          description = "Service Account for migrating db from openshift"
+          resource_roles = [
+              { resource = "projects/475224072965/secrets/OC_TOKEN_cc892f-dev"
+                roles    = ["roles/secretmanager.secretAccessor"]
+                resource_type = "secret_manager"
               },
               {
-                db_name    = "legal-entities"
-                roles      = ["readonly", "readwrite", "admin"]
-                owner      = "business-api"
-                database_role_assignment = {
-                  readonly = []
-                  readwrite = []
-                  admin = []
-                }
+                resource = "lear_ocp_dumps"
+                roles    = ["roles/storage.admin"]
+                resource_type = "storage_bucket"
               }
             ]
-      },
-      {
-        instance = "namex-db-dev"
-        databases =  [
-          {
-                db_name    = "namex"
-                roles      = ["readonly", "readwrite", "admin"]
-                owner      = "userHQH"
-                database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
-                  readwrite = []
-                  admin = []
-                }
+        },
+        sa-pubsub = {
+          roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
+          description = "Service Account for running pubsub services"
+        },
+        sa-job = {
+          roles       = ["projects/a083gt-dev/roles/rolejob"]
+          description = "Service Account for running job services"
+        },
+        sa-api = {
+          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator"]
+          description = "Service Account for running api services"
+          resource_roles = [
+              {
+                resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
+                roles    = ["roles/run.invoker"]
+                resource_type = "cloud_run"
+              },
+              {
+                resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-api-dev"
+                roles    = ["roles/run.invoker"]
+                resource_type = "cloud_run"
+              },
+              {
+                resource = "projects/a083gt-dev/topics/namex-emailer-dev"
+                roles    = ["roles/pubsub.publisher"]
+                resource_type = "pubsub_topic"
+              },
+              {
+                resource = "projects/a083gt-dev/topics/namex-nr-state-dev"
+                roles    = ["roles/pubsub.publisher"]
+                resource_type = "pubsub_topic"
               }
             ]
-      }
-    ]
-    service_accounts = {
-      sa-db-migrate = {
-        roles       = ["projects/a083gt-dev/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
-        description = "Service Account for migrating db from openshift"
-        resource_roles = [
-            { resource = "projects/475224072965/secrets/OC_TOKEN_cc892f-dev"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
-            {
-              resource = "lear_ocp_dumps"
-              roles    = ["roles/storage.admin"]
-              resource_type = "storage_bucket"
-            }
-          ]
-      },
-      sa-pubsub = {
-        roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
-        description = "Service Account for running pubsub services"
-      },
-      sa-job = {
-        roles       = ["projects/a083gt-dev/roles/rolejob"]
-        description = "Service Account for running job services"
-      },
-      sa-api = {
-        roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator"]
-        description = "Service Account for running api services"
-        resource_roles = [
-            {
-              resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-solr-synonyms-api-dev"
-              roles    = ["roles/run.invoker"]
-              resource_type = "cloud_run"
-            },
-            {
-              resource = "projects/a083gt-dev/locations/northamerica-northeast1/services/namex-api-dev"
-              roles    = ["roles/run.invoker"]
-              resource_type = "cloud_run"
-            },
-            {
-              resource = "projects/a083gt-dev/topics/namex-emailer-dev"
-              roles    = ["roles/pubsub.publisher"]
-              resource_type = "pubsub_topic"
-            },
-            {
-              resource = "projects/a083gt-dev/topics/namex-nr-state-dev"
-              roles    = ["roles/pubsub.publisher"]
-              resource_type = "pubsub_topic"
-            }
-          ]
-      },
-      sa-queue = {
-        roles       = ["projects/a083gt-dev/roles/rolequeue"]
-        description = "Service Account for running queue services"
-      },
-      business-ar-job-process-paid = {
-        roles       = ["roles/run.invoker"]
-        description = ""
-      },
-      sa-lear-db-standby = {
-        roles       = ["roles/cloudsql.client", "roles/cloudsql.viewer"]
-        description = ""
-      },
-      sa-bni-file-upload-dev = {
-        roles       = ["roles/storage.objectCreator"]
-        description = "Service Account to upload raw batch files to the BNI storage bucket"
-      },
-      business-pubsub-sa = {
-        roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
-        description = ""
+        },
+        sa-queue = {
+          roles       = ["projects/a083gt-dev/roles/rolequeue"]
+          description = "Service Account for running queue services"
+        },
+        business-ar-job-process-paid = {
+          roles       = ["roles/run.invoker"]
+          description = ""
+        },
+        sa-lear-db-standby = {
+          roles       = ["roles/cloudsql.client", "roles/cloudsql.viewer"]
+          description = ""
+        },
+        sa-bni-file-upload-dev = {
+          roles       = ["roles/storage.objectCreator"]
+          description = "Service Account to upload raw batch files to the BNI storage bucket"
+        },
+        business-pubsub-sa = {
+          roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
+          description = ""
+        },
+        sa-solr-importer = {
+          roles       = ["projects/a083gt-dev/roles/rolesolrimporter"]
+          description = "Service Account for solr importer services"
       }
     }
   }
@@ -2314,6 +2337,10 @@ projects = {
       btr-cd = {
         roles       = ["roles/editor"]
         description = ""
+      },
+      sa-solr-importer = {
+        roles       = ["projects/yfjq17-tools/roles/rolesolrimporter"]
+        description = "Service Account for solr importer services"
       }
     }
   }
@@ -2336,6 +2363,10 @@ projects = {
       sa-queue = {
         roles       = ["projects/a083gt-tools/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      sa-solr-importer = {
+        roles       = ["projects/a083gt-tools/roles/rolesolrimporter"]
+        description = "Service Account for solr importer services"
       }
     }
   }
@@ -2585,6 +2616,10 @@ projects = {
               resource_type = "storage_bucket"
             }
           ]
+      },
+        sa-solr-importer = {
+          roles       = ["projects/a083gt-integration/roles/rolesolrimporter"]
+          description = "Service Account for solr importer services"
       }
     }
   }

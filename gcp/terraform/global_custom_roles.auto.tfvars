@@ -154,6 +154,33 @@ global_custom_roles = {
       "cloudsql.instances.get"
     ]
   },
+  rolesolrimporter = {
+  title = "Role Solr importer"
+  description = "Role for Solr importer services."
+  permissions = [
+    "resourcemanager.projects.get",
+    "iam.serviceAccounts.actAs",
+    "iam.serviceAccounts.getAccessToken",
+    "clientauthconfig.clients.list",
+    "storage.managedFolders.get",
+    "storage.objects.get",
+    "storage.objects.list",
+    "artifactregistry.repositories.downloadArtifacts",
+    "artifactregistry.repositories.get",
+    "artifactregistry.tags.get",
+    "run.executions.get",
+    "run.executions.list",
+    "run.services.get",
+    "run.services.list",
+    "run.services.create",
+    "run.services.update",
+    "run.routes.get",
+    "run.routes.list",
+    "run.routes.invoke",
+    "cloudsql.instances.connect",
+    "cloudsql.instances.get"
+  ]
+},
   SRE = {
     title = "Role SRE"
     description = "Role for SRE."

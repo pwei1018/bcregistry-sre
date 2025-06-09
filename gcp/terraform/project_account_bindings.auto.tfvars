@@ -1081,7 +1081,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "testUser"
                 database_role_assignment = {
-                  readonly = ["gunasegaran.nagarajan@gov.bc.ca"]
+                  readonly = ["gunasegaran.nagarajan@gov.bc.ca", "sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }
@@ -1130,9 +1130,14 @@ projects = {
                 }
               },
               {
-                db_name    = "legal-entities"
+                db_name    = "business"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
+                database_role_assignment = {
+                  readonly = ["sa-solr-importer"]
+                  readwrite = []
+                  admin = []
+                }
               }
             ]
       },
@@ -1144,7 +1149,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "userHQH"
                 database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
+                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }
@@ -1797,7 +1802,7 @@ projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "devUser"
                 database_role_assignment = {
-                  readonly = ["gunasegaran.nagarajan@gov.bc.ca"]
+                  readonly = ["gunasegaran.nagarajan@gov.bc.ca", "sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }
@@ -1821,13 +1826,13 @@ projects = {
       sa-queue = {
         roles       = ["projects/yfjq17-dev/roles/rolequeue"]
         description = "Service Account for running queue services"
-      }
-    },
+      },
       sa-solr-importer = {
       roles       = ["projects/yfjq17-dev/roles/rolesolrimporter"]
       description = "Service Account for solr importer services"
     }
   }
+}
   "bcr-businesses-dev" = {
       project_id = "a083gt-dev"
       env = "dev"
@@ -1846,11 +1851,11 @@ projects = {
                   }
                 },
                 {
-                  db_name    = "legal-entities"
+                  db_name    = "business"
                   roles      = ["readonly", "readwrite", "admin"]
                   owner      = "business-api"
                   database_role_assignment = {
-                    readonly = []
+                    readonly = ["sa-solr-importer"]
                     readwrite = []
                     admin = []
                   }
@@ -1865,7 +1870,7 @@ projects = {
                   roles      = ["readonly", "readwrite", "admin"]
                   owner      = "userHQH"
                   database_role_assignment = {
-                    readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
+                    readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
                     readwrite = []
                     admin = []
                   }

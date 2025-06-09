@@ -3,7 +3,7 @@
 ## Prerequisites
 Before updating Terraform configuration, ensure you have the following:
 
-- A working Terraform setup (`terraform` CLI installed)
+- A working Terraform setup (`terraform` CLI installed - make sure you install 64-bit version of Terraform binary)
 - Access to the repository where the Terraform configuration is stored
 - Appropriate permissions to push changes and apply Terraform updates
 - Configured backend (if using remote state management)

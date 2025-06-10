@@ -30,7 +30,7 @@ locals {
 }
 
 module "iam" {
-  for_each = var.projects
+  for_each = local.projects
 
   source           = "./modules/iam"
   project_id       = each.value.project_id
@@ -41,7 +41,7 @@ module "iam" {
 }
 
 module "pam" {
-  for_each = var.projects
+  for_each = local.projects
 
   source   = "./modules/pam"
 
@@ -59,7 +59,7 @@ module "db_roles" {
 }
 
 module "db_role_management" {
-  for_each = var.projects
+  for_each = local.projects
 
   source      = "./modules/db_role_management"
   project_id  = each.value.project_id
@@ -82,7 +82,7 @@ module "db_role_management" {
 
 
 module "sql_iam_users" {
-  for_each = var.projects
+  for_each = local.projects
 
   source = "./modules/db_role_assignment"
 

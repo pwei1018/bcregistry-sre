@@ -1,3 +1,5 @@
+default_principals = ["user:andriy.bolyachevets@gov.bc.ca"]
+
 global_database_role_assignment = {
   readonly = []
   readwrite = []

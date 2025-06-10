@@ -6,8 +6,10 @@ Before updating Terraform configuration, ensure you have the following:
 - A working Terraform setup (`terraform` CLI installed - make sure you install 64-bit version of Terraform binary)
 - Access to the repository where the Terraform configuration is stored
 - Check that your account can impersonate terraform service account: 
-```gcloud iam service-accounts get-iam-policy terraform-sa@c4hnrd-tools.iam.gserviceaccount.com \
-  --format="json"```
+```
+gcloud iam service-accounts get-iam-policy terraform-sa@c4hnrd-tools.iam.gserviceaccount.com \
+  --format="json"
+```
 
 ## Steps to Update Terraform Configuration
 
@@ -15,14 +17,16 @@ Before updating Terraform configuration, ensure you have the following:
 2. Create a New Branch
 3. Modify Terraform Configuration in `.tfvars` files
 
-- There are six configuration files that can be modified:
+### Configuration Files
 
-`_config_project_dev.auto.tfvars` - For dev environment project configurations
-`_config_project_test.auto.tfvars` - For test environment project configurations
-`_config_project_prod.auto.tfvars` - For prod environment project configurations
-`_config_project_other.auto.tfvars` - For sandbox and tools project configurations
-`_config_environment_custom_roles.auto.tfvars` - For environment-specific custom roles
-`_config_global_custom_roles.auto.tfvars` - For global custom roles across all projects
+There are six configuration files that can be modified:
+
+- `_config_project_dev.auto.tfvars` - For dev environment project configurations
+- `_config_project_test.auto.tfvars` - For test environment project configurations
+- `_config_project_prod.auto.tfvars` - For prod environment project configurations
+- `_config_project_other.auto.tfvars` - For sandbox and tools project configurations
+- `_config_environment_custom_roles.auto.tfvars` - For environment-specific custom roles
+- `_config_global_custom_roles.auto.tfvars` - For global custom roles across all projects
 
 ### Structure of Project Configuration files (`_config_project_*.auto.tfvars`):
 
@@ -91,9 +95,10 @@ dev_projects or test_projects or prod_projects or other_projects = {
 ```
 
 For example, if you want to grant sa-pubsub service account in Connect Dev an invoker role for Cloud Run in Business Dev:
+
 ![invoker-grant](./images/cloud-run-invoker-role.png)
 
-### Structure of `environment_custom_roles.auto.tfvars`:
+### Structure of `_config_environment_custom_roles.auto.tfvars`:
 
 ```
 environments = {
@@ -125,7 +130,6 @@ environments = {
 ### Structure of `_config_global_custom_roles.auto.tfvars`:
 
 ```
-
 global_database_role_assignment = {  # Global database role assignments
   readonly = []   # List of users/emails granted readonly access to all databases
   readwrite = []  # List of users/emails granted readwrite access to all databases
@@ -140,6 +144,8 @@ global_custom_roles = {  # Map of global custom roles
   }
 }
 ```
+
+## Applying Changes
 
 4. After merging the new branch into main you can manually run [Terraform-GCS](https://github.com/bcgov/bcregistry-sre/blob/main/.github/workflows/terraform-gcs.yaml) github action
 5. Output of terraform plan can be reviewed in https://github.com/bcgov/bcregistry-sre/actions/workflows/terraform-gcs.yaml

@@ -180,7 +180,8 @@ global_custom_roles = {
     "run.routes.list",
     "run.routes.invoke",
     "cloudsql.instances.connect",
-    "cloudsql.instances.get"
+    "cloudsql.instances.get",
+    "cloudsql.instances.login"
   ]
 },
   SRE = {

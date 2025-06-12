@@ -771,18 +771,23 @@ prod_projects = {
   "strr-prod" = {
     project_id = "bcrbk9-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "strr-db-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "strr-db"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "strr"
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "strr-db-prod"
+        databases =  [
+          {
+                db_name    = "strr-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "strr"
+                database_role_assignment = {
+                  readonly = ["Hanlun.Wang@gov.bc.ca"]
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pubsub = {
         roles       = ["roles/bigquery.dataOwner", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]

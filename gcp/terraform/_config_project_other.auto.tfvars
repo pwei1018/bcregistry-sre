@@ -370,6 +370,11 @@ other_projects = {
                 db_name    = "lear"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "user5SJ"
+                database_role_assignment = {
+                  readonly = ["sa-solr-importer"]
+                  readwrite = []
+                  admin = []
+                }
               }
             ]
       }

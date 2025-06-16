@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca"]
+                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca"]
+                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

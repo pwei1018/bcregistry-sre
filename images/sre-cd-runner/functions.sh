@@ -169,6 +169,8 @@ generate_manifest() {
     VPC_CONNECTOR=$(awk -F= '/^VPC_CONNECTOR/ {print $2}' "./devops/vaults.${env_name}")
     export VAL
     VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}")
+    export ROUTE_ALL_TO_VPC
+    ROUTE_ALL_TO_VPC=$(awk -F= '/^ROUTE_ALL_TO_VPC/ {print $2}' "./devops/vaults.${env_name}")
 
     local template_file="./devops/gcp/k8s/${service_type}.template.yaml"
     local temp_file="./devops/gcp/k8s/temp-${service_type}.${env_name}.yaml"
@@ -178,7 +180,13 @@ generate_manifest() {
 
     if [[ -n "${VPC_CONNECTOR}" ]]; then
         echo "🌐 Adding VPC connector configuration..."
-        yq e '.spec.template.metadata.annotations += {"run.googleapis.com/vpc-access-egress": "private-ranges-only", "run.googleapis.com/vpc-access-connector": env(VPC_CONNECTOR)}' -i "${temp_file}"
+        if [[ -n "${ROUTE_ALL_TO_VPC}" ]]; then
+            echo "Routing all traffic to VPC"
+            yq e '.spec.template.metadata.annotations += {"run.googleapis.com/vpc-access-egress": "all-traffic", "run.googleapis.com/vpc-access-connector": env(VPC_CONNECTOR)}' -i "${temp_file}"
+        else
+            echo "Routing internal traffic to VPC"
+            yq e '.spec.template.metadata.annotations += {"run.googleapis.com/vpc-access-egress": "private-ranges-only", "run.googleapis.com/vpc-access-connector": env(VPC_CONNECTOR)}' -i "${temp_file}"
+        fi
     fi
 
     if [[ "${service_type}" == "service" ]]; then

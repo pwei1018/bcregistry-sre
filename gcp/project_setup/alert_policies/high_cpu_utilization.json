@@ -1,5 +1,10 @@
 {
   "displayName": "${CLOUD_RUN_NAME}-high-cpu",
+  "documentation": {
+    "content": "${CLOUD_RUN_NAME} service has high CPU utilization",
+    "mimeType": "text/markdown"
+  },
+  "userLabels": {},
   "conditions": [{
     "displayName": "CPU usage",
     "conditionThreshold": {
@@ -10,8 +15,19 @@
       }],
       "comparison": "COMPARISON_GT",
       "thresholdValue": 0.8,
-      "duration": "300s"
+      "duration": "300s",
+      "trigger": {
+        "count": 1
+      }
     }
   }],
-  "combiner": "OR"
+  "alertStrategy": {
+    "notificationPrompts": [
+      "OPENED"
+    ]
+  },
+  "combiner": "OR",
+  "enabled": true,
+  "notificationChannels": [],
+  "severity": "WARNING"
 }

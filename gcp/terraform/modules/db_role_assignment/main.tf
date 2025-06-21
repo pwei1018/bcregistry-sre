@@ -152,13 +152,16 @@ resource "google_sql_user" "iam_account_users" {
   instance = each.value.triggers.instance
 
   name = (
+    endswith(each.value.triggers.user, ".gserviceaccount.com") ?
+    trimsuffix(each.value.triggers.user, ".gserviceaccount.com") :
     contains(keys(var.all_service_account_emails), each.value.triggers.user) ?
     trimsuffix(var.all_service_account_emails[each.value.triggers.user], ".gserviceaccount.com") :
     each.value.triggers.user
   )
 
   type = (
-    contains(keys(var.all_service_account_emails), each.value.triggers.user) ?
+    contains(keys(var.all_service_account_emails), each.value.triggers.user) ||
+    endswith(each.value.triggers.user, ".gserviceaccount.com") ?
     "CLOUD_IAM_SERVICE_ACCOUNT" :
     "CLOUD_IAM_USER"
   )
@@ -190,6 +193,8 @@ resource "null_resource" "db_role_assignments" {
       FULL_INSTANCE_NAME="$PROJECT_ID:$REGION:$INSTANCE"
       GCS_URI="gs://${var.bucket_name}"
       USER_EMAIL="${
+        endswith(each.value.user, ".gserviceaccount.com") ?
+        trimsuffix(each.value.user, ".gserviceaccount.com") :
         contains(keys(var.all_service_account_emails), each.value.user) ?
         trimsuffix(var.all_service_account_emails[each.value.user], ".gserviceaccount.com") :
         each.value.user

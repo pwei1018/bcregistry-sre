@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "travis.semple@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
                   readwrite = []
                   admin = []
                 }
@@ -26,8 +26,8 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["genevieve.primeau@gov.bc.ca", "severin.beauvais@gov.bc.ca", "thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "doug.lovett@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
-                  readwrite = []
+                  readonly = ["severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readwrite = ["thor.wolpert@gov.bc.ca", "avni.salhotra@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
               }

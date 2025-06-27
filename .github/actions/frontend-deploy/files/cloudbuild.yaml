@@ -93,7 +93,7 @@ steps:
     cp firebase-*.json /workspace/app
 
 - name: "northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/gcp-sre"
-  secretEnv: ["OP_SERVICE_ACCOUNT_TOKEN"]
+  secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
   dir: "app"
   script: |
     #!/usr/bin/env bash
@@ -230,8 +230,10 @@ steps:
 # Secret management
 availableSecrets:
   secretManager:
-  - versionName: projects/331250273634/secrets/OP_SERVICE_ACCOUNT_TOKEN/versions/latest
-    env: 'OP_SERVICE_ACCOUNT_TOKEN'
+  - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
+    env: 'OP_CONNECT_HOST'
+  - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
+    env: 'OP_CONNECT_TOKEN'
 
 # Build options and substitutions
 options:

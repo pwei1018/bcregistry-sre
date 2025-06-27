@@ -8,13 +8,13 @@ runs:
     - name: Copy zip file
       shell: bash
       run: |
-        cp  ${{ github.action_path }}/op_linux_386_v2.16.1.zip .
+        cp  ${{ github.action_path }}/op_linux_386_v2.31.1.zip .
 
     # Install 1pass cli
     - name: Install 1pass cli
       shell: bash
       run: |
-        sudo unzip op_linux_386_v2.16.1.zip -d /usr/local/bin
-        sudo rm op_linux_386_v2.16.1.zip
+        sudo unzip op_linux_386_v2.31.1.zip -d /usr/local/bin
+        sudo rm op_linux_386_v2.31.1.zip
         sudo chmod +x /usr/local/bin/op
         op --version

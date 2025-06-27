@@ -13,9 +13,7 @@ on:
         type: string
         default: "."
     secrets:
-      OP_CONNECT_URL:
-        required: true
-      OP_CONNECT_TOKEN:
+      OP_SERVICE_ACCOUNT_TOKEN:
         required: true
       OPENSHIFT_DOCKER_REGISTRY:
         required: true
@@ -97,8 +95,7 @@ jobs:
       - name: Setup .env file
         working-directory: ${{ inputs.working_directory }}
         env:
-          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
-          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           APP_ENV: ${{ needs.setup.outputs.TARGET }}
         run: |-
           op inject -i ./devops/vaults.ocp.env -o .env -f

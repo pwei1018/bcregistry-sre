@@ -2,7 +2,7 @@ steps:
 
 # Step 0: Redeploy the service with the updated environment variables.
 - name: 'northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/sre-cd-runner:${_CD_RUNNER_VERSION}'
-  secretEnv: ['OP_CONNECT_HOST', 'OP_CONNECT_TOKEN']
+  secretEnv: ['OP_SERVICE_ACCOUNT_TOKEN']
   script: |
     #!/usr/bin/env bash
     set -euo pipefail
@@ -256,10 +256,8 @@ steps:
 # Secret management
 availableSecrets:
   secretManager:
-  - versionName: projects/331250273634/secrets/OP_CONNECT_HOST/versions/latest
-    env: 'OP_CONNECT_HOST'
-  - versionName: projects/331250273634/secrets/OP_CONNECT_TOKEN/versions/latest
-    env: 'OP_CONNECT_TOKEN'
+  - versionName: projects/331250273634/secrets/OP_SERVICE_ACCOUNT_TOKEN/versions/latest
+    env: 'OP_SERVICE_ACCOUNT_TOKEN'
 
 # Build options and substitutions
 options:

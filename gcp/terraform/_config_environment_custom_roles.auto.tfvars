@@ -102,7 +102,15 @@ environments = {
           "firebasehosting.sites.get",
           "firebasehosting.sites.list",
           "cloudconfig.configs.get",
-          "cloudconfig.configs.update"
+          "cloudconfig.configs.update",
+          "cloudtasks.cmekConfig.get",
+          "cloudtasks.locations.get",
+          "cloudtasks.locations.list",
+          "cloudtasks.queues.get",
+          "cloudtasks.queues.list",
+          "cloudtasks.tasks.fullView",
+          "cloudtasks.tasks.get",
+          "cloudtasks.tasks.list"
         ]
       }
     }
@@ -235,7 +243,19 @@ environments = {
           "storage.objects.get",
           "storage.objects.list",
           "storage.buckets.get",
-          "storage.buckets.list"
+          "storage.buckets.list",
+          "cloudtasks.cmekConfig.get",
+          "cloudtasks.locations.get",
+          "cloudtasks.locations.list",
+          "cloudtasks.queues.get",
+          "cloudtasks.queues.list",
+          "cloudtasks.queues.update",
+          "cloudtasks.tasks.fullView",
+          "cloudtasks.tasks.get",
+          "cloudtasks.tasks.list",
+          "cloudtasks.tasks.create",
+          "cloudtasks.tasks.delete",
+          "cloudtasks.tasks.run"
         ]
       }
     }
@@ -350,7 +370,15 @@ environments = {
           "firebasehosting.sites.get",
           "firebasehosting.sites.list",
           "cloudconfig.configs.get",
-          "cloudconfig.configs.update"
+          "cloudconfig.configs.update",
+          "cloudtasks.cmekConfig.get",
+          "cloudtasks.locations.get",
+          "cloudtasks.locations.list",
+          "cloudtasks.queues.get",
+          "cloudtasks.queues.list",
+          "cloudtasks.tasks.fullView",
+          "cloudtasks.tasks.get",
+          "cloudtasks.tasks.list"
         ]
       }
     }
@@ -534,7 +562,15 @@ environments = {
           "firebasehosting.sites.get",
           "firebasehosting.sites.list",
           "cloudconfig.configs.get",
-          "cloudconfig.configs.update"
+          "cloudconfig.configs.update",
+          "cloudtasks.cmekConfig.get",
+          "cloudtasks.locations.get",
+          "cloudtasks.locations.list",
+          "cloudtasks.queues.get",
+          "cloudtasks.queues.list",
+          "cloudtasks.tasks.fullView",
+          "cloudtasks.tasks.get",
+          "cloudtasks.tasks.list"
         ]
       }
     }
@@ -637,7 +673,15 @@ environments = {
             "firebasehosting.sites.get",
             "firebasehosting.sites.list",
             "cloudconfig.configs.get",
-            "cloudconfig.configs.update"
+            "cloudconfig.configs.update",
+            "cloudtasks.cmekConfig.get",
+            "cloudtasks.locations.get",
+            "cloudtasks.locations.list",
+            "cloudtasks.queues.get",
+            "cloudtasks.queues.list",
+            "cloudtasks.tasks.fullView",
+            "cloudtasks.tasks.get",
+            "cloudtasks.tasks.list"
           ]
       }
     }

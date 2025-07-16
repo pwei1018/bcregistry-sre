@@ -255,7 +255,7 @@ test_projects = {
                 owner      = "business-api"
                 database_role_assignment = {
                   readonly = ["sa-solr-importer"]
-                  readwrite = []
+                  readwrite = ["thayne.werdal@gov.bc.ca", "severin.beauvais@gov.bc.ca"]
                   admin = []
                 }
               }

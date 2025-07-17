@@ -119,7 +119,7 @@ environments = {
     database_role_assignment = {
       readonly = []
       readwrite = ["eve.deng@gov.bc.ca"]
-      admin = []
+      admin = ["jose.kudiyirippil@gov.bc.ca", "ali.hamood@gov.bc.ca"]
     }
     environment_custom_roles = {
       roledeveloper = {
@@ -271,7 +271,7 @@ environments = {
     database_role_assignment = {
       readonly = []
       readwrite = ["eve.deng@gov.bc.ca"]
-      admin = []
+      admin = ["jose.kudiyirippil@gov.bc.ca", "ali.hamood@gov.bc.ca"]
     }
     environment_custom_roles = {
       roledeveloper = {

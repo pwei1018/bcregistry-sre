@@ -168,16 +168,16 @@ jobs:
         run: |
           COVERAGE=$(grep "Total coverage:" coverage.txt | sed 's/.*Total coverage: \([0-9.]*%\).*/\1/')
           echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
-      - name: Upload coverage to Codecov
-        uses: peter-evans/create-or-update-comment@v4
+      - name: Comment on PR
+        uses: thollander/actions-comment-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
+          message: |
             ✅ **Test Coverage Report**
             ```
             Total Coverage: ${{ env.COVERAGE }}
             ```
+          pr-number: ${{ github.event.pull_request.number }}
+
 
   verify-build:
     needs: linting

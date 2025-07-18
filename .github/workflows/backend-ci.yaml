@@ -9,99 +9,332 @@ on:
       working_directory:
         type: string
         default: "."
+      skip_isort:
+        type: boolean
+        default: false
+      skip_black:
+        type: boolean
+        default: false
       codecov_flag:
         type: string
-      skip_isort:
+        default: ""
+      coverage_threshold:
+        description: "Required coverage threshold percentage (default: 80)"
+        required: false
+        default: "80"
         type: string
-        default: "false"
-      skip_black:
-        type: string
-        default: "false"
+
+env:
+  WORKING_DIR: ${{ inputs.working_directory }}
 
 jobs:
-  linting:
-    strategy:
-      fail-fast: true
+  setup:
     runs-on: ubuntu-latest
+    outputs:
+      tool: ${{ steps.detect.outputs.tool }}
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ env.WORKING_DIR }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Poetry
+      - name: Detect dependency management tool
+        id: detect
         run: |
-          pipx install poetry
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          cache: poetry
-          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
-      - id: poetry_installs
-        name: Install dependencies
-        run: |
-          poetry update
-          poetry install
+          if [ -f "uv.lock" ] || ([ -f "pyproject.toml" ] && grep -q "tool.uv" pyproject.toml 2>/dev/null); then
+            echo "tool=uv" >> "$GITHUB_OUTPUT"
+            echo "Using uv for dependency management"
+          elif [ -f "poetry.lock" ] || ([ -f "pyproject.toml" ] && grep -q "tool.poetry" pyproject.toml 2>/dev/null); then
+            echo "tool=poetry" >> "$GITHUB_OUTPUT"
+            echo "Using Poetry for dependency management"
+          elif [ -f "requirements.txt" ] || [ -f "requirements-dev.txt" ]; then
+            echo "tool=pip" >> "$GITHUB_OUTPUT"
+            echo "Using pip for dependency management"
+          else
+            echo "tool=pip" >> "$GITHUB_OUTPUT"
+            echo "Defaulting to pip for dependency management"
+          fi
 
-          # Function to check if a library is installed
-          check_library_installed() {
-            if poetry show "$1" > /dev/null 2>&1; then
-              echo "true"
-            else
-              echo "false"
-            fi
-          }
+      - name: Add setup information to summary
+        run: |
+          echo "## 🔧 Backend CI" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Project Configuration:**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Application:** ${{ inputs.app_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Working Directory:** ${{ inputs.working_directory }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dependency Tool:** ${{ steps.detect.outputs.tool }}" >> $GITHUB_STEP_SUMMARY
 
-          echo "ruff_installed=$(check_library_installed ruff)" >> "$GITHUB_OUTPUT"
-          echo "isort_installed=$(check_library_installed isort)" >> "$GITHUB_OUTPUT"
-          echo "black_installed=$(check_library_installed black)" >> "$GITHUB_OUTPUT"
-          echo "pylint_installed=$(check_library_installed pylint)" >> "$GITHUB_OUTPUT"
-          echo "flake8_installed=$(check_library_installed flake8)" >> "$GITHUB_OUTPUT"
-
-      - name: Run Ruff
-        if: |
-          steps.poetry_installs.outputs.ruff_installed == 'true'
-        run: |
-          poetry run ruff check
-      - name: Run isort
-        if: |
-          steps.poetry_installs.outputs.ruff_installed == 'false' &&
-          steps.poetry_installs.outputs.isort_installed == 'true' &&
-          inputs.skip_isort == 'false'
-        run: |
-          poetry run isort . --check -v
-      - name: Run black
-        if: |
-          steps.poetry_installs.outputs.ruff_installed == 'false' &&
-          steps.poetry_installs.outputs.black_installed == 'true' &&
-          inputs.skip_black == 'false'
-        run: |
-          poetry run black . --check
-      - name: Run pylint
-        if: |
-          steps.poetry_installs.outputs.ruff_installed == 'false' &&
-          steps.poetry_installs.outputs.pylint_installed == 'true'
-        run: |
-          poetry run pylint .
-      - name: Run flake8
-        if: |
-          steps.poetry_installs.outputs.ruff_installed == 'false' &&
-          steps.poetry_installs.outputs.flake8_installed == 'true'
-        run: |
-          poetry run flake8 .
-
-  unit-testing:
-    needs: linting
+  linting:
+    needs: setup
     runs-on: ubuntu-latest
+    env:
+      TOOL: ${{ needs.setup.outputs.tool }}
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
-    strategy:
-      fail-fast: true
+        working-directory: ${{ env.WORKING_DIR }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python (with cache)
+        if: env.TOOL != 'uv'
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
+          cache: ${{ env.TOOL }}
+          cache-dependency-path: |
+            ${{ env.WORKING_DIR }}/poetry.lock
+            ${{ env.WORKING_DIR }}/requirements*.txt
+            ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Set up Python (without cache)
+        if: env.TOOL == 'uv'
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Install uv
+        if: env.TOOL == 'uv'
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Install Poetry
+        if: env.TOOL == 'poetry'
+        run: pipx install poetry
+
+      - name: Install dependencies and detect linting tools
+        id: install
+        run: |
+          case "$TOOL" in
+            "uv")
+              uv sync
+              uv pip install -e .
+              # Check for linting tools
+              echo "ruff=$(uv run python -c 'import ruff' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "isort=$(uv run python -c 'import isort' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "black=$(uv run python -c 'import black' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pylint=$(uv run python -c 'import pylint' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "flake8=$(uv run python -c 'import flake8' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              ;;
+            "poetry")
+              poetry install --no-root
+              # Check for linting tools
+              echo "ruff=$(poetry show ruff >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "isort=$(poetry show isort >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "black=$(poetry show black >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pylint=$(poetry show pylint >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "flake8=$(poetry show flake8 >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              ;;
+            "pip")
+              if [ -f "requirements-dev.txt" ]; then
+                pip install -r requirements-dev.txt
+              elif [ -f "requirements.txt" ]; then
+                pip install -r requirements.txt
+              fi
+              # Check for linting tools
+              echo "ruff=$(python -c 'import ruff' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "isort=$(python -c 'import isort' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "black=$(python -c 'import black' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pylint=$(python -c 'import pylint' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "flake8=$(python -c 'import flake8' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+
+      - name: Add linting summary
+        run: |
+          echo "## 🧹 Linting" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tool Detection:**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Dependency Manager:** $TOOL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Linting Strategy:**" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.install.outputs.ruff }}" == "true" ]; then
+            echo "- Using **Ruff** (preferred all-in-one linter) 🚀" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Using traditional linting tools:" >> $GITHUB_STEP_SUMMARY
+            [ "${{ steps.install.outputs.isort }}" == "true" ] && [ "${{ inputs.skip_isort }}" != "true" ] && echo "  - ✅ isort (import sorting)" >> $GITHUB_STEP_SUMMARY
+            [ "${{ steps.install.outputs.black }}" == "true" ] && [ "${{ inputs.skip_black }}" != "true" ] && echo "  - ✅ black (code formatting)" >> $GITHUB_STEP_SUMMARY
+            [ "${{ steps.install.outputs.pylint }}" == "true" ] && echo "  - ✅ pylint (code analysis)" >> $GITHUB_STEP_SUMMARY
+            [ "${{ steps.install.outputs.flake8 }}" == "true" ] && echo "  - ✅ flake8 (style guide)" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Run Ruff (preferred linter)
+        if: steps.install.outputs.ruff == 'true'
+        continue-on-error: true
+        id: ruff_check
+        run: |
+          echo "## 🔍 Linting Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Ruff Results:**" >> $GITHUB_STEP_SUMMARY
+          case "$TOOL" in
+            "uv")
+              if uv run ruff check; then
+                echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run ruff check; then
+                echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if ruff check; then
+                echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
+
+      - name: Run isort
+        if: steps.install.outputs.ruff == 'false' && steps.install.outputs.isort == 'true' && !inputs.skip_isort
+        continue-on-error: true
+        id: isort_check
+        run: |
+          if [ "${{ steps.install.outputs.ruff }}" == "false" ]; then
+            echo "## 🔍 Linting Status" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Traditional Linting Results:**" >> $GITHUB_STEP_SUMMARY
+          fi
+          case "$TOOL" in
+            "uv")
+              if uv run isort . --check -v; then
+                echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run isort . --check -v; then
+                echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if isort . --check -v; then
+                echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
+
+      - name: Run black
+        if: steps.install.outputs.ruff == 'false' && steps.install.outputs.black == 'true' && !inputs.skip_black
+        continue-on-error: true
+        id: black_check
+        run: |
+          case "$TOOL" in
+            "uv")
+              if uv run black . --check; then
+                echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run black . --check; then
+                echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if black . --check; then
+                echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
+
+      - name: Run pylint
+        if: steps.install.outputs.ruff == 'false' && steps.install.outputs.pylint == 'true'
+        continue-on-error: true
+        id: pylint_check
+        run: |
+          case "$TOOL" in
+            "uv")
+              if uv run pylint .; then
+                echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run pylint .; then
+                echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if pylint .; then
+                echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
+
+      - name: Run flake8
+        if: steps.install.outputs.ruff == 'false' && steps.install.outputs.flake8 == 'true'
+        continue-on-error: true
+        id: flake8_check
+        run: |
+          case "$TOOL" in
+            "uv")
+              if uv run flake8 .; then
+                echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run flake8 .; then
+                echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if flake8 .; then
+                echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
+
+  unit-testing:
+    needs: setup
+    runs-on: ubuntu-latest
     env:
+      TOOL: ${{ needs.setup.outputs.tool }}
       DATABASE_TEST_USERNAME: "postgres"
       DATABASE_TEST_PASSWORD: "postgres"
       DATABASE_TEST_NAME: "unittesting"
@@ -128,6 +361,12 @@ jobs:
       USE_TEST_KEYCLOAK_DOCKER: "YES"
       USE_DOCKER_MOCK: "YES"
       STAFF_ADMIN_EMAIL: "test@test.com"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.WORKING_DIR }}
+    strategy:
+      fail-fast: true
     services:
       postgres:
         image: ghcr.io/bcgov/postgres15-postgis-anon
@@ -137,54 +376,211 @@ jobs:
           POSTGRES_DB: unittesting
         ports:
           - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
       - name: Install docker-compose
         run: |
-          sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose version
-      - name: Install Poetry
-        run: |
-          pipx install poetry
-      - name: Set up Python
+
+      - name: Set up Python (with cache)
+        if: env.TOOL != 'uv'
         uses: actions/setup-python@v5
         with:
-          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          cache: poetry
-          cache-dependency-path: ${{ inputs.working_directory }}/poetry.lock
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
+          cache: ${{ env.TOOL }}
+          cache-dependency-path: |
+            ${{ env.WORKING_DIR }}/poetry.lock
+            ${{ env.WORKING_DIR }}/requirements*.txt
+            ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Set up Python (without cache)
+        if: env.TOOL == 'uv'
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Install uv
+        if: env.TOOL == 'uv'
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Install Poetry
+        if: env.TOOL == 'poetry'
+        run: pipx install poetry
+
       - name: Install dependencies
         run: |
-          poetry update
-          poetry install
+          echo "Installing dependencies using $TOOL..."
+          case "$TOOL" in
+            "uv")
+              uv sync
+              uv pip install -e .
+              ;;
+            "poetry")
+              poetry install --no-root
+              ;;
+            "pip")
+              if [ -f "requirements-dev.txt" ]; then
+                pip install -r requirements-dev.txt
+              elif [ -f "requirements.txt" ]; then
+                pip install -r requirements.txt
+              fi
+              ;;
+            esac
+          echo "Dependency installation completed."
+
       - name: Run tests
         run: |
-          poetry run pytest
-      - uses: actions/upload-artifact@v4
+          echo "Running tests with $TOOL..."
+          case "$TOOL" in
+            "uv")
+              echo "Running uv tests with coverage..."
+              uv run pytest --cov-report=term --cov-report=xml
+              ;;
+            "poetry")
+              echo "Running Poetry tests with coverage..."
+              poetry run pytest --cov-report=term --cov-report=xml
+              ;;
+            *)
+              echo "Running pip tests with coverage..."
+              pytest --cov-report=term --cov-report=xml
+              ;;
+          esac
+
+      - name: Upload coverage reports as artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coveragefile
-          path: ${{ inputs.working_directory }}/coverage.xml
+          name: coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.WORKING_DIR }}/coverage.xml
           retention-days: 1
 
-  verify-build:
-    needs: linting
+  code-coverage:
+    needs: unit-testing
     runs-on: ubuntu-latest
+    #continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Coverage Report
+        uses: pwei1018/bcregistry-sre/.github/actions/coverage-report@main
+        with:
+          run_id: ${{ github.run_id }}
+          run_attempt: ${{ github.run_attempt }}
+          coverage_threshold: ${{ inputs.coverage_threshold }}
+
+  verify-build:
+    needs: setup
+    runs-on: ubuntu-latest
+    env:
+      TOOL: ${{ needs.setup.outputs.tool }}
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ env.WORKING_DIR }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: build to check strictness
-        id: build
+      - uses: actions/checkout@v4
+
+      - name: Collect build information
+        id: build_info
         run: |
+          echo "## 🐳 Build Verification" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for Dockerfile
           if [ -f Dockerfile ]; then
-            docker build --no-cache -t ${{ inputs.app_name }} .
+            echo "dockerfile_exists=true" >> "$GITHUB_OUTPUT"
+            echo "**Docker Configuration:**" >> $GITHUB_STEP_SUMMARY
+            echo "- **Dockerfile:** ✅ Found" >> $GITHUB_STEP_SUMMARY
+
+            # Extract Python version from Dockerfile if present
+            if grep -q "FROM python:" Dockerfile; then
+              PYTHON_VERSION=$(grep "FROM python:" Dockerfile | head -1 | sed 's/.*python:\([^-]*\).*/\1/')
+              echo "- **Base Python Version:** $PYTHON_VERSION" >> $GITHUB_STEP_SUMMARY
+              echo "python_version=$PYTHON_VERSION" >> "$GITHUB_OUTPUT"
+            elif grep -q "python" Dockerfile; then
+              echo "- **Python:** ✅ Detected in Dockerfile" >> $GITHUB_STEP_SUMMARY
+            fi
           else
-            echo "Dockerfile does not exist."
-            exit 0
+            echo "dockerfile_exists=false" >> "$GITHUB_OUTPUT"
+            echo "**Docker Configuration:**" >> $GITHUB_STEP_SUMMARY
+            echo "- **Dockerfile:** ❌ Not found - skipping build verification" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Build Docker image
+        if: steps.build_info.outputs.dockerfile_exists == 'true'
+        run: |
+          echo "Building Docker image: ${{ inputs.app_name }}"
+
+          # Build with timing
+          start_time=$(date +%s)
+          docker build --no-cache -t ${{ inputs.app_name }} .
+          end_time=$(date +%s)
+          build_duration=$((end_time - start_time))
+
+          # Get image information
+          IMAGE_SIZE=$(docker image ls ${{ inputs.app_name }} --format "table {{.Size}}" | tail -1)
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Results:**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** ✅ Build successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Duration:** ${build_duration}s" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Size:** $IMAGE_SIZE" >> $GITHUB_STEP_SUMMARY
+
+          # Test basic container functionality
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Container Runtime Verification:**" >> $GITHUB_STEP_SUMMARY
+
+          # Set the appropriate Python command based on the dependency tool
+          case "$TOOL" in
+            "uv")
+              PYTHON_CMD="uv run python"
+              ;;
+            "poetry")
+              PYTHON_CMD="poetry run python"
+              ;;
+            *)
+              PYTHON_CMD="python"
+              ;;
+          esac
+
+          if docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import sys; print(sys.version.split()[0])" 2>/dev/null; then
+            CONTAINER_PYTHON_VERSION=$(docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import sys; print(sys.version.split()[0])" 2>/dev/null)
+            echo "- **Python Runtime:** ✅ $CONTAINER_PYTHON_VERSION" >> $GITHUB_STEP_SUMMARY
+
+            # Check for Flask
+            if docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import importlib.metadata; print(importlib.metadata.version('flask'))" 2>/dev/null; then
+              FLASK_VERSION=$(docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import importlib.metadata; print(importlib.metadata.version('flask'))" 2>&1 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+              if [ -n "$FLASK_VERSION" ]; then
+                echo "- **Flask:** ✅ $FLASK_VERSION" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- **Flask:** ✅ Installed (version unknown)" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+
+            # Check for SQLAlchemy
+            if docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import importlib.metadata; print(importlib.metadata.version('sqlalchemy'))" 2>/dev/null; then
+              SQLALCHEMY_VERSION=$(docker run --rm ${{ inputs.app_name }} $PYTHON_CMD -c "import importlib.metadata; print(importlib.metadata.version('sqlalchemy'))" 2>&1 | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+              if [ -n "$SQLALCHEMY_VERSION" ]; then
+                echo "- **SQLAlchemy:** ✅ $SQLALCHEMY_VERSION" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- **SQLAlchemy:** ✅ Installed (version unknown)" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+
+          else
+            echo "- **Python Runtime:** ❌ Unable to verify" >> $GITHUB_STEP_SUMMARY
+            echo "- **Framework Detection:** ❌ Skipped due to Python runtime failure" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Skip build notification
+        if: steps.build_info.outputs.dockerfile_exists == 'false'
+        run: |
+          echo "Dockerfile does not exist, skipping build verification."

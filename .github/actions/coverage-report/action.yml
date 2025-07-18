@@ -1,0 +1,90 @@
+name: "Get coverage report"
+description: "Coverage report"
+
+inputs:
+  run_id:
+    required: true
+  run_attempt:
+    required: true
+  coverage_threshold:
+    description: "Required coverage threshold percentage (default: 80)"
+    required: false
+    default: "80"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Download coverage.xml from archive
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-${{ inputs.run_id }}-${{ inputs.run_attempt }}
+        path: ./coverage-reports/
+
+    - name: Run coverage summary script
+      id: coverage_summary
+      shell: bash
+      working-directory: ./coverage-reports
+      run: |
+        if [ -f "coverage.xml" ]; then
+          # Make the script executable and run it
+          SCRIPT_PATH="${{ github.action_path }}/coverage_summary.sh"
+          if [ -f "$SCRIPT_PATH" ]; then
+            chmod +x "$SCRIPT_PATH"
+            echo "Running coverage summary script..."
+
+            # Always write summary header first
+            echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Run the script and capture output
+            set +e  # Don't exit on error
+            COVERAGE_OUTPUT=$("$SCRIPT_PATH" coverage.xml "${{ inputs.coverage_threshold }}" 2>&1)
+            COVERAGE_EXIT_CODE=$?
+            set -e  # Re-enable exit on error
+
+            # Store outputs
+            echo "coverage_report<<EOF" >> $GITHUB_OUTPUT
+            echo "$COVERAGE_OUTPUT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "coverage_passed=$([[ $COVERAGE_EXIT_CODE -eq 0 ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+
+            # Show result status
+            if [[ $COVERAGE_EXIT_CODE -ne 0 ]]; then
+              echo "❌ **Coverage below ${{ inputs.coverage_threshold }}% threshold - CI failed**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ **Coverage meets ${{ inputs.coverage_threshold }}% threshold - CI passed**" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Show detailed coverage report or error output
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            if [[ -n "$COVERAGE_OUTPUT" ]]; then
+              echo "$COVERAGE_OUTPUT" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "No output from coverage script" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+            # Only exit with error at the very end, after summary is written
+            if [[ $COVERAGE_EXIT_CODE -ne 0 ]]; then
+              echo "❌ Coverage requirements not met! Required: ${{ inputs.coverage_threshold }}%"
+              exit 1
+            fi
+          else
+            echo "❌ Coverage script not found: $SCRIPT_PATH"
+            echo "coverage_report=Coverage script not found" >> $GITHUB_OUTPUT
+            echo "coverage_passed=false" >> $GITHUB_OUTPUT
+
+            echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Coverage script missing**" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+        else
+          echo "❌ Coverage file not found: coverage.xml"
+          echo "coverage_report=Coverage file not found" >> $GITHUB_OUTPUT
+          echo "coverage_passed=false" >> $GITHUB_OUTPUT
+
+          echo "## 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Coverage file missing - upload coverage.xml as artifact first**" >> $GITHUB_STEP_SUMMARY
+          exit 0
+        fi

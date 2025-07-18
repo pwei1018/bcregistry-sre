@@ -162,12 +162,22 @@ jobs:
           poetry install
       - name: Run tests
         run: |
-          poetry run pytest
-      - uses: actions/upload-artifact@v4
+          poetry run pytest --cov-report=term > coverage.txt
+      - name: Extract coverage percentage
+        id: extract_coverage
+        run: |
+          COVERAGE=$(grep "Total coverage:" coverage.txt | sed 's/.*Total coverage: \([0-9.]*%\).*/\1/')
+          echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+      - name: Upload coverage to Codecov
+        uses: peter-evans/create-or-update-comment@v4
         with:
-          name: coveragefile
-          path: ${{ inputs.working_directory }}/coverage.xml
-          retention-days: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ✅ **Test Coverage Report**
+            ```
+            Total Coverage: ${{ env.COVERAGE }}
+            ```
 
   verify-build:
     needs: linting

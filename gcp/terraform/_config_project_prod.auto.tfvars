@@ -124,7 +124,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
                 database_role_assignment = {
-                  readonly = ["eve.deng@gov.bc.ca"]
+                  readonly = ["eve.deng@gov.bc.ca", "steven.chen@gov.bc.ca"]
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }

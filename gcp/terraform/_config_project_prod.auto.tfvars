@@ -12,7 +12,7 @@ prod_projects = {
                 owner      = "pay"
                 database_role_assignment = {
                   readonly = ["severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
-                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -27,7 +27,7 @@ prod_projects = {
                 owner      = "pay"
                 database_role_assignment = {
                   readonly = ["severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
-                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "hanlun.wang@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
               }

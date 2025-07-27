@@ -163,8 +163,8 @@ dev_projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = ["thayne.werdal@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "karim.jazzar@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca"]
-                  admin = []
+                  readwrite = ["ken.li@gov.bc.ca", "sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
@@ -187,6 +187,10 @@ dev_projects = {
       }
     ]
     service_accounts = {
+      sa-db-migrate = {
+        roles       = ["projects/gtksf3-dev/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"

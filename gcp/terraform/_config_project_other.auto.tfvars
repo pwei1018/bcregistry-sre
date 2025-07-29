@@ -351,7 +351,7 @@ other_projects = {
       {
         instance = "businesses-db-integration"
         databases =  [
-          {
+              {
                 db_name    = "businesses"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business_app"
@@ -377,6 +377,21 @@ other_projects = {
                 }
               }
             ]
+      },
+      {
+        instance = "namex-db-integration"
+        databases = [
+          {
+                db_name    = "namex"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "userHQH"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+          }
+        ]
       }
     ]
 

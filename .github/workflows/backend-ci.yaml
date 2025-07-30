@@ -55,7 +55,11 @@ jobs:
         id: python
         run: |
           if [ -f "pyproject.toml" ]; then
-            VERSION=$(grep -E '^requires-python\s*=' pyproject.toml | sed 's/.*=\s*["\x27][>=~!]*\([0-9.]*\).*/\1/')
+            # Try different patterns for Python version in pyproject.toml
+            VERSION=$(grep -E '^requires-python\s*=' pyproject.toml | sed 's/.*=\s*["\x27][>=~!]*\([0-9.]*\).*/\1/' | head -1)
+            if [ -z "$VERSION" ]; then
+              VERSION=$(grep -E '^python\s*=' pyproject.toml | sed 's/.*=\s*["\x27][>=~!]*\([0-9.]*\).*/\1/' | head -1)
+            fi
             echo "version=${VERSION:-3.11}" >> "$GITHUB_OUTPUT"
           else
             echo "version=3.11" >> "$GITHUB_OUTPUT"
@@ -72,25 +76,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install tool-specific dependencies
-        run: |
-          case "$TOOL" in
-            "uv")
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-              echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-              ;;
-            "poetry")
-              pipx install poetry
-              ;;
-          esac
+      - name: Install uv
+        if: env.TOOL == 'uv'
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install Poetry
+        if: env.TOOL == 'poetry'
+        run: pipx install poetry
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          cache: ${{ env.TOOL }}
+          python-version: ${{ needs.setup.outputs.python-version }}
+          cache: ${{ env.TOOL == 'uv' && 'pip' || env.TOOL }}
           cache-dependency-path: |
-            ${{ env.WORKING_DIR }}/uv.lock
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt
             ${{ env.WORKING_DIR }}/pyproject.toml
@@ -230,25 +229,20 @@ jobs:
           sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Install tool-specific dependencies
-        run: |
-          case "$TOOL" in
-            "uv")
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-              echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-              ;;
-            "poetry")
-              pipx install poetry
-              ;;
-          esac
+      - name: Install uv
+        if: env.TOOL == 'uv'
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install Poetry
+        if: env.TOOL == 'poetry'
+        run: pipx install poetry
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
-          cache: ${{ env.TOOL }}
+          python-version: ${{ needs.setup.outputs.python-version }}
+          cache: ${{ env.TOOL == 'uv' && 'pip' || env.TOOL }}
           cache-dependency-path: |
-            ${{ env.WORKING_DIR }}/uv.lock
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt
             ${{ env.WORKING_DIR }}/pyproject.toml

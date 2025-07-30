@@ -55,7 +55,7 @@ jobs:
         id: python
         run: |
           if [ -f "pyproject.toml" ]; then
-            VERSION=$(grep -E '^python\s*=' pyproject.toml | sed 's/.*=\s*["\x27]\([^"\x27]*\)["\x27].*/\1/' | head -1)
+            VERSION=$(grep -E '^requires-python\s*=' pyproject.toml | sed 's/.*=\s*["\x27][>=~!]*\([0-9.]*\).*/\1/')
             echo "version=${VERSION:-3.11}" >> "$GITHUB_OUTPUT"
           else
             echo "version=3.11" >> "$GITHUB_OUTPUT"
@@ -87,7 +87,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ needs.setup.outputs.python-version }}
+          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
           cache: ${{ env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/uv.lock
@@ -245,7 +245,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ needs.setup.outputs.python-version }}
+          python-version-file: ${{ inputs.working_directory }}/pyproject.toml
           cache: ${{ env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/uv.lock

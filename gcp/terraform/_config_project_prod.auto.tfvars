@@ -780,7 +780,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  readonly = ["hanlun.wang@gov.bc.ca"]
+                  readonly = []
                   readwrite = []
                   admin = []
                 }

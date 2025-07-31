@@ -375,6 +375,16 @@ dev_projects = {
         }
       ]
       service_accounts = {
+        filer-to-doc-publisher = {
+          description = "Brandon Galli's testing service account "
+          resource_roles = [
+              {
+                resource = "projects/c4hnrd-dev/topics/doc-api-app-create-record"
+                roles    = ["roles/pubsub.publisher"]
+                resource_type = "pubsub_topic"
+              }
+            ]
+        },
         sa-db-migrate = {
           roles       = ["projects/a083gt-dev/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
           description = "Service Account for migrating db from openshift"

@@ -67,7 +67,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
-          cache: ${{ env.TOOL != 'uv' && env.TOOL || false }}
+          cache: ${{ env.TOOL == 'uv' && '' || env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt
@@ -225,7 +225,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
-          cache: ${{ env.TOOL != 'uv' && env.TOOL || false }}
+          cache: ${{ env.TOOL == 'uv' && '' || env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt

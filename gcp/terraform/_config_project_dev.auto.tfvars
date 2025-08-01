@@ -214,7 +214,7 @@ dev_projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator"]
+        roles       = ["projects/gtksf3-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]
         description = "Service Account for running api services"
         resource_roles = [
             {
@@ -409,7 +409,7 @@ dev_projects = {
           description = "Service Account for running job services"
         },
         sa-api = {
-          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator", "roles/cloudtasks.enqueuer", "roles/cloudtasks.viewer", "roles/cloudtasks.taskDeleter", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]
+          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator", "roles/cloudtasks.enqueuer", "roles/cloudtasks.viewer", "roles/cloudtasks.taskDeleter"]
           description = "Service Account for running api services"
           resource_roles = [
               {

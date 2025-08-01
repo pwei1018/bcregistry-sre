@@ -56,8 +56,8 @@ other_projects = {
                 owner      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["ken.li@gov.bc.ca"]
-                  admin = []
+                  readwrite = ["ken.li@gov.bc.ca", "sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
@@ -79,6 +79,10 @@ other_projects = {
       }
     ]
     service_accounts = {
+      sa-db-migrate = {
+        roles       = ["projects/gtksf3-tools/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber"]
         description = "Service Account for running pubsub services"
@@ -89,7 +93,7 @@ other_projects = {
 
       },
       sa-api = {
-        roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
+        roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]
         description = "Service Account for running api services"
         resource_roles = [
             {

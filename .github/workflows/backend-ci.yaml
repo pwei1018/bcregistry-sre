@@ -63,15 +63,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python (with cache)
+        if: env.TOOL != 'uv'
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
-          cache: ${{ env.TOOL == 'uv' && '' || env.TOOL }}
+          cache: ${{ env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt
             ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Set up Python (without cache)
+        if: env.TOOL == 'uv'
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
 
       - name: Install uv
         if: env.TOOL == 'uv'
@@ -221,15 +228,22 @@ jobs:
           sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Set up Python
+      - name: Set up Python (with cache)
+        if: env.TOOL != 'uv'
         uses: actions/setup-python@v5
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
-          cache: ${{ env.TOOL == 'uv' && '' || env.TOOL }}
+          cache: ${{ env.TOOL }}
           cache-dependency-path: |
             ${{ env.WORKING_DIR }}/poetry.lock
             ${{ env.WORKING_DIR }}/requirements*.txt
             ${{ env.WORKING_DIR }}/pyproject.toml
+
+      - name: Set up Python (without cache)
+        if: env.TOOL == 'uv'
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
 
       - name: Install uv
         if: env.TOOL == 'uv'

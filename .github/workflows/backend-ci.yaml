@@ -26,7 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tool: ${{ steps.detect.outputs.tool }}
-      python-version: ${{ steps.python.outputs.version }}
     defaults:
       run:
         shell: bash
@@ -262,8 +261,11 @@ jobs:
           case "$TOOL" in
             "uv")
               uv sync
-              uv pip install -e . ;;
-            "poetry") poetry install --no-root ;;
+              uv pip install -e .
+              ;;
+            "poetry")
+              poetry install --no-root
+              ;;
             "pip")
               if [ -f "requirements-dev.txt" ]; then
                 pip install -r requirements-dev.txt

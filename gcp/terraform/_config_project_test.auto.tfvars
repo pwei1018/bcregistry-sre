@@ -92,8 +92,8 @@ test_projects = {
                 agent      = "postgres"
                 database_role_assignment = {
                   readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "karim.jazzar@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca"]
-                  admin = []
+                  readwrite = ["ken.li@gov.bc.ca", "sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
@@ -127,6 +127,10 @@ test_projects = {
             }
           ]
       },
+      sa-db-migrate = {
+        roles       = ["projects/gtksf3-test/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-job = {
         roles       = ["projects/gtksf3-test/roles/rolejob"]
         description = "Service Account for running job services"
@@ -139,7 +143,7 @@ test_projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
+        roles       = ["projects/gtksf3-test/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]
         description = "Service Account for running api services"
         resource_roles = [
             {

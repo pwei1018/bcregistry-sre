@@ -213,6 +213,11 @@ prod_projects = {
     #             db_name    = "auth-db"
     #             roles      = ["readonly", "readwrite", "admin"]
     #             owner      = "postgres"
+    #             database_role_assignment = {
+    #               readonly = []
+    #               readwrite = ["sa-api"]
+    #               admin = ["sa-db-migrate"]
+    #             }
     #           }
     #         ]
     #   },
@@ -259,6 +264,10 @@ prod_projects = {
           }
         ]
       },
+      sa-db-migrate = {
+        roles       = ["projects/gtksf3-prod/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
       sa-pubsub = {
         roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
         description = "Service Account for running pubsub services"
@@ -282,7 +291,7 @@ prod_projects = {
         ]
       },
       sa-api = {
-        roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator"]
+        roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]
         description = "Service Account for running api services"
         resource_roles = [
             {

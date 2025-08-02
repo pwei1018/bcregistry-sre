@@ -288,13 +288,16 @@ jobs:
               pwd
               ls -la
               uv run pytest
-              # uv run pytest --cov-report=term > coverage.txt ;;
+              # uv run pytest --cov-report=term > coverage.txt
+              ;;
             "poetry")
               echo "Running Poetry tests..."
-              poetry run pytest --cov-report=term > coverage.txt ;;
+              poetry run pytest --cov-report=term > coverage.txt
+              ;;
             *)
               echo "Running pip tests..."
-              pytest --cov-report=term > coverage.txt ;;
+              pytest --cov-report=term > coverage.txt
+              ;;
           esac
           echo "Tests completed. Coverage report generated at coverage.txt."
 

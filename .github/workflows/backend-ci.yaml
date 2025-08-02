@@ -285,6 +285,8 @@ jobs:
           case "$TOOL" in
             "uv")
               echo "Running uv tests..."
+              pwd
+              ls -la
               uv run pytest
               # uv run pytest --cov-report=term > coverage.txt ;;
             "poetry")

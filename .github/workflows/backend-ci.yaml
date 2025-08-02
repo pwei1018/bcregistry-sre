@@ -260,6 +260,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "Installing dependencies using $TOOL..."
           case "$TOOL" in
             "uv")
               uv sync
@@ -275,15 +276,18 @@ jobs:
                 pip install -r requirements.txt
               fi
               ;;
-          esac
+              esac
+          echo "Dependency installation completed."
 
       - name: Run tests
         run: |
+          echo "Running tests with $TOOL..."
           case "$TOOL" in
             "uv") uv run pytest --cov-report=term > coverage.txt ;;
             "poetry") poetry run pytest --cov-report=term > coverage.txt ;;
             *) pytest --cov-report=term > coverage.txt ;;
-          esac
+              esac
+          echo "Tests completed. Coverage report generated at coverage.txt."
 
       - name: Extract coverage percentage
         run: |

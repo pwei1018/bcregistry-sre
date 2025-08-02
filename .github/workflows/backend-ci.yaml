@@ -276,17 +276,24 @@ jobs:
                 pip install -r requirements.txt
               fi
               ;;
-              esac
+            esac
           echo "Dependency installation completed."
 
       - name: Run tests
         run: |
           echo "Running tests with $TOOL..."
           case "$TOOL" in
-            "uv") uv run pytest --cov-report=term > coverage.txt ;;
-            "poetry") poetry run pytest --cov-report=term > coverage.txt ;;
-            *) pytest --cov-report=term > coverage.txt ;;
-              esac
+            "uv")
+              echo "Running uv tests..."
+              uv run pytest
+              # uv run pytest --cov-report=term > coverage.txt ;;
+            "poetry")
+              echo "Running Poetry tests..."
+              poetry run pytest --cov-report=term > coverage.txt ;;
+            *)
+              echo "Running pip tests..."
+              pytest --cov-report=term > coverage.txt ;;
+          esac
           echo "Tests completed. Coverage report generated at coverage.txt."
 
       - name: Extract coverage percentage

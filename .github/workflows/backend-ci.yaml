@@ -209,16 +209,6 @@ jobs:
       run:
         shell: bash
         working-directory: ${{ env.WORKING_DIR }}
-    services:
-      postgres:
-        image: ghcr.io/bcgov/postgres15-postgis-anon
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: unittesting
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
 

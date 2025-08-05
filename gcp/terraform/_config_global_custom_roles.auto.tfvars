@@ -188,6 +188,7 @@ global_custom_roles = {
     title = "Role SRE"
     description = "Role for SRE."
     permissions = [
+      "compute.instances.list",
       "apigee.apiproductattributes.createOrUpdateAll",
       "apigee.apiproductattributes.delete",
       "apigee.apiproductattributes.get",

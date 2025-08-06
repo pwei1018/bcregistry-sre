@@ -205,38 +205,38 @@ prod_projects = {
   "connect-prod" = {
     project_id = "gtksf3-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "auth-db-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "auth-db"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "postgres"
-    #             database_role_assignment = {
-    #               readonly = []
-    #               readwrite = ["sa-api"]
-    #               admin = ["sa-db-migrate"]
-    #             }
-    #           }
-    #         ]
-    #   },
-    #   {
-    #     instance = "pay-db-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "pay-db"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "postgres"
-    #             database_role_assignment = {
-    #               readonly = []
-    #               readwrite = []
-    #               admin = []
-    #             }
-    #       }
-    #     ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "auth-db-prod"
+        databases =  [
+          {
+                db_name    = "auth-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "auth"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
+                }
+              }
+            ]
+      },
+      # {
+      #   instance = "pay-db-prod"
+      #   databases =  [
+      #     {
+      #           db_name    = "pay-db"
+      #           roles      = ["readonly", "readwrite", "admin"]
+      #           owner      = "postgres"
+      #           database_role_assignment = {
+      #             readonly = []
+      #             readwrite = []
+      #             admin = []
+      #           }
+      #     }
+      #   ]
+      # }
+    ]
     service_accounts = {
       sa-ocp-db-migrate = {
         roles       = ["projects/gtksf3-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]

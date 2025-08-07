@@ -53,7 +53,7 @@ other_projects = {
           {
                 db_name    = "auth-db"
                 roles      = ["readonly", "readwrite", "admin"]
-                owner      = "postgres"
+                owner      = "auth"
                 database_role_assignment = {
                   readonly = []
                   readwrite = ["ken.li@gov.bc.ca", "sa-api"]

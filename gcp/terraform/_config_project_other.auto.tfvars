@@ -553,6 +553,10 @@ other_projects = {
       }
     }
     service_accounts = {
+      sa-compliance-scanner = {
+        roles       = ["projects/c4hnrd-tools/roles/rolejob"]
+        description = "Service Account for compliance scanning job"
+      },
       sa-cloud-function-sql-manager = {
         description = "Service Account for running cloudsql updates"
         external_roles = [{

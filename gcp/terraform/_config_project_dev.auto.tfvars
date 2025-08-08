@@ -53,10 +53,6 @@ dev_projects = {
       }
     ]
     service_accounts = {
-      sa-compliance-scanner = {
-        roles       = ["projects/c4hnrd-dev/roles/rolejob"]
-        description = "Service Account for compliance scanning job"
-      },
       sa-db-migrate = {
         roles       = ["projects/c4hnrd-dev/roles/roledbmigrate"]
         description = "Service Account for running db alembic migration job"

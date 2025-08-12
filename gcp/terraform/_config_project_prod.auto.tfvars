@@ -393,33 +393,38 @@ prod_projects = {
   "bcr-businesses-prod" = {
     project_id = "a083gt-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "businesses-db-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "business-ar"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "business-ar-api"
-    #           },
-    #           {
-    #             db_name    = "legal-entities"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "business-api"
-    #           }
-    #         ]
-    #   },
-    #   {
-    #     instance = "namex-db-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "namex"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "userHQH"
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "businesses-db-prod"
+        databases =  [
+          {
+                db_name    = "business-ar"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "business-ar-api"
+              },
+              {
+                db_name    = "business"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "business-api"
+                database_role_assignment = {
+                  readonly = ["sa-solr-importer"]
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      },
+      {
+        instance = "namex-db-prod"
+        databases =  [
+          {
+                db_name    = "namex"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "userHQH"
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/a083gt-prod/roles/rolepam"]

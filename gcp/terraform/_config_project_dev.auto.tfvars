@@ -81,19 +81,7 @@ dev_projects = {
         roles       = ["roles/composer.environmentAndStorageObjectViewer", "roles/documentai.apiUser", "roles/eventarc.eventReceiver", "roles/logging.logWriter", "roles/serviceusage.serviceUsageConsumer", "roles/storage.objectUser", "roles/storagetransfer.user", "roles/workflows.invoker"]
         description = ""
         resource_roles = [
-          { resource = "projects/c4hnrd-dev/locations/asia/repositories/asia.gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
-          { resource = "projects/c4hnrd-dev/locations/europe/repositories/eu.gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
           { resource = "projects/c4hnrd-dev/locations/us/repositories/gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
-          { resource = "projects/c4hnrd-dev/locations/us/repositories/us.gcr.io"
             roles    = ["roles/artifactregistry.repoAdmin"]
             resource_type = "artifact_registry"
           }
@@ -103,19 +91,7 @@ dev_projects = {
         roles       = ["roles/artifactregistry.serviceAgent", "roles/compute.admin", "roles/storage.admin"]
         description = "Document Services Service Account"
         resource_roles = [
-          { resource = "projects/c4hnrd-dev/locations/asia/repositories/asia.gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
-          { resource = "projects/c4hnrd-dev/locations/europe/repositories/eu.gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
           { resource = "projects/c4hnrd-dev/locations/us/repositories/gcr.io"
-            roles    = ["roles/artifactregistry.repoAdmin"]
-            resource_type = "artifact_registry"
-          },
-          { resource = "projects/c4hnrd-dev/locations/us/repositories/us.gcr.io"
             roles    = ["roles/artifactregistry.repoAdmin"]
             resource_type = "artifact_registry"
           }
@@ -542,10 +518,6 @@ dev_projects = {
         roles       = ["roles/containerregistry.ServiceAgent", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.admin", "roles/pubsub.serviceAgent", "roles/storage.admin", "roles/storage.objectCreator"]
         description = "Default service account for ppr cloud services"
         resource_roles = [
-          { resource = "eogruh-dev_cloudbuild"
-            roles    = ["roles/storage.legacyBucketWriter"]
-            resource_type = "storage_bucket"
-          },
           { resource = "projects/c4hnrd-dev/topics/doc-api-app-create-record"
             roles    = ["roles/pubsub.publisher"]
             resource_type = "pubsub_topic"

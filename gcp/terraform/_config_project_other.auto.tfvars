@@ -556,6 +556,13 @@ other_projects = {
       sa-compliance-scanner = {
         roles       = ["projects/c4hnrd-tools/roles/rolejob"]
         description = "Service Account for compliance scanning job"
+        resource_roles = [
+            {
+              resource = "gcp-residency-compliance-checker-reports"
+              roles    = ["roles/storage.admin"]
+              resource_type = "storage_bucket"
+            }
+          ]
       },
       sa-cloud-function-sql-manager = {
         description = "Service Account for running cloudsql updates"

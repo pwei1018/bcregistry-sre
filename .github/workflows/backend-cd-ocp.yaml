@@ -13,8 +13,14 @@ on:
         type: string
         default: "."
     secrets:
+      # 1Password Authentication - Use either OP_SERVICE_ACCOUNT_TOKEN or both OP_CONNECT_URL and OP_CONNECT_TOKEN
       OP_SERVICE_ACCOUNT_TOKEN:
-        required: true
+        required: false
+      OP_CONNECT_URL:
+        required: false
+      OP_CONNECT_TOKEN:
+        required: false
+      # OpenShift Configuration
       OPENSHIFT_DOCKER_REGISTRY:
         required: true
       OPENSHIFT_LOGIN_REGISTRY:
@@ -40,15 +46,14 @@ jobs:
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.
     permissions:
-      contents: 'write'
-      id-token: 'none'
+      contents: "write"
+      id-token: "none"
 
     outputs:
       TARGETS: ${{ steps.setenv.outputs.TARGETS }}
       TARGET: ${{ steps.setenv.outputs.TARGET }}
       TARGET_FROM: ${{ steps.setenv.outputs.TARGET_FROM }}
       PROJECT: ${{ steps.setenv.outputs.PROJECT }}
-
 
     steps:
       # Checkout code
@@ -89,8 +94,8 @@ jobs:
     # Allow add the tag in the repo.
     # Add "id-token" with the intended permissions.
     permissions:
-      contents: 'write'
-      id-token: 'write'
+      contents: "write"
+      id-token: "write"
 
     steps:
       - uses: actions/checkout@v4
@@ -103,10 +108,24 @@ jobs:
       - name: Setup .env file
         working-directory: ${{ inputs.working_directory }}
         env:
+          OP_CONNECT_HOST: ${{ secrets.OP_CONNECT_URL }}
+          OP_CONNECT_TOKEN: ${{ secrets.OP_CONNECT_TOKEN }}
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
           APP_ENV: ${{ needs.setup.outputs.TARGET }}
         run: |-
-          op inject -i ./devops/vaults.ocp.env -o .env -f
+          # Use either OP_SERVICE_ACCOUNT_TOKEN or (OP_CONNECT_HOST and OP_CONNECT_TOKEN)
+          if [ -n "$OP_SERVICE_ACCOUNT_TOKEN" ]; then
+            echo "Using OP_SERVICE_ACCOUNT_TOKEN for authentication"
+            unset OP_CONNECT_HOST OP_CONNECT_TOKEN
+            op inject -i ./devops/vaults.ocp.env -o .env -f
+          elif [ -n "$OP_CONNECT_HOST" ] && [ -n "$OP_CONNECT_TOKEN" ]; then
+            echo "Using OP_CONNECT_HOST and OP_CONNECT_TOKEN for authentication"
+            unset OP_SERVICE_ACCOUNT_TOKEN
+            op inject -i ./devops/vaults.ocp.env -o .env -f
+          else
+            echo "Error: Either OP_SERVICE_ACCOUNT_TOKEN or both OP_CONNECT_HOST and OP_CONNECT_TOKEN must be provided"
+            exit 1
+          fi
 
       - name: Install CLI tools from OpenShift
         uses: redhat-actions/openshift-tools-installer@v1
@@ -179,7 +198,7 @@ jobs:
           FULL_APP_NAME: ${{ inputs.app_name }}-${{ needs.setup.outputs.TARGET }}
           NAMESPACE: ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ needs.setup.outputs.PROJECT }}
         run: |-
-            oc -n "${NAMESPACE}" rollout restart deployment ${FULL_APP_NAME}
+          oc -n "${NAMESPACE}" rollout restart deployment ${FULL_APP_NAME}
 
       - name: Watch new rollout
         shell: bash

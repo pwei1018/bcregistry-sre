@@ -515,6 +515,10 @@ prod_projects = {
       sa-solr-importer = {
         roles       = ["projects/a083gt-prod/roles/rolesolrimporter"]
         description = "Service Account for solr importer services"
+      },
+      business-ar-job-proc-paid-prod = {
+        roles       = ["roles/run.invoker"]
+        description = "submit AR back to the SOR"
       }
     }
     pam_bindings = [

@@ -1,9 +1,9 @@
 name: Restart Services
 
 on:
-  schedule:
+  #schedule:
     # At 1:30am (PST) every day.
-    - cron: "30 9 * * *"
+  #  - cron: "30 9 * * *"
   workflow_dispatch:
     inputs:
       environement:

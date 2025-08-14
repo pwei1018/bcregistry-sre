@@ -43,20 +43,20 @@ jobs:
       #    oc scale --replicas=0 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
       #    oc scale --replicas=1 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
-      - name: Restart entity-filer
-        run: |
-          oc scale --replicas=0 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #- name: Restart entity-filer
+      #  run: |
+      #    oc scale --replicas=0 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #    oc scale --replicas=1 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
-      - name: Restart entity-emailer
-        run: |
-          oc scale --replicas=0 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #- name: Restart entity-emailer
+      #  run: |
+      #   oc scale --replicas=0 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #    oc scale --replicas=1 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
-      - name: Restart entity-bn
-        run: |
-          oc scale --replicas=0 dc/entity-bn-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/entity-bn-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+     # - name: Restart entity-bn
+      #  run: |
+       #   oc scale --replicas=0 dc/entity-bn-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #    oc scale --replicas=1 dc/entity-bn-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
       #- name: Restart account-mailer
       #  run: |

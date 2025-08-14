@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
                   readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
                   readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -160,6 +160,14 @@ prod_projects = {
       sa-job = {
         roles       = ["projects/c4hnrd-prod/roles/rolejob"]
         description = "Service Account for running job services"
+      },
+      sa-notebook = {
+        roles       = ["projects/c4hnrd-prod/roles/rolejob", ]
+        description = "Service Account for running notebook services"
+        external_roles = [{
+          roles        = ["roles/cloudsql.instanceUser", "roles/run.serviceAgent", "roles/cloudsql.client"]
+          project_id  = "mvnjri-prod"
+        }]
       },
       sa-api = {
         roles       = ["projects/c4hnrd-prod/roles/roleapi", "roles/cloudsql.instanceUser", "roles/run.serviceAgent"]
@@ -407,7 +415,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer"]
+                  readonly = ["sa-solr-importer", "vikas.singh@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

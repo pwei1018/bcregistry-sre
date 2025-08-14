@@ -50,12 +50,12 @@ jobs:
             sleep 1m
           done
 
-      - name: Restart nats-streaming
-        run: |
-          oc scale --replicas=0 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
-          oc rollout status dc/nats-streaming-${{ env.TAG_NAME }} -n  d893f6-${{ env.TAG_NAME }} -w
-          sleep 10m
+      #- name: Restart nats-streaming
+      #  run: |
+     #     oc scale --replicas=0 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
+     #     oc scale --replicas=1 dc/nats-streaming-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
+      #    oc rollout status dc/nats-streaming-${{ env.TAG_NAME }} -n  d893f6-${{ env.TAG_NAME }} -w
+      #    sleep 10m
 
       #- name: Restart namex-pay
       #  run: |
@@ -67,15 +67,15 @@ jobs:
       #    oc scale --replicas=0 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
       #    oc scale --replicas=1 dc/entity-pay-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
-      - name: Restart entity-filer
-        run: |
-          oc scale --replicas=0 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #- name: Restart entity-filer
+     #   run: |
+      #    oc scale --replicas=0 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #    oc scale --replicas=1 dc/entity-filer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
-      - name: Restart entity-emailer
-        run: |
-          oc scale --replicas=0 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+      #- name: Restart entity-emailer
+       # run: |
+       #   oc scale --replicas=0 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
+       #   oc scale --replicas=1 dc/entity-emailer-${{ env.TAG_NAME }} -n cc892f-${{ env.TAG_NAME }}
 
       #- name: Restart payment-reconciliations
       #  run: |
@@ -107,17 +107,17 @@ jobs:
       #    oc scale --replicas=0 dc/events-listener-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
       #    oc scale --replicas=1 dc/events-listener-${{ env.TAG_NAME }} -n 6e0e49-${{ env.TAG_NAME }}
 
-      - name: Restart search-solr-updater
-        run: |
-          oc scale --replicas=0 dc/search-auth-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/search-auth-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
+     # - name: Restart search-solr-updater
+      #  run: |
+      #    oc scale --replicas=0 dc/search-auth-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
+      #    oc scale --replicas=1 dc/search-auth-solr-updater-${{ env.TAG_NAME }} -n d893f6-${{ env.TAG_NAME }}
 
-      - name: Restart solr-names-updater
-        run: |
-          oc scale --replicas=0 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
+      #- name: Restart solr-names-updater
+      #  run: |
+       #   oc scale --replicas=0 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
+       #   oc scale --replicas=1 dc/solr-names-updater-${{ env.TAG_NAME }} -n f2b77c-${{ env.TAG_NAME }}
 
-      - name: Restart bor-solr-updater
-        run: |
-          oc scale --replicas=0 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }}
-          oc scale --replicas=1 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }}
+      #- name: Restart bor-solr-updater
+      #  run: |
+      #    oc scale --replicas=0 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }}
+       #   oc scale --replicas=1 dc/bor-solr-updater-${{ env.TAG_NAME }} -n 1dfe78-${{ env.TAG_NAME }}

@@ -164,6 +164,33 @@ prod_projects = {
       sa-notebook = {
         roles       = ["projects/c4hnrd-prod/roles/rolejob", ]
         description = "Service Account for running notebook services"
+        resource_roles = [
+          {
+            resource = "projects/185633972304/secrets/NOTIFY_CLIENT_SECRET"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/185633972304/secrets/BING_API_KEY"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/185633972304/secrets/BING_ID"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/185633972304/secrets/VIRUS_TOTAL_API_KEY"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          },
+          {
+            resource = "projects/185633972304/secrets/GOOGLE_API_KEY"
+            roles    = ["roles/secretmanager.secretAccessor"]
+            resource_type = "secret_manager"
+          }
+        ]
         external_roles = [{
           roles        = ["roles/cloudsql.instanceUser", "roles/run.serviceAgent", "roles/cloudsql.client"]
           project_id  = "mvnjri-prod"

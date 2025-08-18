@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca"]
                   readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca"]
                   readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -518,6 +518,10 @@ prod_projects = {
       sa-lear-db-standby = {
         roles       = ["roles/cloudsql.client", "roles/cloudsql.viewer"]
         description = "Service account used to backup business db in OpenShift Gold Cluster, as part of disaster recovery plan."
+      },
+      sa-notebook = {
+        roles       = ["roles/cloudsql.instanceUser", "roles/run.serviceAgent", "roles/cloudsql.client"]
+        description = "Run notebook jobs in ocp."
       },
       sa-db-migrate = {
         roles       = ["projects/a083gt-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]

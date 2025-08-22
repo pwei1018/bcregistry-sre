@@ -442,7 +442,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "siddharth.chaturvedi@gov.bc.ca", "syed.riyazzudin@gov.bc.ca"]
+                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "siddharth.chaturvedi@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "mihai.dinu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

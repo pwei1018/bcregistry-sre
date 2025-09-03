@@ -33,7 +33,7 @@ jobs:
       - id: check
         name: Check PNPM package
         run: |
-          if [ -f "pnpm-lock.yaml" ]; then
+          if [ -f "pnpm-lock.yaml" ] || ([ -f "package.json" ] && grep -q '"packageManager":.*"pnpm' package.json);
             echo "PNPM=yes" >> "$GITHUB_OUTPUT"
           else
             echo "PNPM=no" >> "$GITHUB_OUTPUT"
@@ -59,12 +59,27 @@ jobs:
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Check for pnpm-lock.yaml
+        id: check_pnpm_lock
+        run: |
+          if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Use Node.js ${{ matrix.node-version }} (with cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
+      - name: Use Node.js ${{ matrix.node-version }} (no cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: |
           PNPM_VER=$(pnpm --version)
@@ -102,12 +117,27 @@ jobs:
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Check for pnpm-lock.yaml
+        id: check_pnpm_lock
+        run: |
+          if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Use Node.js ${{ matrix.node-version }} (with cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
+      - name: Use Node.js ${{ matrix.node-version }} (no cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Debug files
         run: |
           pwd
@@ -161,12 +191,27 @@ jobs:
         with:
           version: ${{ matrix.pnpm-version }}
           run_install: false
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Check for pnpm-lock.yaml
+        id: check_pnpm_lock
+        run: |
+          if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+      - name: Use Node.js ${{ matrix.node-version }} (with cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
           cache-dependency-path: ${{ inputs.working_directory }}/pnpm-lock.yaml
+      - name: Use Node.js ${{ matrix.node-version }} (no cache)
+        if: steps.check_pnpm_lock.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: |
           PNPM_VER=$(pnpm --version)

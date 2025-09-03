@@ -32,8 +32,8 @@ jobs:
 
       - id: check
         name: Check PNPM package
-        run: |
-          if [ -f "pnpm-lock.yaml" ] || ([ -f "package.json" ] && grep -q '"packageManager":.*"pnpm' package.json);
+        run: | 
+          if [ -f "pnpm-lock.yaml" ] || ([ -f "package.json" ] && [[ "$(jq -r '.packageManager // ""' package.json)" == "pnpm"* ]]); then
             echo "PNPM=yes" >> "$GITHUB_OUTPUT"
           else
             echo "PNPM=no" >> "$GITHUB_OUTPUT"
@@ -61,7 +61,7 @@ jobs:
           run_install: false
       - name: Check for pnpm-lock.yaml
         id: check_pnpm_lock
-        run: |
+        run: | 
           if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -81,7 +81,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
-        run: |
+        run: | 
           PNPM_VER=$(pnpm --version)
           echo "PNPM version: ${PNPM_VER}"
 
@@ -95,7 +95,7 @@ jobs:
 
           pnpm install
       - name: Linting
-        run: |
+        run: | 
           pnpm run lint
 
   unit-testing-pnpm:
@@ -119,7 +119,7 @@ jobs:
           run_install: false
       - name: Check for pnpm-lock.yaml
         id: check_pnpm_lock
-        run: |
+        run: | 
           if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -139,17 +139,17 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Debug files
-        run: |
+        run: | 
           pwd
           ls -la
       - name: Copy .env
-        run: |
+        run: | 
           cp .env.example .env 2>/dev/null || :
           cp .env.sample .env 2>/dev/null || :
           cp env.example .env 2>/dev/null || :
           cp env.sample .env 2>/dev/null || :
       - name: Install dependencies
-        run: |
+        run: | 
           PNPM_VER=$(pnpm --version)
           echo "PNPM version: ${PNPM_VER}"
 
@@ -163,7 +163,7 @@ jobs:
 
           pnpm install
       - name: Testing
-        run: |
+        run: | 
           pnpm run test
       - name: "Upload Coverage"
         continue-on-error: true
@@ -193,7 +193,7 @@ jobs:
           run_install: false
       - name: Check for pnpm-lock.yaml
         id: check_pnpm_lock
-        run: |
+        run: | 
           if [ -f "${{ inputs.working_directory }}/pnpm-lock.yaml" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -213,7 +213,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
-        run: |
+        run: | 
           PNPM_VER=$(pnpm --version)
           echo "PNPM version: ${PNPM_VER}"
 
@@ -227,7 +227,7 @@ jobs:
 
           pnpm install
       - name: Verify build
-        run: |
+        run: | 
           pnpm run build-check
 
   linting-npm:
@@ -251,10 +251,10 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
       - name: Install dependencies
-        run: |
+        run: | 
           npm ci
       - name: Linting
-        run: |
+        run: | 
           npm run lint
 
   unit-testing-npm:
@@ -277,20 +277,20 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
       - name: Debug files
-        run: |
+        run: | 
             pwd
             ls -la
       - name: Copy .env
-        run: |
+        run: | 
           cp .env.example .env 2>/dev/null || :
           cp .env.sample .env 2>/dev/null || :
           cp env.example .env 2>/dev/null || :
           cp env.sample .env 2>/dev/null || :
       - name: Install dependencies
-        run: |
+        run: | 
           npm ci
       - name: Testing
-        run: |
+        run: | 
           npm run test
       - name: "Upload Coverage"
         continue-on-error: true
@@ -319,8 +319,8 @@ jobs:
           cache: npm
           cache-dependency-path: ${{ inputs.working_directory }}/package-lock.json
       - name: Install dependencies
-        run: |
+        run: | 
           npm ci
       - name: Verify build
-        run: |
+        run: | 
           npm run build-check

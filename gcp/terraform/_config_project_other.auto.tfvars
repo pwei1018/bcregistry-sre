@@ -56,7 +56,7 @@ other_projects = {
                 owner      = "auth"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["ken.li@gov.bc.ca", "sa-api"]
+                  readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -71,7 +71,7 @@ other_projects = {
                 owner      = "postgres"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["ken.li@gov.bc.ca"]
+                  readwrite = []
                   admin = []
                 }
           }

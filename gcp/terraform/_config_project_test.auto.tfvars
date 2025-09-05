@@ -91,7 +91,7 @@ test_projects = {
                 owner      = "auth"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "karim.jazzar@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
+                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "karim.jazzar@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca", "sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -107,7 +107,7 @@ test_projects = {
                 owner      = "pay"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["felipe.moraes@gov.bc.ca", "sergey.popov@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
+                  readonly = ["felipe.moraes@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
                   readwrite = ["ken.li@gov.bc.ca", "travis.semple@gov.bc.ca"]
                   admin = []
                 }
@@ -589,7 +589,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  readonly = ["sergey.popov@gov.bc.ca"]
+                  readonly = []
                   readwrite = []
                   admin = []
                 }

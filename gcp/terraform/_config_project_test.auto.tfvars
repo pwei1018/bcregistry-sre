@@ -91,8 +91,8 @@ test_projects = {
                 owner      = "auth"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "karim.jazzar@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca", "sa-api"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
+                  readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -107,8 +107,8 @@ test_projects = {
                 owner      = "pay"
                 agent      = "postgres"
                 database_role_assignment = {
-                  readonly = ["felipe.moraes@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
-                  readwrite = ["ken.li@gov.bc.ca", "travis.semple@gov.bc.ca"]
+                  readonly = ["noor.nayeem@gov.bc.ca"]
+                  readwrite = []
                   admin = []
                 }
           }
@@ -258,8 +258,8 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer", "siddharth.chaturvedi@gov.bc.ca"]
-                  readwrite = ["thayne.werdal@gov.bc.ca", "severin.beauvais@gov.bc.ca", "vysakh.menon@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "bobby.jin@gov.bc.ca"]
+                  readonly = ["sa-solr-importer"]
+                  readwrite = ["syed.riyazzudin@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -273,7 +273,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "userHQH"
                 database_role_assignment = {
-                  readonly = ["rajandeep.kaur@gov.bc.ca", "felipe.moraes@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }

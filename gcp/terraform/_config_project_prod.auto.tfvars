@@ -256,21 +256,21 @@ prod_projects = {
               }
             ]
       },
-      # {
-      #   instance = "pay-db-prod"
-      #   databases =  [
-      #     {
-      #           db_name    = "pay-db"
-      #           roles      = ["readonly", "readwrite", "admin"]
-      #           owner      = "postgres"
-      #           database_role_assignment = {
-      #             readonly = []
-      #             readwrite = []
-      #             admin = []
-      #           }
-      #     }
-      #   ]
-      # }
+      {
+        instance = "pay-db-prod"
+        databases =  [
+          {
+                db_name    = "pay-db"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "pay"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+          }
+        ]
+      }
     ]
     service_accounts = {
       sa-ocp-db-migrate = {
@@ -374,23 +374,23 @@ prod_projects = {
   "bor-prod" = {
     project_id = "yfjq17-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "bor-db-prod"
-    #     databases =  [
-    #           {
-    #             db_name    = "bor"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "prodUser"
-    #             database_role_assignment = {
-    #               readonly = []
-    #               readwrite = []
-    #               admin = []
-    #             }
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "bor-db-prod"
+        databases =  [
+              {
+                db_name    = "bor"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "prodUser"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/yfjq17-prod/roles/rolepam"]
@@ -631,28 +631,28 @@ prod_projects = {
   "ppr-prod" = {
     project_id = "eogruh-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "ppr-prod"
-    #     databases =  [
-    #       {
-    #             db_name    = "ppr"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "user4ca"
-    #       },
-    #       {
-    #             db_name    = "notify"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "notifyuser"
-    #       },
-    #       {
-    #             db_name    = "jobs"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "user4ca"
-    #       }
-    #     ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "ppr-prod"
+        databases =  [
+          {
+                db_name    = "ppr"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "user4ca"
+          },
+          {
+                db_name    = "notify"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "notifyuser"
+          },
+          {
+                db_name    = "jobs"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "user4ca"
+          }
+        ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/eogruh-prod/roles/rolepam"]
@@ -731,23 +731,23 @@ prod_projects = {
   "search-prod" = {
     project_id = "k973yf-prod"
     env = "prod"
-    # instances = [
-    #   {
-    #     instance = "search-db-prod"
-    #     databases =  [
-    #           {
-    #             db_name    = "search"
-    #             roles      = ["readonly", "readwrite", "admin"]
-    #             owner      = "search_service"
-    #             database_role_assignment = {
-    #               readonly = []
-    #               readwrite = []
-    #               admin = []
-    #             }
-    #           }
-    #         ]
-    #   }
-    # ]
+    instances = [
+      {
+        instance = "search-db-prod"
+        databases =  [
+              {
+                db_name    = "search"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "search_service"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      }
+    ]
     service_accounts = {
       sa-pam-function = {
         roles       = ["projects/k973yf-prod/roles/rolepam"]

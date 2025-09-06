@@ -10,7 +10,6 @@ other_projects = {
                 db_name    = "notify"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
-                agent      = "postgres"
                 database_role_assignment = {
                   readonly = []
                   readwrite = ["sa-api"]

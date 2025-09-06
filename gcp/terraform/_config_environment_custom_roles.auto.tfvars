@@ -386,6 +386,11 @@ environments = {
     }
   }
   "prod" = {
+    database_role_assignment = {
+      readonly = ["Argus.1.Chiu@gov.bc.ca","kial.jinnah@gov.bc.ca","chiu.oddyseus@gov.bc.ca","siddharth.chaturvedi@gov.bc.ca","steven.chen@gov.bc.ca","eve.deng@gov.bc.ca","omid.x.zamani@gov.bc.ca","rajandeep.kaur@gov.bc.ca","jose.kudiyirippil@gov.bc.ca","ali.hamood@gov.bc.ca"]
+      readwrite = ["travis.semple@gov.bc.ca","thor.wolpert@gov.bc.ca"]
+      admin = []
+    }
     environment_custom_roles = {
       roleba = {
         title = "Role BA"

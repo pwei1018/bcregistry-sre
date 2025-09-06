@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -113,6 +113,11 @@ prod_projects = {
                 db_name    = "docs"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "user4ca"
+                database_role_assignment = {
+                  readonly = ["aimee.gao@gov.bc.ca", "dietrich.wolpert@gov.bc.ca", "eason.pan@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "lekshmi.gokul@gov.bc.ca", "megan.a.wong@gov.bc.ca", "lucas.o'neil@gov.bc.ca", "ketaki.deodhar@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
+                  readwrite = []
+                  admin = []
+                }
               }
             ]
       },
@@ -124,7 +129,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
                 database_role_assignment = {
-                  readonly = []
+                  readonly = ["aimee.gao@gov.bc.ca", "dietrich.wolpert@gov.bc.ca", "eason.pan@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "lekshmi.gokul@gov.bc.ca", "megan.a.wong@gov.bc.ca", "lucas.o'neil@gov.bc.ca", "ketaki.deodhar@gov.bc.ca", "thayne.werdal@gov.bc.ca", "steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -249,7 +254,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "auth"
                 database_role_assignment = {
-                  readonly = []
+                  readonly = ["dietrich.wolpert@gov.bc.ca", "hongjing.chen@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "jia.xu@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "megan.a.wong@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -264,8 +269,8 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = []
-                  readwrite = []
+                  readonly = ["dietrich.wolpert@gov.bc.ca", "hongjing.chen@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "jia.xu@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "megan.a.wong@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
+                  readwrite = ["steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
                   admin = []
                 }
           }
@@ -383,7 +388,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "prodUser"
                 database_role_assignment = {
-                  readonly = []
+                  readonly = ["dietrich.wolpert@gov.bc.ca", "megan.a.wong@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -442,7 +447,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "mihai.dinu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
+                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "mihai.dinu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "thayne.werdal@gov.bc.ca", "aimee.gao@gov.bc.ca", "david.li@gov.bc.ca", "dietrich.wolpert@gov.bc.ca", "eason.pan@gov.bc.ca", "hongjing.chen@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "megan.a.wong@gov.bc.ca", "lucas.o'neil@gov.bc.ca", "ketaki.deodhar@gov.bc.ca", "kial.jinnah@gov.bc.ca", "steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -456,6 +461,11 @@ prod_projects = {
                 db_name    = "namex"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "userHQH"
+                database_role_assignment = {
+                  readonly = ["kial.jinnah@gov.bc.ca"]
+                  readwrite = ["steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
+                  admin = []
+                }
               }
             ]
       }
@@ -740,7 +750,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "search_service"
                 database_role_assignment = {
-                  readonly = []
+                  readonly = ["hrvoje.fekete@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }
@@ -837,7 +847,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  readonly = []
+                  readonly = ["dietrich.wolpert@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

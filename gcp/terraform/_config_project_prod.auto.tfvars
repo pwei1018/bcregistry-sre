@@ -11,8 +11,8 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca"]
-                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca"]
+                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -26,8 +26,8 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca"]
-                  readwrite = ["thor.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "travis.semple@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "doug.lovett@gov.bc.ca"]
+                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -124,7 +124,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "notifyuser"
                 database_role_assignment = {
-                  readonly = ["eve.deng@gov.bc.ca", "steven.chen@gov.bc.ca"]
+                  readonly = []
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -442,7 +442,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "siddharth.chaturvedi@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "mihai.dinu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
+                  readonly = ["sa-solr-importer", "sa-notebook", "vikas.singh@gov.bc.ca", "syed.riyazzudin@gov.bc.ca", "severin.beauvais@gov.bc.ca", "mihai.dinu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "thayne.werdal@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

@@ -271,8 +271,8 @@ test_projects = {
                 owner      = "userHQH"
                 database_role_assignment = {
                   readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
-                  readwrite = []
-                  admin = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
@@ -330,28 +330,8 @@ test_projects = {
         description = ""
       },
       sa-db-migrate = {
-        roles       = ["projects/a083gt-test/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
-        description = "Service Account for migrating db from openshift"
-        resource_roles = [
-            { resource = "projects/457237769279/secrets/OC_TOKEN_f2b77c-test"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
-            { resource = "projects/457237769279/secrets/OC_TOKEN_cc892f-test"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
-            {
-              resource = "namex-db-dump-test"
-              roles    = ["roles/storage.admin"]
-              resource_type = "storage_bucket"
-            },
-            {
-              resource = "lear-db-dump-test"
-              roles    = ["roles/storage.admin"]
-              resource_type = "storage_bucket"
-            }
-          ]
+        roles       = ["projects/a083gt-test/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
       },
       sa-solr-importer = {
         roles       = ["projects/a083gt-test/roles/rolesolrimporter"]

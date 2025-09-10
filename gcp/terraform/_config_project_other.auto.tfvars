@@ -390,8 +390,8 @@ other_projects = {
                 owner      = "userHQH"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = []
-                  admin = []
+                  readwrite = ["sa-api"]
+                  admin = ["sa-db-migrate"]
                 }
           }
         ]
@@ -432,6 +432,10 @@ other_projects = {
         description = "Service Account for running cdcloudrun services"
       },
       sa-db-migrate = {
+        roles       = ["projects/a083gt-integration/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
+      },
+      sa-lear-migrate = {
         roles       = ["projects/a083gt-integration/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
         description = "Service Account for migrating db from openshift"
         resource_roles = [

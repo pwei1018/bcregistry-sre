@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca","harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca","harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca", "harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca", "harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
                   admin = []
                 }
@@ -463,8 +463,8 @@ prod_projects = {
                 owner      = "userHQH"
                 database_role_assignment = {
                   readonly = ["kial.jinnah@gov.bc.ca"]
-                  readwrite = ["steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
-                  admin = []
+                  readwrite = ["sa-api", "steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
+                  admin = ["sa-db-migrate"]
                 }
               }
             ]
@@ -534,32 +534,8 @@ prod_projects = {
         description = "Run notebook jobs in ocp."
       },
       sa-db-migrate = {
-        roles       = ["projects/a083gt-prod/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
-        description = "Service Account for migrating db from openshift"
-        resource_roles = [
-            { resource = "projects/698952081000/secrets/OC_TOKEN_cc892f-prod"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
-            { resource = "projects/698952081000/secrets/OC_TOKEN_f2b77c-prod"
-              roles    = ["roles/secretmanager.secretAccessor"]
-              resource_type = "secret_manager"
-            },
-            {
-              resource = "namex-db-dump-prod"
-              roles    = ["roles/storage.admin"]
-              resource_type = "storage_bucket"
-            },
-            {
-              resource = "lear-db-dump-prod"
-              roles    = ["roles/storage.admin"]
-              resource_type = "storage_bucket"
-            }
-          ]
-          external_roles = [{
-            roles        = ["roles/cloudsql.client", "roles/cloudsql.admin"]
-            project_id  = "a083gt-integration"
-          }]
+        roles       = ["projects/a083gt-prod/roles/roledbmigrate"]
+        description = "Service Account for running db alembic migration job"
       },
       sa-solr-importer = {
         roles       = ["projects/a083gt-prod/roles/rolesolrimporter"]

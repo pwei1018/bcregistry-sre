@@ -340,8 +340,8 @@ dev_projects = {
                   owner      = "userHQH"
                   database_role_assignment = {
                     readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
-                    readwrite = []
-                    admin = []
+                    readwrite = ["sa-api"]
+                    admin = ["sa-db-migrate"]
                   }
                 }
               ]
@@ -358,21 +358,10 @@ dev_projects = {
               }
             ]
         },
-        # sa-db-migrate = {
-        #   roles       = ["projects/a083gt-dev/roles/roleapi", "roles/cloudsql.client", "roles/cloudsql.admin"]
-        #   description = "Service Account for migrating db from openshift"
-        #   resource_roles = [
-        #       { resource = "projects/475224072965/secrets/OC_TOKEN_cc892f-dev"
-        #         roles    = ["roles/secretmanager.secretAccessor"]
-        #         resource_type = "secret_manager"
-        #       },
-        #       {
-        #         resource = "lear_ocp_dumps"
-        #         roles    = ["roles/storage.admin"]
-        #         resource_type = "storage_bucket"
-        #       }
-        #     ]
-        # },
+        sa-db-migrate = {
+          roles       = ["projects/a083gt-dev/roles/roledbmigrate"]
+          description = "Service Account for running db alembic migration job"
+        },
         sa-pubsub = {
           roles       = ["roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
           description = "Service Account for running pubsub services"

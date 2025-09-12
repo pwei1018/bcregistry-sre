@@ -371,7 +371,7 @@ dev_projects = {
           description = "Service Account for running job services"
         },
         sa-api = {
-          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator", "roles/cloudtasks.enqueuer", "roles/cloudtasks.viewer", "roles/cloudtasks.taskDeleter"]
+          roles       = ["projects/a083gt-dev/roles/roleapi", "roles/iam.serviceAccountTokenCreator", "roles/cloudtasks.enqueuer", "roles/cloudtasks.viewer", "roles/cloudtasks.taskDeleter", "roles/cloudsql.instanceUser", "roles/run.serviceAgent"]
           description = "Service Account for running api services"
           resource_roles = [
               {

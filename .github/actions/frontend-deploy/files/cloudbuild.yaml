@@ -6,6 +6,9 @@ steps:
     #!/usr/bin/env bash
     set -euo pipefail  # Added for better error handling
 
+    pwd
+    ls -la
+
     echo "Step 0: Building and tagging the image and creating build content."
 
     # Common variables to reduce repetition

@@ -147,8 +147,8 @@ steps:
     #!/usr/bin/env sh
     set -euo pipefail  # Added for stricter error handling
 
-    sudo apk update
-    sudo apk add jq
+    apk update
+    apk add jq
 
     echo "Step 2: Build application."
     

@@ -148,9 +148,6 @@ steps:
     set -euo pipefail  # Added for stricter error handling
 
     echo "Step 2: Build application."
-
-    pwd
-    ls -la
     
     BUILD_FOLDER=$(cat /workspace/build_folder.txt)
     echo "Building in folder: $BUILD_FOLDER"
@@ -158,7 +155,7 @@ steps:
     echo "Node version: $(node --version)"
 
     # Unified package management and build process
-    if [ -f "pnpm-lock.yaml" ]; then
+    if [ -f "pnpm-lock.yaml" ] || ([ -f "package.json" ] && [[ "$(jq -r '.packageManager // ""' package.json)" == "pnpm"* ]]); then
 
       # PNPM-specific build process
       # Install pnpm using the specified version or default to "latest-9" if _PNPM_VERSION is not set.

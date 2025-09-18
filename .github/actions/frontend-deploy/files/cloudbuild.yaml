@@ -149,6 +149,9 @@ steps:
 
     echo "Step 2: Build application."
 
+    pwd
+    ls -la
+    
     BUILD_FOLDER=$(cat /workspace/build_folder.txt)
     echo "Building in folder: $BUILD_FOLDER"
 

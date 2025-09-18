@@ -175,7 +175,11 @@ steps:
         echo "corepack version: $(corepack --version || echo 'not installed')"
       fi
 
-      pnpm install --frozen-lockfile --prefer-offline
+      if [ -f "pnpm-lock.yaml" ]; then
+        pnpm install --frozen-lockfile --prefer-offline
+      else
+        pnpm install
+      fi
 
       # Conditional build with improved path handling
       if [ -n "$BUILD_FOLDER" ] && [ "$BUILD_FOLDER" != "." ]; then

@@ -412,6 +412,16 @@ other_projects = {
         description = "Service Account for running api services"
         resource_roles = [
             {
+              resource = "projects/a083gt-prod/locations/northamerica-northeast1/services/namex-solr-synonyms-api-prod"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            },
+            {
+              resource = "projects/a083gt-integration/locations/northamerica-northeast1/services/namex-api-sandbox"
+              roles    = ["roles/run.invoker"]
+              resource_type = "cloud_run"
+            },
+            {
               resource = "projects/a083gt-integration/topics/namex-emailer-sandbox"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"

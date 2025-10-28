@@ -12,7 +12,7 @@ prod_projects = {
                 owner      = "pay"
                 database_role_assignment = {
                   readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca","harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca"]
-                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca", "Monica.Mow@gov.bc.ca", "Anushka.Halder@gov.bc.ca"]
                   admin = []
                 }
               }
@@ -27,7 +27,7 @@ prod_projects = {
                 owner      = "pay"
                 database_role_assignment = {
                   readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca", "harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca"]
-                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca"]
+                  readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca", "Monica.Mow@gov.bc.ca", "Anushka.Halder@gov.bc.ca"]
                   admin = []
                 }
               }

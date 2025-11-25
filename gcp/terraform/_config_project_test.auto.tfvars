@@ -594,10 +594,6 @@ test_projects = {
       }
     }
   },
-  "analytics-ext-test" = {
-    project_id = "sbgmug-test"
-    env = "test"
-  },
   "api-gateway-test" = {
     project_id = "okagqp-test"
     env = "test"

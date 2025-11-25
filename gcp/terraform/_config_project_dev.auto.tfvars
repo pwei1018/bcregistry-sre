@@ -647,10 +647,6 @@ dev_projects = {
       }
     }
   },
-  "analytics-ext-dev" = {
-    project_id = "sbgmug-dev"
-    env = "dev"
-  },
   "api-gateway-dev" = {
     project_id = "okagqp-dev"
     env = "dev"

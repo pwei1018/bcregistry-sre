@@ -332,10 +332,6 @@ other_projects = {
       }
     }
   },
-  "analytics-ext-sandbox" = {
-    project_id = "sbgmug-sandbox"
-    env = "sandbox"
-  },
   "api-gateway-sandbox" = {
     project_id = "okagqp-sandbox"
     env = "sandbox"

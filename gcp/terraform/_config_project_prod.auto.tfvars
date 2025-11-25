@@ -850,10 +850,6 @@ prod_projects = {
       }
     }
   },
-  "analytics-ext-prod" = {
-    project_id = "sbgmug-prod"
-    env = "prod"
-  },
   "api-gateway-prod" = {
     project_id = "okagqp-prod"
     env = "prod"

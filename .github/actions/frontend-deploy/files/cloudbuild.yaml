@@ -108,7 +108,7 @@ steps:
     APP_HOST_NAME=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/FIREBASE_HOST_NAME")
     DEPLOY_PROJECT_ID=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/DEPLOY_PROJECT_ID")
     BUILD_FOLDER=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/BUILD_FOLDER" 2>/dev/null || echo ".")
-    EXTRA_ENV_PATH=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/EXTRA_ENV_PATH")
+    EXTRA_ENV_PATH=$(op read -n "op://CD/${_DEPLOYMENT_ENV}/${_APP_NAME}/EXTRA_ENV_PATH" 2>/dev/null || echo "")
 
     # Validate critical variables
     [[ -z "$APP_HOST_NAME" ]] && { echo "❌ Error: APP_HOST_NAME is empty"; exit 1; }

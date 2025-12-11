@@ -441,6 +441,11 @@ prod_projects = {
                 db_name    = "business-ar"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-ar-api"
+                database_role_assignment = {
+                  readonly = ["sa-solr-importer"]
+                  readwrite = []
+                  admin = []
+                }
               },
               {
                 db_name    = "business"
@@ -462,7 +467,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "userHQH"
                 database_role_assignment = {
-                  readonly = ["kial.jinnah@gov.bc.ca"]
+                  readonly = ["kial.jinnah@gov.bc.ca", "sa-solr-importer"]
                   readwrite = ["sa-api", "steven.chen@gov.bc.ca", "eve.deng@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }

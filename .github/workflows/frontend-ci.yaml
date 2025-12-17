@@ -18,6 +18,10 @@ on:
       codecov_flag:
         type: string
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   detemine-package-manager:
     runs-on: ubuntu-latest

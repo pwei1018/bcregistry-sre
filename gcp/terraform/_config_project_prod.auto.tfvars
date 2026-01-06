@@ -11,7 +11,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca","harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca", "james.mcfarlane@gov.bc.ca", "melissa.stanton@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "john.a.m.lane@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca",  "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca","harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca", "james.mcfarlane@gov.bc.ca", "melissa.stanton@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "john.a.m.lane@gov.bc.ca", "sa-strr-analytics@bcrbk9-prod.iam.gserviceaccount.com", "patty.stemkens@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca", "monica.mow@gov.bc.ca", "anushka.halder@gov.bc.ca"]
                   admin = []
                 }
@@ -26,7 +26,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca", "harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca", "james.mcfarlane@gov.bc.ca", "melissa.stanton@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "john.a.m.lane@gov.bc.ca"]
+                  readonly = ["sa-notebook@c4hnrd-prod.iam.gserviceaccount.com", "sa-job@gtksf3-prod.iam.gserviceaccount.com", "758264625079-compute@developer.gserviceaccount.com", "vikas.singh@gov.bc.ca", "severin.beauvais@gov.bc.ca", "darci.denis@gov.bc.ca", "jia.xu@gov.bc.ca", "vysakh.menon@gov.bc.ca", "michael.kagis@gov.bc.ca", "tyson.graham@gov.bc.ca", "varek.boettcher@gov.bc.ca", "michelle.hohertz@gov.bc.ca", "david.draker@gov.bc.ca", "jordan.merrick@gov.bc.ca", "harshiv.bagha@gov.bc.ca", "Brett.cassidy@gov.bc.ca", "jay.sharp@gov.bc.ca", "ali.hamood@gov.bc.ca", "james.mcfarlane@gov.bc.ca", "melissa.stanton@gov.bc.ca", "hrvoje.fekete@gov.bc.ca", "john.a.m.lane@gov.bc.ca", "sa-strr-analytics@bcrbk9-prod.iam.gserviceaccount.com", "patty.stemkens@gov.bc.ca"]
                   readwrite = ["mike.huffman@gov.bc.ca", "genevieve.primeau@gov.bc.ca", "monica.mow@gov.bc.ca", "anushka.halder@gov.bc.ca"]
                   admin = []
                 }
@@ -828,7 +828,7 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  readonly = ["dietrich.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "anushka.halder@gov.bc.ca"]
+                  readonly = ["dietrich.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "anushka.halder@gov.bc.ca",  "sa-strr-analytics@bcrbk9-prod.iam.gserviceaccount.com"]
                   readwrite = []
                   admin = []
                 }
@@ -836,6 +836,17 @@ prod_projects = {
             ]
       }
     ]
+    custom_roles = {
+      rolenotebookuser = {
+        title = "Notebook User"
+        description = "Role notebook user."
+        permissions = [
+          "cloudsql.instances.connect",
+          "cloudsql.instances.get",
+          "serviceusage.services.use"
+        ]
+      }
+    }
     service_accounts = {
       sa-pubsub = {
         roles       = ["roles/bigquery.dataOwner", "roles/iam.serviceAccountTokenCreator", "roles/pubsub.publisher", "roles/pubsub.subscriber", "roles/run.invoker"]
@@ -852,6 +863,14 @@ prod_projects = {
       sa-queue = {
         roles       = ["projects/bcrbk9-prod/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      sa-strr-analytics = {
+        roles       = ["projects/bcrbk9-prod/roles/rolenotebookuser", "roles/run.invoker"]
+        external_roles = [{
+          roles        = ["roles/cloudsql.instanceUser", "roles/run.serviceAgent", "roles/cloudsql.client"]
+          project_id  = "mvnjri-prod"
+        }]
+        description = "Service Account for running notebooks services"
       }
     }
   },

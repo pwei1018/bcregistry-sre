@@ -865,7 +865,7 @@ prod_projects = {
         description = "Service Account for running queue services"
       },
       sa-strr-analytics = {
-        roles       = ["projects/bcrbk9-prod/roles/rolenotebookuser", "roles/run.invoker"]
+        roles       = ["projects/bcrbk9-prod/roles/rolenotebookuser", "roles/run.invoker", "roles/cloudsql.instanceUser", "roles/cloudsql.client"]
         external_roles = [{
           roles        = ["roles/cloudsql.instanceUser", "roles/run.serviceAgent", "roles/cloudsql.client"]
           project_id  = "mvnjri-prod"

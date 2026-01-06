@@ -89,7 +89,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "auth"
                 database_role_assignment = {
-                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca", "patty.stemkens@gov.bc.ca"]
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -104,7 +104,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "pay"
                 database_role_assignment = {
-                  readonly = ["noor.nayeem@gov.bc.ca"]
+                  readonly = ["noor.nayeem@gov.bc.ca", "patty.stemkens@gov.bc.ca"]
                   readwrite = []
                   admin = []
                 }

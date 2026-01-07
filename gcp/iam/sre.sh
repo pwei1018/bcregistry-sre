@@ -1,7 +1,7 @@
 
 #!/bin/bash
 
-declare -a users=("jose.kudiyirippil@gov.bc.ca" "ali.hamood@gov.bc.ca")
+declare -a users=("")
 
 declare -a projects=("a083gt" "bcrbk9" "c4hnrd" "eogruh" "gtksf3" "k973yf" "keee67" "okagqp" "sbgmug" "yfjq17" "yfthig" "p0q6jr")
 

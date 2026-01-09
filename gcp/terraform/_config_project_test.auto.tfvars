@@ -245,7 +245,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-ar-api"
                 database_role_assignment = {
-                  readonly = ["syed.riyazzudin@gov.bc.ca", "vishnu.preddy@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "sa-solr-importer"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }

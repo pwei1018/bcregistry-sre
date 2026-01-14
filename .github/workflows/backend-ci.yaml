@@ -113,6 +113,7 @@ jobs:
               echo "black=$(uv run python -c 'import black' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "pylint=$(uv run python -c 'import pylint' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "flake8=$(uv run python -c 'import flake8' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pyright=$(uv run python -c 'import pyright' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               ;;
             "poetry")
               poetry update
@@ -123,6 +124,7 @@ jobs:
               echo "black=$(poetry show black >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "pylint=$(poetry show pylint >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "flake8=$(poetry show flake8 >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pyright=$(poetry show pyright >/dev/null 2>&1 && echo true || echo false)" >> "$GITHUB_OUTPUT"
               ;;
             "pip")
               if [ -f "requirements-dev.txt" ]; then
@@ -136,6 +138,7 @@ jobs:
               echo "black=$(python -c 'import black' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "pylint=$(python -c 'import pylint' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               echo "flake8=$(python -c 'import flake8' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
+              echo "pyright=$(python -c 'import pyright' 2>/dev/null && echo true || echo false)" >> "$GITHUB_OUTPUT"
               ;;
           esac
 
@@ -153,7 +156,40 @@ jobs:
             [ "${{ steps.install.outputs.black }}" == "true" ] && [ "${{ inputs.skip_black }}" != "true" ] && echo "  - ✅ black (code formatting)" >> $GITHUB_STEP_SUMMARY
             [ "${{ steps.install.outputs.pylint }}" == "true" ] && echo "  - ✅ pylint (code analysis)" >> $GITHUB_STEP_SUMMARY
             [ "${{ steps.install.outputs.flake8 }}" == "true" ] && echo "  - ✅ flake8 (style guide)" >> $GITHUB_STEP_SUMMARY
+            [ "${{ steps.install.outputs.pyright }}" == "true" ] && echo "  - ✅ pyright (type check)" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Run pyright
+        if: steps.install.outputs.pyright == 'true'
+        continue-on-error: true
+        id: pyright_check
+        run: |
+          case "$TOOL" in
+            "uv")
+              if uv run pyright .; then
+                echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            "poetry")
+              if poetry run pyright .; then
+                echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+            *)
+              if pyright .; then
+                echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
+              fi
+              ;;
+          esac
 
       - name: Run Ruff (preferred linter)
         if: steps.install.outputs.ruff == 'true'

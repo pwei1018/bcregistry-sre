@@ -161,7 +161,6 @@ jobs:
 
       - name: Run pyright
         if: steps.install.outputs.pyright == 'true'
-        continue-on-error: true
         id: pyright_check
         run: |
           case "$TOOL" in
@@ -193,7 +192,6 @@ jobs:
 
       - name: Run Ruff (preferred linter)
         if: steps.install.outputs.ruff == 'true'
-        continue-on-error: true
         id: ruff_check
         run: |
           case "$TOOL" in
@@ -225,7 +223,6 @@ jobs:
 
       - name: Run isort
         if: steps.install.outputs.ruff == 'false' && steps.install.outputs.isort == 'true' && !inputs.skip_isort
-        continue-on-error: true
         id: isort_check
         run: |
           case "$TOOL" in
@@ -257,7 +254,6 @@ jobs:
 
       - name: Run black
         if: steps.install.outputs.ruff == 'false' && steps.install.outputs.black == 'true' && !inputs.skip_black
-        continue-on-error: true
         id: black_check
         run: |
           case "$TOOL" in
@@ -321,7 +317,6 @@ jobs:
 
       - name: Run flake8
         if: steps.install.outputs.ruff == 'false' && steps.install.outputs.flake8 == 'true'
-        continue-on-error: true
         id: flake8_check
         run: |
           case "$TOOL" in

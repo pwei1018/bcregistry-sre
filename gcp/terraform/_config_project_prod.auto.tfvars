@@ -630,6 +630,11 @@ prod_projects = {
                 db_name    = "ppr"
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "user4ca"
+                database_role_assignment = {
+                  readonly = ["eve.deng@gov.bc.ca"]
+                  readwrite = []
+                  admin = []
+                }
           },
           {
                 db_name    = "notify"

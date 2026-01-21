@@ -37,7 +37,7 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Detect dependency management tool
         id: detect
@@ -72,11 +72,11 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install uv
         if: env.TOOL == 'uv'
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -88,7 +88,7 @@ jobs:
 
       - name: Set up Python (with cache)
         if: env.TOOL != 'uv'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
           cache: ${{ env.TOOL }}
@@ -97,7 +97,7 @@ jobs:
 
       - name: Set up Python (without cache)
         if: env.TOOL == 'uv'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
 
@@ -188,6 +188,7 @@ jobs:
                 echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY     
+                exit 1
               fi
               ;;
             "poetry")
@@ -195,6 +196,7 @@ jobs:
                 echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             *)
@@ -202,6 +204,7 @@ jobs:
                 echo "- ✅ **pyright:** type checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pyright:** type check issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
           esac
@@ -216,6 +219,7 @@ jobs:
                 echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1  
               fi
               ;;
             "poetry")
@@ -223,6 +227,7 @@ jobs:
                 echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             *)
@@ -230,7 +235,7 @@ jobs:
                 echo "- ✅ **Ruff:** All checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **Ruff:** Issues found" >> $GITHUB_STEP_SUMMARY
-                
+                exit 1
               fi
               ;;
           esac
@@ -245,6 +250,7 @@ jobs:
                 echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             "poetry")
@@ -252,6 +258,7 @@ jobs:
                 echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1  
               fi
               ;;
             *)
@@ -259,6 +266,7 @@ jobs:
                 echo "- ✅ **isort:** Import sorting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **isort:** Import sorting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
           esac
@@ -273,6 +281,7 @@ jobs:
                 echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             "poetry")
@@ -280,6 +289,7 @@ jobs:
                 echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             *)
@@ -287,6 +297,7 @@ jobs:
                 echo "- ✅ **black:** Code formatting passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **black:** Code formatting issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
           esac
@@ -302,6 +313,7 @@ jobs:
                 echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             "poetry")
@@ -309,6 +321,7 @@ jobs:
                 echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1  
               fi
               ;;
             *)
@@ -316,6 +329,7 @@ jobs:
                 echo "- ✅ **pylint:** Code analysis passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **pylint:** Code analysis issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
           esac
@@ -330,6 +344,7 @@ jobs:
                 echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             "poetry")
@@ -337,6 +352,7 @@ jobs:
                 echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
             *)
@@ -344,6 +360,7 @@ jobs:
                 echo "- ✅ **flake8:** Style guide checks passed" >> $GITHUB_STEP_SUMMARY
               else
                 echo "- ❌ **flake8:** Style guide issues found" >> $GITHUB_STEP_SUMMARY
+                exit 1
               fi
               ;;
           esac
@@ -395,7 +412,7 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install docker-compose
         run: |
@@ -408,7 +425,7 @@ jobs:
 
       - name: Install uv
         if: env.TOOL == 'uv'
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           cache-dependency-glob: |
@@ -416,7 +433,7 @@ jobs:
 
       - name: Set up Python (with cache)
         if: env.TOOL != 'uv'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
           cache: ${{ env.TOOL }}
@@ -425,7 +442,7 @@ jobs:
 
       - name: Set up Python (without cache)
         if: env.TOOL == 'uv'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version-file: ${{ env.WORKING_DIR }}/pyproject.toml
 
@@ -498,7 +515,7 @@ jobs:
     needs: unit-testing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Generate Coverage Report
         uses: bcgov/bcregistry-sre/.github/actions/coverage-report@main
@@ -517,7 +534,7 @@ jobs:
         shell: bash
         working-directory: ${{ env.WORKING_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Collect build information
         id: build_info

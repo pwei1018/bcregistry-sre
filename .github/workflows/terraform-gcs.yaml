@@ -94,4 +94,9 @@ jobs:
 
     - name: Terraform ${{ inputs.action }}
       working-directory: ${{ inputs.terraform_directory }}
-      run: ./tf.sh ${{ inputs.action }} ${{ inputs.workspace }}
+      run: |
+        if [ "${{ inputs.action }}" == "apply" ]; then
+          ./tf.sh apply ${{ inputs.workspace }} -auto-approve
+        else
+          ./tf.sh plan ${{ inputs.workspace }}
+        fi

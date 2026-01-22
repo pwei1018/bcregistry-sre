@@ -400,7 +400,7 @@ other_projects = {
         description = "Service Account for running pubsub services"
       },
       sa-job = {
-        roles       = ["projects/a083gt-integration/roles/rolejob"]
+        roles       = ["projects/a083gt-integration/roles/rolejob", "roles/cloudsql.client", "roles/cloudsql.instanceUser"]
         description = "Service Account for running job services"
       },
       sa-api = {

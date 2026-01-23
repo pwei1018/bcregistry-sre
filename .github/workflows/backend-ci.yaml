@@ -126,7 +126,6 @@ jobs:
               echo "pyright=$(check_library_installed pyright)" >> "$GITHUB_OUTPUT"
               ;;
             "poetry")
-              export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
               poetry install 
 
               # Function to check if a library is installed
@@ -455,7 +454,6 @@ jobs:
               uv sync
               ;;
             "poetry")
-              export PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1
               poetry install 
               ;;
             "pip")

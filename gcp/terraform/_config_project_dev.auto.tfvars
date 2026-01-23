@@ -137,7 +137,7 @@ dev_projects = {
                 owner      = "auth"
                 database_role_assignment = {
                   readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "anish.patel@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -152,7 +152,7 @@ dev_projects = {
                 owner      = "pay"
                 database_role_assignment = {
                   readonly = ["noor.nayeem@gov.bc.ca"]
-                  readwrite = []
+                  readwrite = ["anish.patel@gov.bc.ca"]
                   admin = []
                 }
           }

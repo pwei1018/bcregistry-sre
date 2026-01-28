@@ -1,0 +1,59 @@
+displayName: "{{ service_name }} - Cloud Run – HTTP Errors"
+combiner: OR
+enabled: true
+
+severity: ERROR
+
+userLabels:
+  product: {{ product_name }}
+  apphub_service_id: {{ service_name }}
+  apphub_application_id: bcregistry-services
+  apphub_application_location: northamerica-northeast1
+
+documentation:
+  content: |
+    HTTP 5xx error ratio alert with minimum traffic guard.
+    
+    Project: {{ project_id }}
+    Service: {{ service_resource_name }}
+    Error Ratio Threshold: {{ error_ratio_threshold | default(0.05) }}
+    Min RPS: {{ min_rps | default(1) }}
+  mimeType: "text/markdown"
+
+notificationChannels:
+{% for channel in notification_channels %}
+  - {{ channel }}
+{% endfor %}
+
+alertStrategy:
+  autoClose: "{{ auto_close | default('21600s') }}"
+  notificationPrompts:
+    - "OPENED"
+
+conditions:
+  - displayName: "HTTP 5xx ratio"
+    conditionPrometheusQueryLanguage:
+      evaluationInterval: "{{ error_eval_interval | default('30s') }}"
+      duration: "{{ error_duration | default('300s') }}"
+      query: |
+        (
+          (
+            sum(rate(run_googleapis_com:request_count{
+              monitored_resource="cloud_run_revision",
+              service_name="{{ service_resource_name }}",
+              response_code_class="5xx"
+            }[5m]))
+          )
+          /
+          (
+            sum(rate(run_googleapis_com:request_count{
+              monitored_resource="cloud_run_revision",
+              service_name="{{ service_resource_name }}"
+            }[5m]))
+          )
+        ) > {{ error_ratio_threshold | default(0.05) }}
+        AND
+        sum(rate(run_googleapis_com:request_count{
+          monitored_resource="cloud_run_revision",
+          service_name="{{ service_resource_name }}"
+        }[5m])) > {{ min_rps | default(1) }}

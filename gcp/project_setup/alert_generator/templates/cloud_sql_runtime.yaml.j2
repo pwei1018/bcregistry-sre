@@ -1,0 +1,162 @@
+displayName: "{{ service_name }} - Cloud SQL – Instance Health Policy"
+combiner: OR               # Either condition opens the incident
+enabled: true
+
+userLabels:
+  product: {{ product_name }}
+  apphub_service_id: {{ service_name }}
+  apphub_application_id: bcregistry-services
+  apphub_application_location: northamerica-northeast1
+
+documentation:
+  mimeType: text/markdown
+  content: |
+    ## Cloud SQL – Availability & Performance
+
+    This policy bundles critical runtime conditions for Cloud SQL:
+    - Instance state (not RUNNING)
+    - PostgreSQL deadlocks (sustained)
+    - High CPU utilization (P95)
+    - High Memory utilization (P95)
+    - High Disk utilization
+    - High connection count (PostgreSQL)
+
+    ### Runbook (quick actions)
+    **Instance not RUNNING**
+    1. Check Cloud SQL Instance details → maintenance/failover/status.
+    2. Inspect Cloud Logging for `instance_state` transitions & errors.
+    3. Validate client errors/timeouts and recent config changes.
+
+    **Deadlocks**
+    1. Examine sessions/waits (`pg_stat_activity`) and locks (`pg_locks`).
+    2. Normalize lock ordering; shorten transaction scopes; add indexes.
+    3. Review long-running transactions and recent schema changes.
+
+    **High CPU / Memory / Disk**
+    - Review Query Insights & slow logs; optimize queries/indexes.
+    - Consider scaling tier, storage, or flags tuning.
+    - Check background jobs, autovacuum, and cache settings.
+
+    **High Connections (PostgreSQL)**
+    - Validate pooler configuration; reduce connection burstiness.
+    - Tune `max_connections` (if deliberate), or gate traffic.
+
+    **Owner**: {{ team | default('sre') }}  
+    **Environment**: {{ environment | default('prod') }}  
+    **Instance**: {{ database_id }}  
+    **Database**: {{ db_name }}
+
+notificationChannels:
+{% for channel in notification_channels %}
+  - {{ channel }}
+{% endfor %}
+
+alertStrategy:
+  autoClose: "{{ auto_close | default('21600s') }}"
+  notificationPrompts:
+    - "OPENED"
+
+conditions:
+
+    # --- A) Instance state (not RUNNING) ---
+    - displayName: "Instance state (not RUNNING)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/instance_state"
+          AND metric.labels.state = "RUNNING"
+        aggregations:
+          - alignmentPeriod: 60s
+            perSeriesAligner: ALIGN_FRACTION_TRUE
+        comparison: COMPARISON_LT             # alert when fraction < 1.0
+        thresholdValue: 1.0
+        duration: 300s                        # require 5 minutes not fully RUNNING
+        trigger:
+          count: 1
+
+    # --- B) PostgreSQL deadlocks (sustained) ---
+    - displayName: "PostgreSQL deadlocks (sustained)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/postgresql/deadlock_count"
+          AND metric.labels.database = "{{ db_name }}"
+        aggregations:
+          - alignmentPeriod: 60s
+            perSeriesAligner: ALIGN_SUM
+        comparison: COMPARISON_GT
+        thresholdValue: {{ deadlock_threshold | default(1) }}   # ≥1/min
+        duration: 300s                                          # 5 consecutive minutes
+        trigger:
+          count: 1
+
+    # --- C) High CPU utilization ---
+    - displayName: "CPU utilization (mean, max across series)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/cpu/utilization"
+        aggregations:
+          - alignmentPeriod: 300s
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MAX
+        comparison: COMPARISON_GT
+        thresholdValue: {{ cpu_threshold | default(0.8) }}      # 80%
+        duration: 300s
+        trigger:
+          count: 1
+
+    # --- D) High Memory utilization ---
+    - displayName: "Memory utilization (mean, max across series)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/memory/utilization"
+        aggregations:
+          - alignmentPeriod: 300s
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MAX
+        comparison: COMPARISON_GT
+        thresholdValue: {{ memory_threshold | default(0.8) }}   # 80%
+        duration: 300s
+        trigger:
+          count: 1
+
+    # --- E) High Disk utilization ---
+    - displayName: "Disk utilization (max across series)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/disk/utilization"
+        aggregations:
+          - alignmentPeriod: 600s
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MAX
+        comparison: COMPARISON_GT
+        thresholdValue: {{ disk_threshold | default(0.9) }}      # 90%
+        duration: 600s
+        trigger:
+          count: 1
+
+    # --- F) High connections (PostgreSQL) ---
+    - displayName: "Connections – PostgreSQL (num_backends)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloudsql_database"
+          AND resource.labels.database_id = "{{ database_id }}"
+          AND metric.type = "cloudsql.googleapis.com/database/postgresql/num_backends"
+          AND metric.labels.database = "{{ db_name }}"
+        aggregations:
+          - alignmentPeriod: 300s
+            perSeriesAligner: ALIGN_MEAN
+        comparison: COMPARISON_GT
+        thresholdValue: {{ connections_threshold | default(100) }}  # tune vs max_connections
+        duration: 300s
+        trigger:
+          count: 1
+

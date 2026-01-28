@@ -1,0 +1,59 @@
+displayName: "{{ service_name }} - Uptime – failure"
+combiner: OR
+enabled: true
+
+severity: CRITICAL
+
+userLabels:
+  product: {{ product_name }}
+  apphub_service_id: {{ service_name }}
+  apphub_application_id: bcregistry-services
+  apphub_application_location: northamerica-northeast1
+
+documentation:
+  content: |
+    Cloud Run uptime alerts:
+    - CPU Utilization (P99 per revision, max across instances)
+    - Memory Utilization (P99 per revision, max across instances)
+    - P99 Latency (5m)
+
+    Project: {{ project_id }}
+    Service: {{ service_resource_name }}
+    Environment: {{ environment | default('prod') }}
+
+    Thresholds:
+    - cpu_threshold: {{ cpu_threshold | default(0.8) }}
+    - memory_threshold: {{ memory_threshold | default(0.8) }}
+    - latency_threshold: {{ latency_threshold | default(20) }}s
+  mimeType: "text/markdown"
+
+notificationChannels:
+{% for channel in notification_channels %}
+  - {{ channel }}
+{% endfor %}
+
+alertStrategy:
+  autoClose: "{{ auto_close | default('21600s') }}"
+  notificationPrompts:
+    - "OPENED"
+
+conditions:
+- conditionThreshold:
+    aggregations:
+    - alignmentPeriod: 1200s
+      crossSeriesReducer: REDUCE_COUNT_FALSE
+      groupByFields:
+      - resource.label.project_id
+      - resource.label.service_name
+      - resource.label.revision_name
+      - resource.label.location
+      - resource.label.configuration_name
+      perSeriesAligner: ALIGN_NEXT_OLDER
+    comparison: COMPARISON_GT
+    duration: 60s
+    filter: resource.type = "cloud_run_revision" AND metric.type = "monitoring.googleapis.com/uptime_check/check_passed"
+      AND metric.labels.check_id = "{{ uptime_check_id }}"
+    thresholdValue: 1.0
+    trigger:
+      count: 1
+  displayName: Failure of uptime {{ service_name }}

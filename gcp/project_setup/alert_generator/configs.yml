@@ -1,0 +1,62 @@
+auth:
+  project_id: "gtksf3-prod"
+  channels: ["SRE"]
+pay:
+  project_id: "gtksf3-prod"
+  channels: ["SRE"]
+common:
+  project_id: "c4hnrd-prod"
+  channels: ["SRE"]
+business:
+  project_id: "a083gt-prod"
+  channels: ["SRE"]
+namex:
+  project_id: "a083gt-prod"
+  channels: ["SRE"]
+assets:
+  project_id: "eogruh-prod"
+  channels: ["SRE"]
+strr:
+  project_id: "bcrbk9-prod"
+  channels: ["SRE"]
+business_search:
+  project_id: "k973yf-prod"
+  channels: ["SRE"]
+personal_search:
+  project_id: "yfjq17-prod"
+  channels: ["SRE"]
+
+channels:
+  SRE:
+    - "Patrick Wei"
+    - "Andriy Bolyachevets"
+  auth:
+    - "Travis Semple"
+    - "Jia Xu"
+  pay:
+    - "Travis Semple"
+    - "Jia Xu"
+  common:
+    - "Patrick Wei"
+    - "Andriy Bolyachevets"
+  business:
+    - "Vysakh Menon"
+    - "Rajandeep Kaur"
+    - "Ketaki Deodhar"
+    - "Thayne Werdal"
+    - "Argus Chiu"
+  namex:
+    - "Omid Zamani"
+    - "Meng Dong"
+    - "Steven Chen"
+  assets:
+    - "Hongjing Chen"
+    - "Eve Deng"
+    - "Doug Lovett"
+  strr:
+    - "Thor Wolpert"
+    - "Karim Jazzar"
+  business_search:
+    - "Kial Jinnah"
+  personal_search:
+    - "Kial Jinnah"

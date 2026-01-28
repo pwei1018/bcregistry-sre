@@ -1,0 +1,97 @@
+displayName: "{{ service_name }} - Cloud Run – Runtime Health Policy"
+combiner: OR
+enabled: true
+
+severity: WARNING
+
+userLabels:
+  product: {{ product_name }}
+  apphub_service_id: {{ service_name }}
+  apphub_application_id: bcregistry-services
+  apphub_application_location: northamerica-northeast1
+
+documentation:
+  content: |
+    Cloud Run runtime health alerts:
+    - CPU Utilization (P99 per revision, max across instances)
+    - Memory Utilization (P99 per revision, max across instances)
+    - P99 Latency (5m)
+
+    Project: {{ project_id }}
+    Service: {{ service_resource_name }}
+    Environment: {{ environment | default('prod') }}
+
+    Thresholds:
+    - cpu_threshold: {{ cpu_threshold | default(0.8) }}
+    - memory_threshold: {{ memory_threshold | default(0.8) }}
+    - latency_threshold: {{ latency_threshold | default(20) }}s
+  mimeType: "text/markdown"
+
+notificationChannels:
+{% for channel in notification_channels %}
+  - {{ channel }}
+{% endfor %}
+
+alertStrategy:
+  autoClose: "{{ auto_close | default('21600s') }}"
+  notificationPrompts:
+    - "OPENED"
+
+conditions:
+
+    # CPU Utilization (P99 per revision, max across instances)
+    - displayName: "CPU Utilization (P99 per revision, max across instances)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloud_run_revision"
+          AND resource.labels.service_name = "{{ service_resource_name }}"
+          AND metric.type = "run.googleapis.com/container/cpu/utilizations"
+        duration: "{{ cpu_duration | default('300s') }}"
+        comparison: COMPARISON_GT
+        thresholdValue: {{ cpu_threshold | default(0.8) }}
+        aggregations:
+          - alignmentPeriod: "{{ cpu_alignment | default('300s') }}"
+            perSeriesAligner: ALIGN_PERCENTILE_99
+            crossSeriesReducer: REDUCE_MAX
+            groupByFields:
+              - "resource.label.revision_name"
+        trigger:
+          count: 1
+
+    # Memory Utilization (P99 per revision, max across instances)
+    - displayName: "Memory Utilization (P99 per revision, max across instances)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloud_run_revision"
+          AND resource.labels.service_name = "{{ service_resource_name }}"
+          AND metric.type = "run.googleapis.com/container/memory/utilizations"
+        duration: "{{ mem_duration | default('300s') }}"
+        comparison: COMPARISON_GT
+        thresholdValue: {{ memory_threshold | default(0.8) }}
+        aggregations:
+          - alignmentPeriod: "{{ mem_alignment | default('300s') }}"
+            perSeriesAligner: ALIGN_PERCENTILE_99
+            crossSeriesReducer: REDUCE_MAX
+            groupByFields:
+              - "resource.label.revision_name"
+        trigger:
+          count: 1
+
+    # P99 Latency (5m)
+    - displayName: "P99 Latency (5m)"
+      conditionThreshold:
+        filter: |
+          resource.type = "cloud_run_revision"
+          AND resource.labels.service_name = "{{ service_resource_name }}"
+          AND metric.type = "run.googleapis.com/request_latencies"
+        duration: "{{ latency_duration | default('300s') }}"
+        comparison: COMPARISON_GT
+        thresholdValue: {{ latency_threshold | default('20000') }}
+        aggregations:
+          - alignmentPeriod: "{{ latency_alignment | default('300s') }}"
+            perSeriesAligner: ALIGN_PERCENTILE_99
+            crossSeriesReducer: REDUCE_MAX
+            groupByFields:
+              - "resource.label.revision_name"
+        trigger:
+          count: 1

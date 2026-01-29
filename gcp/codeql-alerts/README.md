@@ -50,7 +50,7 @@ To run the function on a schedule (e.g., weekly at Sunday 6 AM):
 **Create Job**:
 
     ```bash
-    gcloud scheduler jobs create http codeql-daily-scan \
+    gcloud scheduler jobs create http codeql-weekly-scan \
       --schedule="0 6 * * 7" \
       --uri="https://northamerica-northeast1 -YOUR_PROJECT_ID.cloudfunctions.net/codeql-alert" \
       --http-method=GET \

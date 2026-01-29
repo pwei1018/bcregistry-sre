@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import requests
 import logging
 from datetime import datetime
@@ -22,6 +23,42 @@ def log_structured(message, severity="INFO", payload=None):
     print(json.dumps(entry))  # Print to stdout is captured by Cloud Logging
 
 
+def make_github_request(url, headers, params=None, max_retries=5):
+    """Make a GitHub API request with rate limit handling."""
+    retries = 0
+    while retries < max_retries:
+        response = requests.get(url, headers=headers, params=params)
+
+        if response.status_code in [200, 404]:
+            return response
+
+        if response.status_code in [403, 429]:
+            # Check for rate limit headers
+            retry_after = response.headers.get("Retry-After")
+            reset_time = response.headers.get("x-ratelimit-reset")
+
+            wait_time = 60  # Default wait time
+
+            if retry_after:
+                wait_time = int(retry_after)
+            elif reset_time:
+                wait_time = max(int(reset_time) - int(time.time()), 1)
+
+            log_structured(
+                f"Rate limit hit. Waiting {wait_time} seconds before retry {retries + 1}/{max_retries}.",
+                severity="WARNING",
+            )
+            time.sleep(wait_time + 1)  # Add buffer
+            retries += 1
+            continue
+
+        # Other errors
+        return response
+
+    log_structured(f"Max retries exceeded for URL: {url}", severity="ERROR")
+    return None
+
+
 def get_repos_by_topic(topic, github_token):
     """Search for repositories with a specific topic using GitHub API."""
     url = "https://api.github.com/search/repositories"
@@ -36,10 +73,13 @@ def get_repos_by_topic(topic, github_token):
 
     while True:
         params["page"] = page
-        response = requests.get(url, headers=headers, params=params)
+        response = make_github_request(url, headers=headers, params=params)
 
-        if response.status_code != 200:
-            log_structured(f"Failed to search repos: {response.text}", severity="ERROR")
+        if not response or response.status_code != 200:
+            log_structured(
+                f"Failed to search repos: {response.text if response else 'No response'}",
+                severity="ERROR",
+            )
             return []
 
         data = response.json()
@@ -70,7 +110,10 @@ def get_all_open_alerts(repo_full_name, github_token):
 
     while True:
         params["page"] = page
-        response = requests.get(url, headers=headers, params=params)
+        response = make_github_request(url, headers=headers, params=params)
+
+        if not response:
+            return []
 
         if response.status_code == 404:
             # Code scanning might not be enabled
@@ -135,7 +178,9 @@ def main(request):
     topic = os.environ.get("CODEQL_GITHUB_TOPIC", "bcregistry")
 
     if not github_token:
-        log_structured("CODEQL_GITHUB_TOKEN environment variable is not set", severity="ERROR")
+        log_structured(
+            "CODEQL_GITHUB_TOKEN environment variable is not set", severity="ERROR"
+        )
         return "Internal Server Error: Missing Configuration", 500
 
     log_structured(f"Starting CodeQL alert fetch for topic: {topic}", severity="INFO")

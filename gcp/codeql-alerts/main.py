@@ -11,6 +11,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+class MaxRetriesExceededError(Exception):
+    """Exception raised when max retries are exceeded."""
+
+    pass
+
+
 def log_structured(message, severity="INFO", payload=None):
     """Log a structured JSON message for Google Cloud Logging."""
     entry = {
@@ -36,16 +42,22 @@ def make_github_request(url, headers, params=None, max_retries=5):
             # Check for rate limit headers
             retry_after = response.headers.get("Retry-After")
             reset_time = response.headers.get("x-ratelimit-reset")
+            remaining = response.headers.get("x-ratelimit-remaining")
 
-            wait_time = 60  # Default wait time
+            wait_time = 0
 
             if retry_after:
                 wait_time = int(retry_after)
-            elif reset_time:
+            elif reset_time and remaining and int(remaining) == 0:
+                # Only wait for reset if we actually ran out of quota
                 wait_time = max(int(reset_time) - int(time.time()), 1)
+            else:
+                # Secondary rate limit (Abuse Detection) with no headers
+                # Use exponential backoff: 60s, 120s, 240s, 480s...
+                wait_time = 60 * (2**retries)
 
             log_structured(
-                f"Rate limit hit. Waiting {wait_time} seconds before retry {retries + 1}/{max_retries}.",
+                f"Rate limit hit (Status: {response.status_code}, Remaining: {remaining}). Waiting {wait_time} seconds before retry {retries + 1}/{max_retries}.",
                 severity="WARNING",
             )
             time.sleep(wait_time + 1)  # Add buffer
@@ -55,8 +67,43 @@ def make_github_request(url, headers, params=None, max_retries=5):
         # Other errors
         return response
 
-    log_structured(f"Max retries exceeded for URL: {url}", severity="ERROR")
-    return None
+    log_structured(
+        f"Max retries exceeded for URL: {url}. Aborting process.", severity="CRITICAL"
+    )
+    raise MaxRetriesExceededError(f"Max retries exceeded for URL: {url}")
+
+
+def check_and_log_rate_limit(github_token):
+    """Check and log the current GitHub Rate Limit."""
+    url = "https://api.github.com/rate_limit"
+    headers = {
+        "Authorization": f"Bearer {github_token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            core = data.get("resources", {}).get("core", {})
+            remaining = core.get("remaining")
+            limit = core.get("limit")
+            reset_ts = core.get("reset")
+            reset_time = (
+                datetime.fromtimestamp(reset_ts).strftime("%Y-%m-%d %H:%M:%S")
+                if reset_ts
+                else "Unknown"
+            )
+
+            log_structured(
+                f"GitHub Rate Limit Status: {remaining}/{limit} remaining. Resets at {reset_time}",
+                severity="INFO",
+            )
+        else:
+            log_structured(
+                f"Failed to check rate limit: {response.text}", severity="WARNING"
+            )
+    except Exception as e:
+        log_structured(f"Error checking rate limit: {str(e)}", severity="ERROR")
 
 
 def get_repos_by_topic(topic, github_token):
@@ -75,9 +122,9 @@ def get_repos_by_topic(topic, github_token):
         params["page"] = page
         response = make_github_request(url, headers=headers, params=params)
 
-        if not response or response.status_code != 200:
+        if response.status_code != 200:
             log_structured(
-                f"Failed to search repos: {response.text if response else 'No response'}",
+                f"Failed to search repos: {response.text}",
                 severity="ERROR",
             )
             return []
@@ -92,6 +139,12 @@ def get_repos_by_topic(topic, github_token):
         if len(repos) >= data.get("total_count", 0):
             break
         page += 1
+
+        # Throttling to avoid secondary rate limits
+        time.sleep(1)
+
+    # Cooldown after search
+    time.sleep(5)
 
     return repos
 
@@ -109,11 +162,10 @@ def get_all_open_alerts(repo_full_name, github_token):
     page = 1
 
     while True:
+        # Throttling for pagination
+        time.sleep(1)
         params["page"] = page
         response = make_github_request(url, headers=headers, params=params)
-
-        if not response:
-            return []
 
         if response.status_code == 404:
             # Code scanning might not be enabled
@@ -155,15 +207,30 @@ def get_alert_details(alert, repo_full_name, repo_html_url):
 
 
 def upload_to_gcs(bucket_name, filename, data):
-    """Upload data to Google Cloud Storage."""
+    """Upload data to Google Cloud Storage. Handles gs:// prefix and subdirectories."""
     try:
+        # Normalize bucket name
+        if bucket_name.startswith("gs://"):
+            bucket_name = bucket_name[5:]
+
+        # Split bucket and prefix if exists
+        prefix = ""
+        if "/" in bucket_name:
+            parts = bucket_name.split("/", 1)
+            bucket_name = parts[0]
+            prefix = parts[1]
+            if prefix and not prefix.endswith("/"):
+                prefix += "/"
+
+        full_filename = f"{prefix}{filename}"
+
         storage_client = storage.Client()
         bucket = storage_client.bucket(bucket_name)
-        blob = bucket.blob(filename)
+        blob = bucket.blob(full_filename)
         blob.upload_from_string(
             json.dumps(data, indent=2), content_type="application/json"
         )
-        log_structured(f"Uploaded {filename} to {bucket_name}", severity="INFO")
+        log_structured(f"Uploaded {full_filename} to {bucket_name}", severity="INFO")
         return True
     except Exception as e:
         log_structured(f"Failed to upload to GCS: {str(e)}", severity="ERROR")
@@ -184,6 +251,7 @@ def main(request):
         return "Internal Server Error: Missing Configuration", 500
 
     log_structured(f"Starting CodeQL alert fetch for topic: {topic}", severity="INFO")
+    check_and_log_rate_limit(github_token)
 
     repos = get_repos_by_topic(topic, github_token)
     log_structured(f"Found {len(repos)} repositories", severity="INFO")
@@ -194,6 +262,9 @@ def main(request):
     for repo in repos:
         full_name = repo["full_name"]
         html_url = repo["html_url"]
+
+        # Throttling to avoid secondary rate limits
+        time.sleep(2)
 
         alerts = get_all_open_alerts(full_name, github_token)
 

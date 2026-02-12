@@ -30,7 +30,10 @@ def log_structured(message, severity="INFO", payload=None):
 
 
 def make_github_request(url, headers, params=None, max_retries=5):
-    """Make a GitHub API request with rate limit handling."""
+    """
+    Make a GitHub API request with robust rate limit handling.
+    Inspiration: https://github.com/gofri/go-github-ratelimit
+    """
     retries = 0
     while retries < max_retries:
         response = requests.get(url, headers=headers, params=params)
@@ -38,22 +41,58 @@ def make_github_request(url, headers, params=None, max_retries=5):
         if response.status_code in [200, 404]:
             return response
 
+        # Check for rate limits (Primary or Secondary)
         if response.status_code in [403, 429]:
-            # Check for rate limit headers
+            # Inspect headers
             retry_after = response.headers.get("Retry-After")
             reset_time = response.headers.get("x-ratelimit-reset")
             remaining = response.headers.get("x-ratelimit-remaining")
 
+            # Early exit: If 403 with remaining quota > 0 and no Retry-After,
+            # this is a genuine permission denied, not a rate limit
+            if (
+                response.status_code == 403
+                and not retry_after
+                and remaining is not None
+                and int(remaining) > 0
+            ):
+                return response
+
+            # Inspect body for Secondary Rate Limit keywords
+            response_text_lower = response.text.lower()
+            is_secondary_rate_limit = (
+                "secondary rate limit" in response_text_lower
+                or "abuse detection" in response_text_lower
+                or "rate limit exceeded" in response_text_lower
+            )
+
             wait_time = 0
 
             if retry_after:
+                # GitHub says wait this many seconds
                 wait_time = int(retry_after)
-            elif reset_time and remaining and int(remaining) == 0:
-                # Only wait for reset if we actually ran out of quota
+            elif (
+                response.status_code == 403
+                and remaining
+                and int(remaining) == 0
+                and reset_time
+            ):
+                # Primary Rate Limit exceeded
                 wait_time = max(int(reset_time) - int(time.time()), 1)
+            elif is_secondary_rate_limit:
+                # Secondary rate limit detected but no Retry-After header
+                # Fallback to exponential backoff
+                wait_time = 60 * (2**retries)
+            elif response.status_code == 429:
+                # 429 is always a rate limit/too many requests, fallback to backoff if no header
+                wait_time = 60 * (2**retries)
             else:
-                # Secondary rate limit (Abuse Detection) with no headers
-                # Use exponential backoff: 60s, 120s, 240s, 480s...
+                # Genuine 403 (Permission denied) or other non-retriable 403
+                if response.status_code == 403:
+                    # Not a rate limit, standard Forbidden
+                    return response
+
+                # Unknown 429 case (should have been caught above), or fall through
                 wait_time = 60 * (2**retries)
 
             log_structured(
@@ -64,11 +103,12 @@ def make_github_request(url, headers, params=None, max_retries=5):
             retries += 1
             continue
 
-        # Other errors
+        # Other errors (5xx, etc) - optional: could add retry for 5xx here too if desired,
+        # but sticking to rate limit scope for now.
         return response
 
     log_structured(
-        f"Max retries exceeded for URL: {url}. Aborting process.", severity="CRITICAL"
+        f"Max retries exceeded for URL: {url}. Aborting process.", severity="ERROR"
     )
     raise MaxRetriesExceededError(f"Max retries exceeded for URL: {url}")
 
@@ -169,6 +209,12 @@ def get_all_open_alerts(repo_full_name, github_token):
 
         if response.status_code == 404:
             # Code scanning might not be enabled
+            return []
+        if response.status_code == 403:
+            log_structured(
+                f"No access to code scanning for {repo_full_name} (403). Skipping.",
+                severity="INFO",
+            )
             return []
         if response.status_code != 200:
             log_structured(
@@ -307,14 +353,17 @@ def main(request):
             }
         ), 200
 
-    # Upload results
+    # Upload results only if there are findings
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    upload_to_gcs(bucket_name, f"codeql_critical_{timestamp}.json", critical_findings)
-    upload_to_gcs(bucket_name, f"codeql_high_{timestamp}.json", high_findings)
+    if critical_findings:
+        upload_to_gcs(
+            bucket_name, f"codeql_critical_{timestamp}.json", critical_findings
+        )
+        upload_to_gcs(bucket_name, "codeql_critical_latest.json", critical_findings)
 
-    # Also overwrite 'latest' files for easy access
-    upload_to_gcs(bucket_name, "codeql_critical_latest.json", critical_findings)
-    upload_to_gcs(bucket_name, "codeql_high_latest.json", high_findings)
+    if high_findings:
+        upload_to_gcs(bucket_name, f"codeql_high_{timestamp}.json", high_findings)
+        upload_to_gcs(bucket_name, "codeql_high_latest.json", high_findings)
 
     return json.dumps(
         {

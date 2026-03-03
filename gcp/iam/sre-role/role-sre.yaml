@@ -824,6 +824,8 @@ includedPermissions:
 - iam.serviceAccounts.listTagBindings
 - iam.serviceAccounts.setIamPolicy
 - iam.serviceAccounts.undelete
+- iam.workloadIdentityPoolProviders.create
+- iam.workloadIdentityPools.create
 - iam.workloadIdentityPools.createPolicyBinding
 - iam.workloadIdentityPools.deletePolicyBinding
 - iam.workloadIdentityPools.searchPolicyBindings

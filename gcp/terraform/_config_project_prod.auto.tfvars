@@ -982,11 +982,6 @@ prod_projects = {
               resource_type = "pubsub_topic"
             },
             {
-              resource = "projects/a083gt-prod/topics/business-pay-prod"
-              roles    = ["roles/pubsub.publisher"]
-              resource_type = "pubsub_topic"
-            },
-            {
               resource = "projects/c4hnrd-prod/topics/doc-api-app-create-record"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"

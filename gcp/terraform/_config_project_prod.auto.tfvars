@@ -27,6 +27,7 @@ prod_projects = {
           "siddharth.chaturvedi@gov.bc.ca",
           "travis.semple@gov.bc.ca",
           "vikas.singh@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {

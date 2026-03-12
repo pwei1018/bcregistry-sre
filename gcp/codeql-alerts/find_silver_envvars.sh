@@ -14,7 +14,7 @@ set -euo pipefail
 
 # ── Configuration ────────────────────────────────────────────────────
 SEARCH_STRING="silver.devops.gov.bc.ca"
-ENV="test"
+ENV="prod"
 
 # Patterns to ignore in matched values (pipe-separated for grep -E / awk)
 IGNORE_PATTERNS=("pay-connector" "namex-solr" "traction-tenant" "minio" "ocp-relay")

@@ -49,14 +49,14 @@ To run the function on a schedule (e.g., weekly at Sunday 6 AM):
 
 **Create Job**:
 
-    ```bash
-    gcloud scheduler jobs create http codeql-weekly-scan \
-      --schedule="0 6 * * 7" \
-      --uri="https://northamerica-northeast1 -YOUR_PROJECT_ID.cloudfunctions.net/codeql-alert" \
-      --http-method=GET \
-      --oidc-service-account-email="codeql-scheduler-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
-      --location=northamerica-northeast1 
-    ```
+```bash
+gcloud scheduler jobs create http codeql-weekly-scan \
+  --schedule="0 6 * * 7" \
+  --uri="https://northamerica-northeast1 -YOUR_PROJECT_ID.cloudfunctions.net/codeql-alert" \
+  --http-method=GET \
+  --oidc-service-account-email="codeql-scheduler-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+  --location=northamerica-northeast1 
+```
 
 ## Alerting (Log-based)
 

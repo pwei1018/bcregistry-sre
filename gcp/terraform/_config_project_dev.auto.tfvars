@@ -325,6 +325,7 @@ dev_projects = {
           "brandon.1.sharratt@gov.bc.ca",
           "chiu.oddyseus@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
+          "divya.chandupatla@gov.bc.ca",
           "doug.lovett@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "felipe.moraes@gov.bc.ca",
@@ -446,7 +447,7 @@ dev_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "auth"
                 database_role_assignment = {
-                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca", "divya.chandupatla@gov.bc.ca"]
                   readwrite = ["sa-api", "anish.batra@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
@@ -712,6 +713,7 @@ dev_projects = {
             "david.li@gov.bc.ca",
             "david.mckinnon@gov.bc.ca",
             "dietrich.wolpert@gov.bc.ca",
+            "divya.chandupatla@gov.bc.ca",
             "doug.lovett@gov.bc.ca",
             "felipe.moraes@gov.bc.ca",
             "gunasegaran.nagarajan@gov.bc.ca",
@@ -869,7 +871,7 @@ dev_projects = {
                   roles      = ["readonly", "readwrite", "admin"]
                   owner      = "business-api"
                   database_role_assignment = {
-                    readonly = ["sa-solr-importer", "siddharth.chaturvedi@gov.bc.ca"]
+                    readonly = ["sa-solr-importer", "siddharth.chaturvedi@gov.bc.ca", "divya.chandupatla@gov.bc.ca"]
                     readwrite = ["syed.riyazzudin@gov.bc.ca", "sa-job", "sa-api"]
                     admin = ["sa-db-migrate"]
                   }
@@ -1080,7 +1082,6 @@ dev_projects = {
         role    = "projects/eogruh-dev/roles/roledeveloper"
         members = [
           "dietrich.wolpert@gov.bc.ca",
-          "divya.chandupatla@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "meng.dong@gov.bc.ca",
@@ -1130,7 +1131,7 @@ dev_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "user4ca"
                 database_role_assignment = {
-                  readonly = ["divya.chandupatla@gov.bc.ca"]
+                  readonly = []
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }

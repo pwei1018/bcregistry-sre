@@ -209,6 +209,7 @@ test_projects = {
           "chiu.oddyseus@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
           "doug.lovett@gov.bc.ca",
+          "divya.chandupatla@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "felipe.moraes@gov.bc.ca",
           "hrvoje.fekete@gov.bc.ca",
@@ -329,7 +330,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "auth"
                 database_role_assignment = {
-                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca", "patty.stemkens@gov.bc.ca"]
+                  readonly = ["syed.riyazzudin@gov.bc.ca", "noor.nayeem@gov.bc.ca", "patty.stemkens@gov.bc.ca", "divya.chandupatla@gov.bc.ca"]
                   readwrite = ["sa-api", "anish.batra@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
@@ -697,7 +698,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "business-api"
                 database_role_assignment = {
-                  readonly = ["sa-solr-importer"]
+                  readonly = ["sa-solr-importer", "divya.chandupatla@gov.bc.ca"]
                   readwrite = ["syed.riyazzudin@gov.bc.ca", "sa-job", "sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -932,7 +933,7 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "user4ca"
                 database_role_assignment = {
-                  readonly = ["divya.chandupatla@gov.bc.ca"]
+                  readonly = []
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }

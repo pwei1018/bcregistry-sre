@@ -1472,6 +1472,7 @@ prod_projects = {
           "karim.jazzar@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "mike.huffman@gov.bc.ca",
+          "monica.mow@gov.bc.ca",
           "siddharth.chaturvedi@gov.bc.ca",
         ]
       },
@@ -1493,7 +1494,13 @@ prod_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "strr"
                 database_role_assignment = {
-                  readonly = ["sa-job", "dietrich.wolpert@gov.bc.ca", "mike.huffman@gov.bc.ca", "anushka.halder@gov.bc.ca", "james.mcfarlane@gov.bc.ca", "sa-strr-analytics@bcrbk9-prod.iam.gserviceaccount.com"]
+                  readonly = [ "anushka.halder@gov.bc.ca",
+                              "dietrich.wolpert@gov.bc.ca",
+                              "james.mcfarlane@gov.bc.ca",
+                              "mike.huffman@gov.bc.ca",
+                              "monica.mow@gov.bc.ca",
+                              "sa-job",
+                              "sa-strr-analytics@bcrbk9-prod.iam.gserviceaccount.com"]
                   readwrite = ["sa-api", "jimmy.palelil@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }

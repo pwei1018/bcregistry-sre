@@ -757,11 +757,11 @@ dev_projects = {
         },
         {
           role    = "roles/compute.osAdminLogin"
-          members = ["hrvoje.fekete@gov.bc.ca"]
+          members = ["hrvoje.fekete@gov.bc.ca", "steven.chen@gov.bc.ca"]
         },
         {
           role    = "roles/compute.viewer"
-          members = ["hrvoje.fekete@gov.bc.ca"]
+          members = ["hrvoje.fekete@gov.bc.ca", "steven.chen@gov.bc.ca"]
         },
         {
           role    = "roles/pubsub.admin"

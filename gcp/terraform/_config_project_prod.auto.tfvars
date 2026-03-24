@@ -840,6 +840,16 @@ prod_projects = {
         members = ["kial.jinnah@gov.bc.ca"]
       },
       {
+        role    = "roles/compute.osAdminLogin"
+        members = ["hrvoje.fekete@gov.bc.ca",
+                    "steven.chen@gov.bc.ca"]
+      },
+      {
+        role    = "roles/compute.viewer"
+        members = ["hrvoje.fekete@gov.bc.ca",
+                    "steven.chen@gov.bc.ca"]
+      },
+      {
         role    = "roles/run.admin"
         members = ["steven.chen@gov.bc.ca"]
       },

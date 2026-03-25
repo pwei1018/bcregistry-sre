@@ -126,6 +126,31 @@ other_projects = {
       sa-queue = {
         roles       = ["projects/c4hnrd-sandbox/roles/rolequeue"]
         description = "Service Account for running queue services"
+      },
+      doc-sandbox-sa = {
+        description = "Document Services Service Account"
+        resource_roles = [
+          {
+            resource = "docs_ppr_sandbox"
+            roles    = ["roles/storage.admin"]
+            resource_type = "storage_bucket"
+          },
+          {
+            resource = "docs_nr_sandbox"
+            roles    = ["roles/storage.admin"]
+            resource_type = "storage_bucket"
+          },
+          {
+            resource = "docs_mhr_sandbox"
+            roles    = ["roles/storage.admin"]
+            resource_type = "storage_bucket"
+          },
+          {
+            resource = "docs_business_sandbox"
+            roles    = ["roles/storage.admin"]
+            resource_type = "storage_bucket"
+          }
+        ]
       }
     }
   },

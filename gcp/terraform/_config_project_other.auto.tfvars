@@ -1007,6 +1007,11 @@ other_projects = {
               resource = "projects/gtksf3-tools/topics/namex-pay-sandbox"
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/c4hnrd-sandbox/topics/doc-api-app-create-record"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
             }
           ]
       },

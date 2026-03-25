@@ -59,6 +59,21 @@ other_projects = {
     ]
     instances = [
       {
+        instance = "common-db-sandbox"
+        databases =  [
+              {
+                db_name    = "docs"
+                roles      = ["readonly", "readwrite", "admin"]
+                owner      = "user4ca"
+                database_role_assignment = {
+                  readonly = []
+                  readwrite = []
+                  admin = []
+                }
+              }
+            ]
+      },
+      {
         instance = "notify-db-sandbox"
         databases =  [
               {

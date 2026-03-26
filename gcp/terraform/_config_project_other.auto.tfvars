@@ -8,6 +8,7 @@ other_projects = {
         members = [
           "Argus.1.Chiu@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
+          "doug.lovett@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "hrvoje.fekete@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
@@ -809,6 +810,7 @@ other_projects = {
           "chiu.oddyseus@gov.bc.ca",
           "david.mckinnon@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
+          "doug.lovett@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
           "kial.jinnah@gov.bc.ca",

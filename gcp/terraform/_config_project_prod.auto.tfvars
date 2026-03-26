@@ -264,6 +264,11 @@ prod_projects = {
         role    = "roles/storage.objectAdmin"
         members = ["doug.lovett@gov.bc.ca"]
       },
+      {
+        role    = "roles/run.admin"
+        members = [
+          "rajandeep.kaur@gov.bc.ca",]
+      },
     ]
     resource_iam_bindings = [
       {

@@ -41,7 +41,9 @@ test_projects = {
       },
       {
         role    = "roles/run.admin"
-        members = ["doug.lovett@gov.bc.ca"]
+        members = [
+          "doug.lovett@gov.bc.ca",
+          "rajandeep.kaur@gov.bc.ca",]
       },
       {
         role    = "roles/securitycenter.assetsViewer"

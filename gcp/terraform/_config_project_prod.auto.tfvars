@@ -484,6 +484,12 @@ prod_projects = {
         ]
       },
       {
+        role    = "roles/pubsub.admin"
+        members = [
+          "omid.x.zamani@gov.bc.ca",
+        ]
+      },
+      {
         role    = "projects/gtksf3-prod/roles/rolequeue"
         members = ["doug.lovett@gov.bc.ca"]
       },

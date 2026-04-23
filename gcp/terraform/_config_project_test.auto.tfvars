@@ -547,9 +547,11 @@ test_projects = {
           "karim.jazzar@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
           "lucas.o'neil@gov.bc.ca",
+          "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
+          "paul.adeyinka@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
           "siddharth.chaturvedi@gov.bc.ca",
           "steven.chen@gov.bc.ca",
@@ -661,7 +663,7 @@ test_projects = {
                 owner      = "business-api"
                 database_role_assignment = {
                   readonly = ["sa-solr-importer", "divya.chandupatla@gov.bc.ca"]
-                  readwrite = ["sa-job", "sa-api"]
+                  readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -676,7 +678,7 @@ test_projects = {
                 owner      = "userHQH"
                 database_role_assignment = {
                   readonly = ["vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -1151,6 +1153,7 @@ test_projects = {
       {
         role    = "projects/bcrbk9-test/roles/roledeveloper"
         members = [
+          "adam.ortiz@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "jimmy.palelil@gov.bc.ca",
@@ -1187,7 +1190,7 @@ test_projects = {
                 owner      = "strr"
                 database_role_assignment = {
                   readonly = ["sa-job"]
-                  readwrite = ["sa-api", "jimmy.palelil@gov.bc.ca"]
+                  readwrite = ["sa-api", "jimmy.palelil@gov.bc.ca", "adam.ortiz@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }

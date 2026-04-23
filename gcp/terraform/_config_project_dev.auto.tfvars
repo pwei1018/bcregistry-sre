@@ -90,6 +90,7 @@ dev_projects = {
           "jimmy.palelil@gov.bc.ca",
           "karim.jazzar@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
+          "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
@@ -307,6 +308,7 @@ dev_projects = {
           "jia.xu@gov.bc.ca",
           "karim.jazzar@gov.bc.ca",
           "lucas.o'neil@gov.bc.ca",
+          "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
@@ -541,7 +543,6 @@ dev_projects = {
           "brandon.1.sharratt@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
-          "gunasegaran.nagarajan@gov.bc.ca",
           "meng.dong@gov.bc.ca",
         ]
       },
@@ -601,7 +602,7 @@ dev_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "devUser"
                 database_role_assignment = {
-                  readonly = ["gunasegaran.nagarajan@gov.bc.ca", "sa-solr-importer"]
+                  readonly = ["sa-solr-importer"]
                   readwrite = []
                   admin = []
                 }
@@ -797,7 +798,7 @@ dev_projects = {
                   owner      = "business-api"
                   database_role_assignment = {
                     readonly = ["sa-solr-importer", "siddharth.chaturvedi@gov.bc.ca", "divya.chandupatla@gov.bc.ca"]
-                    readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca"]
+                    readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
                     admin = ["sa-db-migrate"]
                   }
                 }
@@ -812,7 +813,7 @@ dev_projects = {
                   owner      = "userHQH"
                   database_role_assignment = {
                     readonly = ["vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
-                    readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca"]
+                    readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
                     admin = ["sa-db-migrate"]
                   }
                 }
@@ -1108,7 +1109,6 @@ dev_projects = {
       {
         role    = "projects/k973yf-dev/roles/roledeveloper"
         members = [
-          "gunasegaran.nagarajan@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
         ]
       },
@@ -1117,14 +1117,6 @@ dev_projects = {
         members = [
           "kial.jinnah@gov.bc.ca",
         ]
-      },
-    ]
-    resource_iam_bindings = [
-      {
-        resource      = "projects/k973yf-dev/locations/us/repositories/gcr.io"
-        resource_type = "artifact_registry"
-        roles         = ["roles/artifactregistry.reader"]
-        members       = ["gunasegaran.nagarajan@gov.bc.ca"]
       },
     ]
     instances = [
@@ -1136,7 +1128,7 @@ dev_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "devUser"
                 database_role_assignment = {
-                  readonly = ["gunasegaran.nagarajan@gov.bc.ca"]
+                  readonly = []
                   readwrite = ["sa-api"]
                   admin = ["sa-db-migrate"]
                 }
@@ -1195,6 +1187,7 @@ dev_projects = {
           "jimmy.palelil@gov.bc.ca",
           "karim.jazzar@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
+          "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",

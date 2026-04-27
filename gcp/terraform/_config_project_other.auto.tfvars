@@ -281,7 +281,33 @@ other_projects = {
       sa-job = {
         roles       = ["projects/gtksf3-tools/roles/rolejob"]
         description = "Service Account for running job services"
-
+        resource_roles = [
+            {
+              resource = "projects/gtksf3-tools/topics/auth-event-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-tools/topics/account-mailer-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-tools/topics/namex-pay-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-tools/topics/assets-pay-notification-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-tools/topics/business-pay-sandbox"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+        ]
       },
       sa-api = {
         roles       = ["projects/gtksf3-tools/roles/roleapi", "roles/cloudsql.client", "roles/iam.serviceAccountTokenCreator", "roles/cloudsql.instanceUser", "roles/serverless.serviceAgent"]

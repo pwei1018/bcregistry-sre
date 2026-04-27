@@ -451,7 +451,32 @@ dev_projects = {
               resource = "ftp-poller-dev"
               roles    = ["roles/storage.legacyBucketWriter"]
               resource_type = "storage_bucket"
-            }
+            },
+                      {
+              resource = "projects/gtksf3-dev/topics/auth-event-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-dev/topics/account-mailer-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-dev/topics/namex-pay-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-dev/topics/assets-pay-notification-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
+            {
+              resource = "projects/gtksf3-dev/topics/business-pay-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
         ]
       },
       sa-api = {

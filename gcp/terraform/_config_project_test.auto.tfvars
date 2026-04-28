@@ -391,6 +391,11 @@ test_projects = {
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             },
+            {
+              resource = "projects/gtksf3-test/topics/ftp-poller-payment-reconciliation-test"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
         ]
       },
       sa-api = {

@@ -489,6 +489,11 @@ dev_projects = {
               roles    = ["roles/pubsub.publisher"]
               resource_type = "pubsub_topic"
             },
+            {
+              resource = "projects/gtksf3-dev/topics/ftp-poller-payment-reconciliation-dev"
+              roles    = ["roles/pubsub.publisher"]
+              resource_type = "pubsub_topic"
+            },
         ]
       },
       sa-api = {

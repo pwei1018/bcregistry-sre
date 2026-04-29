@@ -299,6 +299,14 @@ test_projects = {
           ]
       },
       {
+        resource      = "projects/gtksf3-test/serviceAccounts/sa-job@gtksf3-test.iam.gserviceaccount.com"
+        resource_type = "sa_iam_member"
+        roles         = ["roles/iam.workloadIdentityUser", "roles/iam.serviceAccountTokenCreator"]
+        members       = [
+          "principal://iam.googleapis.com/projects/331250273634/locations/global/workloadIdentityPools/central-keycloak-pool/subject/system:serviceaccount:cbaab0-test:default"
+        ]
+      },
+      {
         resource      = "projects/gtksf3-test/serviceAccounts/sa-auth-db-standby@gtksf3-test.iam.gserviceaccount.com"
         resource_type = "sa_iam_member"
         roles         = ["roles/iam.workloadIdentityUser", "roles/iam.serviceAccountTokenCreator"]

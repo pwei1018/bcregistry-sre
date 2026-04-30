@@ -99,6 +99,7 @@ dev_projects = {
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -324,6 +325,7 @@ dev_projects = {
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
           "vishnu.preddy@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -586,6 +588,7 @@ dev_projects = {
           "dietrich.wolpert@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "meng.dong@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -725,6 +728,7 @@ dev_projects = {
             "sumesh.kariyil@gov.bc.ca",
             "thayne.werdal@gov.bc.ca",
             "vishnu.preddy@gov.bc.ca",
+            "vysakh.menon@gov.bc.ca",
           ]
         },
         {
@@ -996,7 +1000,8 @@ dev_projects = {
         role    = "projects/keee67-dev/roles/SRE"
         members = [
           "kial.jinnah@gov.bc.ca",
-          "dietrich.wolpert@gov.bc.ca"
+          "dietrich.wolpert@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca"
         ]
       },
       {
@@ -1057,6 +1062,7 @@ dev_projects = {
           "eve.deng@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "meng.dong@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1243,6 +1249,7 @@ dev_projects = {
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
           "vishnu.preddy@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1264,6 +1271,7 @@ dev_projects = {
           "kial.jinnah@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1370,6 +1378,7 @@ dev_projects = {
           "karim.jazzar@gov.bc.ca",
           "kial.jinnah@gov.bc.ca",
           "meng.dong@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
        },
       {

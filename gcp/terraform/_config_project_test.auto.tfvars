@@ -303,7 +303,8 @@ test_projects = {
         resource_type = "sa_iam_member"
         roles         = ["roles/iam.workloadIdentityUser", "roles/iam.serviceAccountTokenCreator"]
         members       = [
-          "principal://iam.googleapis.com/projects/331250273634/locations/global/workloadIdentityPools/central-keycloak-pool/subject/system:serviceaccount:cbaab0-test:default"
+          # WIF OpenShift Namespace: cbaab0-test
+          "principal://iam.googleapis.com/projects/331250273634/locations/global/workloadIdentityPools/central-keycloak-pool/subject/67adac47-6e8c-41f8-85e5-516af6d08095"
         ]
       },
       {

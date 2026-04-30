@@ -12,6 +12,7 @@ test_projects = {
           "brandon.1.sharratt@gov.bc.ca",
           "chiu.oddyseus@gov.bc.ca",
           "dietrich.wolpert@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
           "doug.lovett@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
@@ -218,6 +219,7 @@ test_projects = {
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -475,6 +477,7 @@ test_projects = {
           "dietrich.wolpert@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "meng.dong@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -613,6 +616,7 @@ test_projects = {
           "thayne.werdal@gov.bc.ca",
           "vikas.singh@gov.bc.ca",
           "vishnu.preddy@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -924,6 +928,7 @@ test_projects = {
           "eve.deng@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
           "meng.dong@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1128,6 +1133,7 @@ test_projects = {
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1221,6 +1227,7 @@ test_projects = {
           "jimmy.palelil@gov.bc.ca",
           "karim.jazzar@gov.bc.ca",
           "kial.jinnah@gov.bc.ca",
+          "vysakh.menon@gov.bc.ca",
         ]
       },
       {

@@ -203,7 +203,7 @@ def generate_report(project_id, service_name, start_date, end_date, template_pat
     
     slos = []
     if service_id:
-        slos = fetch_slos_and_compliance(service_monitor_client, project_id, service_id, start_time, end_time)
+        slos = fetch_slos_and_compliance(monitoring_client, project_id, service_id, start_time, end_time)
         
     req_stats = fetch_metric_stats(monitoring_client, project_id, service_name, start_time, end_time, "run.googleapis.com/request_count")
     lat_stats = fetch_metric_stats(monitoring_client, project_id, service_name, start_time, end_time, "run.googleapis.com/request_latencies")

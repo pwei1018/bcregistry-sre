@@ -15,7 +15,6 @@ Usage:
 
 import argparse
 import google.auth
-import google.auth.transport.requests
 from google.cloud import run_v2
 
 

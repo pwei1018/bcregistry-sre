@@ -12,19 +12,16 @@ Usage:
     # Run a specific group only
     uv run --project gcp/scripts gcp/scripts/__main__.py --only inventory
     uv run --project gcp/scripts gcp/scripts/__main__.py --only silver
-    uv run --project gcp/scripts gcp/scripts/__main__.py --only apigee
+    uv run --project gcp/scripts gcp/scripts/__main__.py --only endpoints
     uv run --project gcp/scripts gcp/scripts/__main__.py --only report
 
     # Skip specific tasks
-    uv run --project gcp/scripts gcp/scripts/__main__.py --skip inventory apigee
+    uv run --project gcp/scripts gcp/scripts/__main__.py --skip inventory endpoints
 """
 
 import argparse
-import importlib.util
 import subprocess
 import sys
-import os
-import time
 from datetime import datetime
 from pathlib import Path
 

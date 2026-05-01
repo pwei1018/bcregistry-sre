@@ -3,9 +3,11 @@ import re
 import csv
 from datetime import datetime
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+GCP_DIR = os.path.dirname(SCRIPT_DIR)
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-TF_DIR = os.path.join(os.path.dirname(OUTPUT_DIR), "terraform")
+TF_DIR = os.path.join(GCP_DIR, "terraform")
 TODAY = datetime.now().strftime("%Y-%m-%d")
 
 # Mapping of IAM roles to GCP Products

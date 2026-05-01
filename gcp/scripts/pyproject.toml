@@ -25,4 +25,4 @@ dev = []
 
 [project.scripts]
 # Run the full reporting suite
-sre-report-all = "scripts.__main__:main"
+sre-report-all = "__main__:main"

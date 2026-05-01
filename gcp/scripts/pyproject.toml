@@ -22,7 +22,3 @@ dependencies = [
 
 [dependency-groups]
 dev = []
-
-[project.scripts]
-# Run the full reporting suite
-sre-report-all = "__main__:main"

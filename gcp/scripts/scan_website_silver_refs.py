@@ -23,7 +23,6 @@ Usage:
 import argparse
 import os
 import re
-import sys
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 

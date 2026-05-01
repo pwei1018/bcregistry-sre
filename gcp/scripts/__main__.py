@@ -83,8 +83,6 @@ def run_script(script_path: Path, extra_argv: list[str]) -> tuple[bool, float]:
         str(SCRIPTS_DIR),
         str(script_path),
     ] + extra_argv
-    # Simpler: just call the script directly since we already have the venv from pyproject.toml
-    cmd = [sys.executable, str(script_path)] + extra_argv
 
     t0 = time.monotonic()
     try:

@@ -62,6 +62,12 @@ TASKS = [
         [],
         "Scan public websites for Silver refs",
     ),
+    (
+        "silver",
+        "scan_1password_silver_refs.py",
+        [],
+        "Scan 1Password vaults for Silver refs",
+    ),
     # ── SRE report (runs last — consumes output from above) ──────────────────
     ("report", "generate_sre_report.py", [], "Generate monthly SRE health report"),
 ]

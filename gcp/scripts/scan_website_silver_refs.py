@@ -59,9 +59,6 @@ DEFAULT_WEBSITES = [
 
 DEFAULT_TARGET = "silver.devops.gov.bc.ca"
 
-# JS bundle patterns to also fetch and scan
-JS_BUNDLE_PATTERN = re.compile(r'src=["\']([^"\']*\.js[^"\']*)["\']', re.IGNORECASE)
-
 # Extract URL-like strings containing the target from JS/HTML
 URL_EXTRACT_PATTERN = re.compile(r'["\`](https?://[^\s"\'`<>]{5,})["\`]', re.IGNORECASE)
 

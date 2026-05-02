@@ -584,7 +584,7 @@ other_projects = {
         description = "Service Account for running job services"
       },
       sa-api = {
-        roles       = ["projects/eogruh-sandbox/roles/roleapi"]
+        roles       = ["projects/eogruh-sandbox/roles/roleapi", "roles/cloudsql.instanceUser"]
         description = "Service Account for running api services"
       },
       sa-queue = {

@@ -1251,7 +1251,7 @@ prod_projects = {
         description = "Service Account for running job services"
       },
       sa-api = {
-        roles       = ["projects/eogruh-prod/roles/roleapi"]
+        roles       = ["projects/eogruh-prod/roles/roleapi", "roles/cloudsql.instanceUser"]
         description = "Service Account for running api services"
       },
       sa-queue = {

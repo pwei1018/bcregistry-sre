@@ -991,7 +991,7 @@ test_projects = {
         description = "Service Account for running db alembic migration job"
       },
       sa-api = {
-        roles       = ["projects/eogruh-test/roles/roleapi"]
+        roles       = ["projects/eogruh-test/roles/roleapi", "roles/cloudsql.instanceUser"]
         description = "Service Account for running api services"
       },
       sa-queue = {

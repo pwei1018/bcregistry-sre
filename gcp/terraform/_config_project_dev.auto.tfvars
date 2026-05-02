@@ -1123,7 +1123,7 @@ dev_projects = {
         description = "Service Account for running pubsub services"
       },
       sa-api = {
-        roles       = ["projects/eogruh-dev/roles/roleapi"]
+        roles       = ["projects/eogruh-dev/roles/roleapi", "roles/cloudsql.instanceUser"]
         description = "Service Account for running api services"
       },
       sa-db-migrate = {

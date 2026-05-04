@@ -567,7 +567,7 @@ other_projects = {
                 owner      = "user4ca"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "sa-job"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -580,7 +580,7 @@ other_projects = {
         description = "Service Account for running pubsub services"
       },
       sa-job = {
-        roles       = ["projects/eogruh-sandbox/roles/rolejob"]
+        roles       = ["projects/eogruh-sandbox/roles/rolejob", "roles/cloudsql.instanceUser"]
         description = "Service Account for running job services"
       },
       sa-api = {
@@ -1093,7 +1093,6 @@ other_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
-          "reema.sagpariya@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
@@ -1159,7 +1158,7 @@ other_projects = {
         resource      = "projects/c4hnrd-tools/locations/us/repositories/gcr.io"
         resource_type = "artifact_registry"
         roles         = ["roles/artifactregistry.reader"]
-        members       = ["Chris.Gabel@gov.bc.ca", "chiu.oddyseus@gov.bc.ca", "dietrich.wolpert@gov.bc.ca", "eve.deng@gov.bc.ca", "karim.jazzar@gov.bc.ca", "ketaki.deodhar@gov.bc.ca", "megan.a.wong@gov.bc.ca", "andrei.ivanov@gov.bc.ca", "meng.dong@gov.bc.ca", "omid.x.zamani@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "reema.sagpariya@gov.bc.ca", "steven.chen@gov.bc.ca", "thayne.werdal@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
+        members       = ["Chris.Gabel@gov.bc.ca", "chiu.oddyseus@gov.bc.ca", "dietrich.wolpert@gov.bc.ca", "eve.deng@gov.bc.ca", "karim.jazzar@gov.bc.ca", "ketaki.deodhar@gov.bc.ca", "megan.a.wong@gov.bc.ca", "andrei.ivanov@gov.bc.ca", "meng.dong@gov.bc.ca", "omid.x.zamani@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "steven.chen@gov.bc.ca", "thayne.werdal@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
       },
     ]
     custom_roles = {

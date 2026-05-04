@@ -320,6 +320,7 @@ dev_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
+          "reema.sagpariya@gov.bc.ca",
           "siddharth.chaturvedi@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
@@ -723,6 +724,7 @@ dev_projects = {
             "omid.x.zamani@gov.bc.ca",
             "paul.adeyinka@gov.bc.ca",
             "rajandeep.kaur@gov.bc.ca",
+            "reema.sagpariya@gov.bc.ca",
             "siddharth.chaturvedi@gov.bc.ca",
             "steven.chen@gov.bc.ca",
             "sumesh.kariyil@gov.bc.ca",
@@ -862,7 +864,7 @@ dev_projects = {
                   roles      = ["readonly", "readwrite", "admin"]
                   owner      = "userHQH"
                   database_role_assignment = {
-                    readonly = ["vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
+                    readonly = ["vishnu.preddy@gov.bc.ca", "reema.sagpariya@gov.bc.ca", "sa-solr-importer"]
                     readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
                     admin = ["sa-db-migrate"]
                   }
@@ -1245,6 +1247,7 @@ dev_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
+          "reema.sagpariya@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
@@ -1324,7 +1327,8 @@ dev_projects = {
                         "megan.a.wong@gov.bc.ca",
                         "andrei.ivanov@gov.bc.ca",
                         "meng.dong@gov.bc.ca", 
-                        "rajandeep.kaur@gov.bc.ca", 
+                        "rajandeep.kaur@gov.bc.ca",
+                        "reema.sagpariya@gov.bc.ca",
                         "sumesh.kariyil@gov.bc.ca",
                         "thayne.werdal@gov.bc.ca", 
                         "vishnu.preddy@gov.bc.ca"]

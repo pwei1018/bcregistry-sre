@@ -320,7 +320,6 @@ dev_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
-          "reema.sagpariya@gov.bc.ca",
           "siddharth.chaturvedi@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
@@ -850,7 +849,7 @@ dev_projects = {
                   owner      = "business-api"
                   database_role_assignment = {
                     readonly = ["sa-solr-importer", "siddharth.chaturvedi@gov.bc.ca", "divya.chandupatla@gov.bc.ca"]
-                    readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
+                    readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "reema.sagpariya@gov.bc.ca"]
                     admin = ["sa-db-migrate"]
                   }
                 }
@@ -864,8 +863,8 @@ dev_projects = {
                   roles      = ["readonly", "readwrite", "admin"]
                   owner      = "userHQH"
                   database_role_assignment = {
-                    readonly = ["vishnu.preddy@gov.bc.ca", "reema.sagpariya@gov.bc.ca", "sa-solr-importer"]
-                    readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
+                    readonly = ["vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
+                    readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "reema.sagpariya@gov.bc.ca"]
                     admin = ["sa-db-migrate"]
                   }
                 }
@@ -1112,7 +1111,7 @@ dev_projects = {
                 owner      = "user4ca"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "sa-job"]
                   admin = ["sa-db-migrate"]
                 }
           }
@@ -1127,6 +1126,10 @@ dev_projects = {
       sa-api = {
         roles       = ["projects/eogruh-dev/roles/roleapi", "roles/cloudsql.instanceUser"]
         description = "Service Account for running api services"
+      },
+      sa-job = {
+        roles       = ["projects/eogruh-dev/roles/rolejob", "roles/cloudsql.instanceUser"]
+        description = "Service Account for running job services"
       },
       sa-db-migrate = {
         roles       = ["projects/eogruh-dev/roles/roledbmigrate"]
@@ -1247,7 +1250,6 @@ dev_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "rajandeep.kaur@gov.bc.ca",
-          "reema.sagpariya@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
@@ -1328,7 +1330,6 @@ dev_projects = {
                         "andrei.ivanov@gov.bc.ca",
                         "meng.dong@gov.bc.ca", 
                         "rajandeep.kaur@gov.bc.ca",
-                        "reema.sagpariya@gov.bc.ca",
                         "sumesh.kariyil@gov.bc.ca",
                         "thayne.werdal@gov.bc.ca", 
                         "vishnu.preddy@gov.bc.ca"]

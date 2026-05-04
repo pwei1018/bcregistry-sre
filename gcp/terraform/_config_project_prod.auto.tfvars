@@ -1210,7 +1210,7 @@ prod_projects = {
                 owner      = "user4ca"
                 database_role_assignment = {
                   readonly = ["eve.deng@gov.bc.ca", "omid.x.zamani@gov.bc.ca"]
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "sa-job"]
                   admin = ["sa-db-migrate"]
                 }
           },
@@ -1248,7 +1248,7 @@ prod_projects = {
         description = "Service Account for running pubsub services"
       },
       sa-job = {
-        roles       = ["projects/eogruh-prod/roles/rolejob"]
+        roles       = ["projects/eogruh-prod/roles/rolejob", "roles/cloudsql.instanceUser"]
         description = "Service Account for running job services"
       },
       sa-api = {

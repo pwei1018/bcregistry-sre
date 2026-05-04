@@ -725,7 +725,7 @@ test_projects = {
                 owner      = "business-api"
                 database_role_assignment = {
                   readonly = ["sa-solr-importer", "divya.chandupatla@gov.bc.ca"]
-                  readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
+                  readwrite = ["sa-job", "sa-api", "mark.ruffolo@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "reema.sagpariya@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -739,8 +739,8 @@ test_projects = {
                 roles      = ["readonly", "readwrite", "admin"]
                 owner      = "userHQH"
                 database_role_assignment = {
-                  readonly = ["vishnu.preddy@gov.bc.ca", "reema.sagpariya@gov.bc.ca", "sa-solr-importer"]
-                  readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca"]
+                  readonly = ["vishnu.preddy@gov.bc.ca", "sa-solr-importer"]
+                  readwrite = ["sa-api", "paul.adeyinka@gov.bc.ca", "gunasegaran.nagarajan@gov.bc.ca", "reema.sagpariya@gov.bc.ca"]
                   admin = ["sa-db-migrate"]
                 }
               }
@@ -961,7 +961,7 @@ test_projects = {
                 owner      = "user4ca"
                 database_role_assignment = {
                   readonly = []
-                  readwrite = ["sa-api"]
+                  readwrite = ["sa-api", "sa-job"]
                   admin = ["sa-db-migrate"]
                 }
           },
@@ -984,7 +984,7 @@ test_projects = {
         description = "Service Account for running pubsub services"
       },
       sa-job = {
-        roles       = ["projects/eogruh-test/roles/rolejob"]
+        roles       = ["projects/eogruh-test/roles/rolejob", "roles/cloudsql.instanceUser"]
         description = "Service Account for running job services"
       },
       sa-db-migrate = {

@@ -555,6 +555,15 @@ prod_projects = {
           "sumesh.kariyil@gov.bc.ca",
           ]
       },
+      {
+        resource      = "projects/gtksf3-prod/serviceAccounts/sa-job@gtksf3-prod.iam.gserviceaccount.com"
+        resource_type = "sa_iam_member"
+        roles         = ["roles/iam.workloadIdentityUser", "roles/iam.serviceAccountTokenCreator"]
+        members       = [
+          # WIF OpenShift Namespace: cbaab0-prod
+          "principal://iam.googleapis.com/projects/331250273634/locations/global/workloadIdentityPools/central-keycloak-pool/subject/7905838e-782a-41f5-bbc1-1930bd3682fb"
+        ]
+      },
     ]
     instances = [
       {

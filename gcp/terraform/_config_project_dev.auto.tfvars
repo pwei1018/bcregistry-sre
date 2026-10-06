@@ -856,7 +856,7 @@ dev_projects = {
         resource      = "colin_extracts"
         resource_type = "storage_bucket"
         roles         = ["roles/storage.objectUser"]
-        members       = ["ketaki.deodhar@gov.bc.ca", "hansen.philip@gov.bc.ca", "rajandeep.kaur@gov.bc.ca"]
+        members       = ["ketaki.deodhar@gov.bc.ca", "hansen.philip@gov.bc.ca", "rajandeep.kaur@gov.bc.ca", "yogesh.manni@gov.bc.ca"]
       },
       {
         resource      = "namex-db-dump-dev"

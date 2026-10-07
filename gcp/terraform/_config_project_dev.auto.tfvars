@@ -1501,6 +1501,12 @@ dev_projects = {
         roles         = ["projects/bcrbk9-dev/roles/rolestrrbucketmetadata"]
         members       = ["serviceAccount:sa-strr-infra@bcrbk9-tools.iam.gserviceaccount.com"]
       },
+      {
+        resource      = "bcrbk9-dev-strr-access-logs"
+        resource_type = "storage_bucket"
+        roles         = ["roles/storage.objectCreator"]
+        members       = ["group:cloud-storage-analytics@google.com"]
+      },
     ]
     iam_bindings = [
       {

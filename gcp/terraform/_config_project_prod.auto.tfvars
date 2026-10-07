@@ -24,6 +24,7 @@ prod_projects = {
           "monica.mow@gov.bc.ca",
           "mike.huffman@gov.bc.ca",
           "olga.potiagalova@gov.bc.ca",
+          "chiu.oddyseus@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "pam.sherwood@gov.bc.ca",
           "patty.stemkens@gov.bc.ca",

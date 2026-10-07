@@ -637,7 +637,7 @@ dev_projects = {
     ]
     instances = [
       {
-        instance = "bor-db"
+        instance = "bor-db-dev"
         databases = [
           {
             db_name = "bor"

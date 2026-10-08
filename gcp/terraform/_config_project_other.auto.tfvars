@@ -15,7 +15,6 @@ other_projects = {
           "rajandeep.kaur@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -186,7 +185,6 @@ other_projects = {
           "steven.chen@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -372,7 +370,6 @@ other_projects = {
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
           "steven.chen@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -467,7 +464,6 @@ other_projects = {
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -534,7 +530,6 @@ other_projects = {
           "dietrich.wolpert@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "meng.dong@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -704,7 +699,6 @@ other_projects = {
           "rajandeep.kaur@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -943,7 +937,6 @@ other_projects = {
           "paul.adeyinka@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1217,7 +1210,6 @@ other_projects = {
           "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
           "vishnu.preddy@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {
@@ -1234,7 +1226,6 @@ other_projects = {
           "jia.xu@gov.bc.ca",
           "steven.chen@gov.bc.ca",
           "sumesh.kariyil@gov.bc.ca",
-          "vysakh.menon@gov.bc.ca",
         ]
       },
       {

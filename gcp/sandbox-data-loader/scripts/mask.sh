@@ -103,9 +103,14 @@ apply_yaml_masking() {
   local yaml_path="$MASKING_YAML"
 
   if [[ "$yaml_path" == gs://* ]]; then
-    log_info "Downloading masking.yaml from GCS: ${yaml_path}"
-    gcloud storage cp "$yaml_path" "/tmp/loader/masking.yaml"
-    yaml_path="/tmp/loader/masking.yaml"
+    if gcloud storage objects describe "$yaml_path" >/dev/null 2>&1; then
+      log_info "Downloading masking.yaml from GCS: ${yaml_path}"
+      gcloud storage cp "$yaml_path" "/tmp/loader/masking.yaml"
+      yaml_path="/tmp/loader/masking.yaml"
+    else
+      log_warn "masking.yaml not found at ${yaml_path}. Skipping YAML masking."
+      return 0
+    fi
   elif [[ ! -f "$yaml_path" ]]; then
     log_warn "masking.yaml not found at ${yaml_path}. Skipping YAML masking."
     return 0

@@ -6,7 +6,7 @@
 #   - Alpine Linux (small footprint)
 #
 # We install:
-#   - postgresql17-client : pg_dump, pg_restore, psql
+#   - postgresql18-client : pg_dump, pg_restore, psql
 #   - bash               : orchestration scripting
 #   - jq                 : JSON parsing
 #   - Cloud SQL Proxy v2 : secure IAM-authenticated tunnel to Cloud SQL
@@ -24,7 +24,7 @@ ARG CLOUD_SQL_PROXY_VERSION=2.13.0
 # ---------------------------------------------------------------------------
 RUN apk add --no-cache \
       bash \
-      postgresql17-client \
+      postgresql18-client \
       jq \
       curl \
       ca-certificates \
@@ -44,7 +44,7 @@ RUN curl -fsSL \
 # Copy orchestration scripts
 # ---------------------------------------------------------------------------
 COPY scripts/ /scripts/
-RUN chmod +x /scripts/*.sh /scripts/lib/*.sh
+RUN chmod +x /scripts/*.sh
 
 # ---------------------------------------------------------------------------
 # Non-root user for least-privilege execution

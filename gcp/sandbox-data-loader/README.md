@@ -366,13 +366,18 @@ docker compose down -v
 
 ### Build and push image
 
-```bash
-export PROJECT_ID=sandbox-project
-export REGION=northamerica-northeast1
-export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/sandbox-loader/db-loader:latest"
+Run these commands from `gcp/sandbox-data-loader`:
 
-gcloud builds submit --tag "${IMAGE_URI}"
+```bash
+IMAGE_TAG=1.0.13 ./build.sh
+
+gcloud run jobs update sandbox-data-loader \
+  --project=a083gt-prod \
+  --region=northamerica-northeast1 \
+  --image="northamerica-northeast1-docker.pkg.dev/c4hnrd-tools/cicd-repo/sandbox-data-loader:1.0.13"
 ```
+
+Choose a new image tag for each build and use the same tag in the update command. Updating the job changes the image used by future executions; it does not start a job execution.
 
 ### Create Cloud Run Job
 

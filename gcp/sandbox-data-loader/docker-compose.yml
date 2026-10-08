@@ -26,7 +26,7 @@ services:
       retries: 10
 
   target-db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     ports:
       - "5434:5432"
     environment:

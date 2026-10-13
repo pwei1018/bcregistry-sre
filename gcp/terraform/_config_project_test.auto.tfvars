@@ -1388,6 +1388,14 @@ test_projects = {
         ]
       },
     ]
+    resource_iam_bindings = [
+      {
+        resource      = "bcrbk9-test-strr-access-logs"
+        resource_type = "storage_bucket"
+        roles         = ["roles/storage.objectCreator"]
+        members       = ["group:cloud-storage-analytics@google.com"]
+      },
+    ]
     instances = [
       {
         instance = "strr-db-test"

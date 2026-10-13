@@ -799,6 +799,12 @@ other_projects = {
           "serviceAccount:sa-strr-infra@bcrbk9-tools.iam.gserviceaccount.com"
         ]
       },
+      {
+        resource      = "bcrbk9-sandbox-strr-access-logs"
+        resource_type = "storage_bucket"
+        roles         = ["roles/storage.objectCreator"]
+        members       = ["group:cloud-storage-analytics@google.com"]
+      },
     ]
     instances = [
       {

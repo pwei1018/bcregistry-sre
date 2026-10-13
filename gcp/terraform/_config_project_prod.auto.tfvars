@@ -1700,6 +1700,14 @@ prod_projects = {
         members = ["jimmy.palelil@gov.bc.ca"]
       }
     ]
+    resource_iam_bindings = [
+      {
+        resource      = "bcrbk9-prod-strr-access-logs"
+        resource_type = "storage_bucket"
+        roles         = ["roles/storage.objectCreator"]
+        members       = ["group:cloud-storage-analytics@google.com"]
+      },
+    ]
     instances = [
       {
         instance = "strr-db-prod"

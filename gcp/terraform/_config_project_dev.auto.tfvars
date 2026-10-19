@@ -1087,6 +1087,12 @@ dev_projects = {
         ]
       },
       {
+        role = "projects/keee67-dev/roles/roledeveloper"
+        members = [
+          "rajandeep.kaur@gov.bc.ca",
+        ]
+      },
+      {
         role    = "roles/securitycenter.assetsViewer"
         members = ["kial.jinnah@gov.bc.ca"]
       },

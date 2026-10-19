@@ -1217,6 +1217,12 @@ prod_projects = {
     project_id = "keee67-prod"
     env        = "prod"
     iam_bindings = [
+      {
+        role = "projects/keee67-prod/roles/roledeveloper"
+        members = [
+          "rajandeep.kaur@gov.bc.ca",
+        ]
+      },
     ]
     resource_iam_bindings = [
       {

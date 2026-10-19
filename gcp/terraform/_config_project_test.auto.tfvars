@@ -974,7 +974,8 @@ test_projects = {
       {
         role = "projects/keee67-test/roles/roledeveloper"
         members = [
-          "patty.stemkens@gov.bc.ca"
+          "patty.stemkens@gov.bc.ca",
+           "rajandeep.kaur@gov.bc.ca",
         ]
       },
     ]

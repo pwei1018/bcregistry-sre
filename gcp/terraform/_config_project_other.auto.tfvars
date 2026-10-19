@@ -942,6 +942,7 @@ other_projects = {
           "rajandeep.kaur@gov.bc.ca",
           "paul.adeyinka@gov.bc.ca",
           "steven.chen@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
           "thayne.werdal@gov.bc.ca",
         ]
       },

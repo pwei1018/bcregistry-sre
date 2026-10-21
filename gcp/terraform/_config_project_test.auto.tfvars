@@ -807,7 +807,7 @@ test_projects = {
             roles   = ["readonly", "readwrite", "admin"]
             owner   = "business-api"
             database_role_assignment = {
-              readonly = ["sa-solr-importer", "divya.chandupatla@gov.bc.ca"]
+              readonly = ["sa-solr-importer", "divya.chandupatla@gov.bc.ca", "vishnu.preddy@gov.bc.ca"]
               readwrite = ["sa-job",
                 "sa-api",
                 "dima.kostenyuk@gov.bc.ca",

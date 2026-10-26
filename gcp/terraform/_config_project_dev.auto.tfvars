@@ -897,6 +897,12 @@ dev_projects = {
         resource_type = "sa_iam_member"
         roles         = ["roles/iam.serviceAccountTokenCreator"]
         members       = ["andriy.bolyachevets@gov.bc.ca"]
+      },
+      {
+        resource      = "projects/a083gt-dev/serviceAccounts/sa-api@a083gt-dev.iam.gserviceaccount.com"
+        resource_type = "sa_iam_member"
+        roles         = ["roles/iam.serviceAccountTokenCreator"]
+        members       = ["steven.chen@gov.bc.ca"]
       }
     ]
     instances = [

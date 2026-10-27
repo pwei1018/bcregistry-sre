@@ -18,6 +18,7 @@ test_projects = {
           "karim.jazzar@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
           "hansen.philip@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
@@ -101,7 +102,7 @@ test_projects = {
             owner   = "user4ca"
             database_role_assignment = {
               readonly  = []
-              readwrite = ["sa-api"]
+              readwrite = ["sa-api", "leo.1.dube@gov.bc.ca"]
               admin     = ["sa-db-migrate"]
             }
           }
@@ -641,6 +642,7 @@ test_projects = {
           "karim.jazzar@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
           "hansen.philip@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
@@ -814,6 +816,7 @@ test_projects = {
                 "mark.ruffolo@gov.bc.ca",
                 "gunasegaran.nagarajan@gov.bc.ca",
                 "hansen.philip@gov.bc.ca",
+                "leo.1.dube@gov.bc.ca",
                 "yogesh.manni@gov.bc.ca",
               "reema.sagpariya@gov.bc.ca"]
               admin = ["sa-db-migrate"]
@@ -1033,6 +1036,7 @@ test_projects = {
           "dietrich.wolpert@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "janis.rogers@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "meng.dong@gov.bc.ca",
         ]
       },
@@ -1065,7 +1069,7 @@ test_projects = {
             owner   = "user4ca"
             database_role_assignment = {
               readonly  = []
-              readwrite = ["sa-api", "sa-job"]
+              readwrite = ["sa-api", "sa-job", "leo.1.dube@gov.bc.ca"]
               admin     = ["sa-db-migrate"]
             }
           },

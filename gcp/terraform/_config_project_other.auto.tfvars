@@ -9,6 +9,7 @@ other_projects = {
           "dietrich.wolpert@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
           "omid.x.zamani@gov.bc.ca",
@@ -67,7 +68,7 @@ other_projects = {
             roles   = ["readonly", "readwrite", "admin"]
             owner   = "user4ca"
             database_role_assignment = {
-              readonly  = []
+              readonly  = ["leo.1.dube@gov.bc.ca"]
               readwrite = ["sa-api"]
               admin     = ["sa-db-migrate"]
             }
@@ -529,6 +530,7 @@ other_projects = {
         members = [
           "dietrich.wolpert@gov.bc.ca",
           "eve.deng@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "meng.dong@gov.bc.ca",
         ]
       },
@@ -564,7 +566,7 @@ other_projects = {
             roles   = ["readonly", "readwrite", "admin"]
             owner   = "user4ca"
             database_role_assignment = {
-              readonly  = []
+              readonly  = ["leo.1.dube@gov.bc.ca"]
               readwrite = ["sa-api", "sa-job"]
               admin     = ["sa-db-migrate"]
             }
@@ -935,6 +937,7 @@ other_projects = {
           "eve.deng@gov.bc.ca",
           "ketaki.deodhar@gov.bc.ca",
           "kial.jinnah@gov.bc.ca",
+          "leo.1.dube@gov.bc.ca",
           "mark.ruffolo@gov.bc.ca",
           "megan.a.wong@gov.bc.ca",
           "meng.dong@gov.bc.ca",
@@ -1037,7 +1040,7 @@ other_projects = {
             roles   = ["readonly", "readwrite", "admin"]
             owner   = "business_app"
             database_role_assignment = {
-              readonly = ["sa-solr-importer"]
+              readonly = ["sa-solr-importer", "leo.1.dube@gov.bc.ca"]
               readwrite = ["sa-job",
                 "sa-api",
                 "dima.kostenyuk@gov.bc.ca",

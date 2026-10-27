@@ -202,15 +202,10 @@ prod_projects = {
     env        = "prod"
     iam_bindings = [
       {
-        role = "projects/c4hnrd-prod/roles/SRE"
-        members = [
-          "doug.lovett@gov.bc.ca",
-        ]
-      },
-      {
         role = "projects/c4hnrd-prod/roles/roledeveloper"
         members = [
           "dietrich.wolpert@gov.bc.ca",
+          "doug.lovett@gov.bc.ca",
           "eve.deng@gov.bc.ca",
           "jia.xu@gov.bc.ca",
           "jimmy.palelil@gov.bc.ca",

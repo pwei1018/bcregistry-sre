@@ -1,4 +1,51 @@
 test_projects = {
+  "express-test" = {
+    project_id = "et79zi-test"
+    env        = "test"
+
+    iam_bindings = [
+      {
+        role = "projects/et79zi-test/roles/SRE"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "projects/et79zi-test/roles/roledeveloper"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/cloudsql.admin"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.assetsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.findingsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+    ]
+  },
   "common-test" = {
     project_id = "c4hnrd-test"
     env        = "test"

@@ -1,4 +1,42 @@
 dev_projects = {
+  "express-dev" = {
+    project_id = "et79zi-dev"
+    env        = "dev"
+        iam_bindings = [
+      {
+        role = "projects/et79zi-dev/roles/SRE"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "projects/et79zi-dev/roles/roledeveloper"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.assetsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.findingsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+    ]
+  },
   "analytics-int-dev" = {
     project_id = "mvnjri-dev"
     env        = "dev"

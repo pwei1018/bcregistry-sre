@@ -1,4 +1,34 @@
 prod_projects = {
+  "express-prod" = {
+    project_id = "et79zi-prod"
+    env        = "prod"
+    iam_bindings = [
+      {
+        role = "projects/et79zi-prod/roles/roledeveloper"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.assetsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.findingsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+    ]
+  },
   "analytics-int-prod" = {
     project_id = "mvnjri-prod"
     env        = "prod"

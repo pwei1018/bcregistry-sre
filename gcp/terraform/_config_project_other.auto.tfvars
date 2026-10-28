@@ -1,4 +1,34 @@
 other_projects = {
+  "express-tools" = {
+    project_id = "et79zi-tools"
+    env        = "tools"
+    iam_bindings = [
+      {
+        role = "projects/et79zi-tools/roles/roledeveloper"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.assetsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+      {
+        role = "roles/securitycenter.findingsViewer"
+        members = [
+          "chiu.oddyseus@gov.bc.ca",
+          "jia.xu@gov.bc.ca",
+          "sumesh.kariyil@gov.bc.ca",
+        ]
+      },
+    ]
+  },
   "common-sandbox" = {
     project_id = "c4hnrd-sandbox"
     env        = "sandbox"

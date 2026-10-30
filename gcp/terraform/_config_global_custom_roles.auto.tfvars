@@ -134,6 +134,10 @@ global_custom_roles = {
       "run.routes.get",
       "run.routes.list",
       "run.routes.invoke",
+      "run.instances.getIamPolicy",
+      "run.instances.invoke",
+      "run.instances.setIamPolicy",
+      "run.services.setIamPolicy",
       "cloudsql.instances.connect",
       "cloudsql.instances.get",
       "cloudscheduler.jobs.create",
@@ -143,7 +147,7 @@ global_custom_roles = {
       "pubsub.topics.publish",
       "source.repos.get",
       "source.repos.list",
-      "logging.logEntries.create"
+      "logging.logEntries.create",
     ]
   },
   roledbmigrate = {

@@ -86,7 +86,7 @@ steps:
             fi
 
             for env_name in "${targets[@]}"; do
-                generate_manifest "service" "${env_name}"
+                generate_manifest "service" "${env_name}" "${_APP_NAME}"
             done
 
             remove_unused_deployments "${_DEPLOY_FULL_DEPLOYMENT_ENVS}" "${_DEPLOYMENT_ENVS}" "${project_name}"
@@ -309,7 +309,7 @@ options:
   automapSubstitutions: true
   substitutionOption: "ALLOW_LOOSE"
 substitutions:
-  _CD_RUNNER_VERSION: "1.2.1"
+  _CD_RUNNER_VERSION: "1.2.3"
   _APP_NAME: ${_APP_NAME}
   _SHORT_SHA: ${_SHORT_SHA}
   _DEPLOY_FULL_DEPLOYMENT_ENVS: "dev test uat sandbox prod"

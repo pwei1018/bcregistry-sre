@@ -107,11 +107,20 @@ build_and_push_image() {
             fi
         fi
         if (( built == 0 )); then
-            docker "${base_args[@]}" .
+            if ! docker "${base_args[@]}" .; then
+                echo "❌ Docker image build failed." >&2
+                return 1
+            fi
         fi
 
-        docker push "${image_path}:${short_sha}"
-        tag_image "${short_sha}" "latest" "${image_path}"
+        if ! docker push "${image_path}:${short_sha}"; then
+            echo "❌ Docker image push failed." >&2
+            return 1
+        fi
+        if ! tag_image "${short_sha}" "latest" "${image_path}"; then
+            echo "❌ Failed to tag image as latest." >&2
+            return 1
+        fi
     else
         echo "✅ Image ${image_path}:${short_sha} already exists. Skipping build."
     fi
@@ -283,10 +292,11 @@ generate_secrets_file() {
 generate_manifest() {
     local service_type="$1"
     local env_name="$2"
+    local app_name="$3"
     export APP_ENV="${env_name}"
 
-    if [[ -z "${service_type}" || -z "${env_name}" ]]; then
-        echo "❌ service_type or env_name is not set." >&2
+    if [[ -z "${service_type}" || -z "${env_name}" || -z "${app_name}" ]]; then
+        echo "❌ service_type, env_name, or app_name is not set." >&2
         return 1
     fi
 
@@ -300,7 +310,7 @@ generate_manifest() {
     # ROUTE_ALL_TO_VPC selects the Serverless VPC Access connector (all egress
     # routed to the VPC); otherwise the revision uses Direct VPC egress to
     # SUBNETWORK (+ optional NETWORK / NETWORK_TAGS), private ranges only.
-    export VPC_CONNECTOR SUBNETWORK NETWORK NETWORK_TAGS ROUTE_ALL_TO_VPC CLOUD_SQL_PROXY_SIDECAR VAL
+    export VPC_CONNECTOR SUBNETWORK NETWORK NETWORK_TAGS ROUTE_ALL_TO_VPC CLOUD_SQL_PROXY_SIDECAR VAL PUBLIC_ACCESS
     # Read KEY=value from the vault file, stripping surrounding whitespace and
     # quotes. Vault files often quote values (e.g. CLOUD_SQL_PROXY_SIDECAR="yes"),
     # and the raw quotes would otherwise break equality checks and annotations.
@@ -315,6 +325,7 @@ generate_manifest() {
     NETWORK=$(op read -n "op://CD/${env_name}/base/EGRESS_NETWORK" 2>/dev/null || true)
     SUBNETWORK=$(op read -n "op://CD/${env_name}/base/EGRESS_SUBNETWORK" 2>/dev/null || true)
     NETWORK_TAGS=$(op read -n "op://CD/${env_name}/base/EGRESS_NETWORK_TAGS" 2>/dev/null || true)
+    PUBLIC_ACCESS=$(op read -n "op://CD/${env_name}/${app_name}/PUBLIC_ACCESS" 2>/dev/null || true)
 
     VAL=$(awk '{f1=f2=$0; sub(/=.*/,"",f1); sub(/[^=]+=/,"",f2); printf "- name: %s\n  value: %s\n",f1,f2}' "./devops/vaults.${env_name}")
 
@@ -386,6 +397,14 @@ generate_manifest() {
     else
         echo "🧹 Removing Cloud SQL Auth Proxy sidecar (CLOUD_SQL_PROXY_SIDECAR not truthy)."
         yq e 'del(.spec.template.spec.template.spec.containers[] | select(.name == "cloud-sql-proxy"))' -i "${temp_file}"
+    fi
+
+    if [[ "${service_type}" == "service" ]]; then
+        if _is_truthy "${PUBLIC_ACCESS:-}"; then
+            yq e '.metadata.annotations."run.googleapis.com/invoker-iam-disabled" = "true"' -i "${temp_file}"
+        else
+            yq e 'del(.metadata.annotations."run.googleapis.com/invoker-iam-disabled")' -i "${temp_file}"
+        fi
     fi
 
     mv "${temp_file}" "${output_file}"

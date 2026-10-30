@@ -401,9 +401,9 @@ generate_manifest() {
 
     if [[ "${service_type}" == "service" ]]; then
         if _is_truthy "${PUBLIC_ACCESS:-}"; then
-            yq e '.metadata.annotations."run.googleapis.com/invoker-iam-disabled" = "true"' -i "${temp_file}"
+            yq e '.metadata.annotations += {"run.googleapis.com/invoker-iam-disabled": "true", "run.googleapis.com/ingress": "internal-and-cloud-load-balancing"}' -i "${temp_file}"
         else
-            yq e 'del(.metadata.annotations."run.googleapis.com/invoker-iam-disabled")' -i "${temp_file}"
+            yq e 'del(.metadata.annotations."run.googleapis.com/invoker-iam-disabled", .metadata.annotations."run.googleapis.com/ingress")' -i "${temp_file}"
         fi
     fi
 
